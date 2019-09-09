@@ -103,16 +103,14 @@ public class CencDrmContentProtection {
             configProvider.getS3OutputBucketName(),
             configProvider.getS3OutputAccessKey(),
             configProvider.getS3OutputSecretKey());
-    String outputPath = configProvider.getS3OutputBasePath() + "drm-example/";
 
-    H264VideoConfiguration h264VideoConfiguration = createH264VideoConfig();
-    AacAudioConfiguration aacAudioConfiguration = createAacAudioConfig();
+    H264VideoConfiguration h264Config = createH264VideoConfig();
+    AacAudioConfiguration aacConfig = createAacAudioConfig();
 
     Stream videoStream =
-        createStream(
-            encoding, input, configProvider.getHttpInputFilePath(), h264VideoConfiguration);
+        createStream(encoding, input, configProvider.getHttpInputFilePath(), h264Config);
     Stream audioStream =
-        createStream(encoding, input, configProvider.getHttpInputFilePath(), aacAudioConfiguration);
+        createStream(encoding, input, configProvider.getHttpInputFilePath(), aacConfig);
 
     Fmp4Muxing videoMuxing = createFmp4Muxing(encoding, videoStream);
     Fmp4Muxing audioMuxing = createFmp4Muxing(encoding, audioStream);
@@ -277,6 +275,7 @@ public class CencDrmContentProtection {
     CencFairPlay cencFairPlay = new CencFairPlay();
     cencFairPlay.setIv(configProvider.getDrmFairplayIv());
     cencFairPlay.setUri(configProvider.getDrmFairplayUri());
+    cencDrm.setFairPlay(cencFairPlay);
 
     return bitmovinApi.encoding.encodings.muxings.fmp4.drm.cenc.create(
         encoding.getId(), muxing.getId(), cencDrm);
