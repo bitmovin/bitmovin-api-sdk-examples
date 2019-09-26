@@ -1,0 +1,26 @@
+{
+  "name": "bitmovin-typescript-examples",
+  "version": "1.0.0",
+  "description": "Examples for @bitmovin/api-sdk",
+  "keywords": [
+    "bitmovin",
+    "bitmovin-javascript",
+    "bitmovin-typescript",
+    "bitmovin-api",
+    "@bitmovin/api-sdk",
+    "examples"
+  ],
+  "scripts": {
+    "format": "prettier --write \"./{common,examples}/**/*.{ts,tsx,scss}\"",
+    "format-check": "prettier --list-different \"./{common,examples}/**/*.{ts,tsx,scss}\""
+  },
+  "author": "Bitmovin Inc",
+  "license": "MIT",
+  "dependencies": {
+    "@bitmovin/api-sdk": "^1.24.0",
+    "@types/node": "^12.6.9",
+    "prettier": "^1.18.2",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.3"
+  }
+}

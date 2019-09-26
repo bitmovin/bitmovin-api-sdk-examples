@@ -44,9 +44,12 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
 + [Batch Encoding](#batch-encoding)  
    Efficiently start and track a large number of encodings
 
+> ***Note: The icons redirect you to the source code.***
+
 ---
 ### Fixed Bitrate Ladder Encoding
-Java: [FixedBitrateLadder.java](java/src/main/java/FixedBitrateLadder.java)
+
+<a href="java/src/main/java/FixedBitrateLadder.java">Java</a> - <a href="javascript/src/FixedBitrateLadder.ts">TS/JS</a>
 
 This example demonstrates how to create multiple MP4 renditions in a single encoding, using a fixed resolution- and bitrate ladder.
 
@@ -61,7 +64,8 @@ Required configuration parameters:
 
 ---
 ### Generating Default Manifests
-Java: [DefaultManifests.java](java/src/main/java/DefaultManifests.java)
+
+<a href="java/src/main/java/DefaultManifests.java">Java</a> - <a href="javascript/src/DefaultManifest.ts">TS/JS</a>
 
 This example demonstrates how to create basic DASH and HLS manifests based on a previously configured encoding. Default manifests will try include all the encoding's features that are supported by the respective manifest type.
 
@@ -76,7 +80,8 @@ Required configuration parameters:
 
 ---
 ### Per-Title Encoding
-Java: [PerTitleEncoding.java](java/src/main/java/PerTitleEncoding.java)
+
+<a href="java/src/main/java/PerTitleEncoding.java">Java</a> - <a href="javascript/src/PerTitleEncoding.ts">TS/JS</a>
 
 This example shows how to do a Per-Title encoding with default manifests. 
 A Per-Title encoding automatically detects the optimal codec settings for your video assets.
@@ -94,7 +99,8 @@ Required configuration parameters:
 
 ---
 ### Multi Codec Encoding
-Java: [MultiCodecEncoding.java](java/src/main/java/MultiCodecEncoding.java)
+
+<a href="java/src/main/java/MultiCodecEncoding.java">Java</a> - <a href="javascript/src/MultiCodecEncoding.ts">TS/JS</a>
 
 This example demonstrates how to use different codecs and muxing types in a single encoding.
 
@@ -109,7 +115,8 @@ Required configuration parameters:
 
 ---
 ### Multi-language Broadcast TS Encoding
-Java: [MultiLanguageBroadcastTs.java](java/src/main/java/MultiLanguageBroadcastTs.java)
+
+<a href="java/src/main/java/MultiLanguageBroadcastTs.java">Java</a> - <a href="javascript/src/MultiLanguageBroadcastTs.ts">TS/JS</a>
 
 This example demonstrates how multiple audio streams can be included in a BroadcastTS muxing. BroadcastTS muxings are [MPEG transport stream](https://en.wikipedia.org/wiki/MPEG_transport_stream) muxings which allow setting custom properties such as [PCR](https://en.wikipedia.org/wiki/MPEG_transport_stream#PCR) interval and [PID](https://en.wikipedia.org/wiki/MPEG_transport_stream#Packet_identifier_(PID))s for transmission to traditional broadcast targets like set top boxes, QAM streamers and similar devices. This muxing is not generally used for streaming to IP devices such as browsers, iOS, or Android devices.
 
@@ -124,7 +131,8 @@ Required configuration parameters:
 
 ---
 ### Applying Filters
-Java: [Filters.java](java/src/main/java/Filters.java)
+
+<a href="java/src/main/java/Filters.java">Java</a> - <a href="javascript/src/Filters.ts">TS/JS</a>
 
 This example demonstrates how to apply filters to a video stream. Filters will manipulate the content of a stream, e.g. remove noise or add a watermark image. See the [Encoding Filters API Reference](https://bitmovin.com/docs/encoding/api-reference/sections/filters) for a complete list of available filters.
  
@@ -141,7 +149,8 @@ This example demonstrates how to apply filters to a video stream. Filters will m
 
 ---
 ### Applying CENC DRM Content Protection
-Java: [CencDrmContentProtection.java](java/src/main/java/CencDrmContentProtection.java)
+
+<a href="java/src/main/java/CencDrmContentProtection.java">Java</a> - <a href="javascript/src/CencDrmContentProtection.ts">TS/JS</a>
 
 This example shows how DRM content protection can be applied to a fragmented MP4 muxing. DRM is used to prevent playback on unauthorized devices (piracy) and requires integration with a key server.  
 The encryption is configured to be compatible with both FairPlay and Widevine, using the [MPEG Common Encryption](https://en.wikipedia.org/wiki/MPEG_Common_Encryption) standard.
@@ -161,7 +170,8 @@ Required configuration parameters:
 
 ---
 ### Server-Side Ad Insertion (SSAI)
-Java: [ServerSideAdInsertion.java](java/src/main/java/ServerSideAdInsertion.java)
+
+<a href="java/src/main/java/ServerSideAdInsertion.java">Java</a> - <a href="javascript/src/ServerSideAdInsertion.ts">TS/JS</a>
 
 This example demonstrates how to create multiple fMP4 renditions with Server Side Ad Insertion (SSAI).
 
@@ -176,7 +186,8 @@ Required configuration parameters:
 
 ---
 ### RTMP Live Encoding
-Java: [RtmpLiveEncoding.java](java/src/main/java/RtmpLiveEncoding.java)
+
+<a href="java/src/main/java/RtmpLiveEncoding.java">Java</a> - <a href="javascript/src/RtmpLiveEncoding.ts">TS/JS</a>
 
 This example shows how to configure and start a live encoding using default DASH and HLS manifests. 
 For more information see: https://bitmovin.com/live-encoding-live-streaming
@@ -191,7 +202,7 @@ Required configuration parameters:
 ---
 ### Batch Encoding
 
-Java: [BatchEncoding.java](java/src/main/java/BatchEncoding.java)
+<a href="java/src/main/java/BatchEncoding.java">Java</a> - <a href="javascript/src/BatchEncoding.ts">TS/JS</a>
 
 This example demonstrates how to efficiently execute a large batch of encodings in parallel. In 
 order to keep the startup time for each encoding to a minimum, it is advisable to constantly have
@@ -213,7 +224,6 @@ These are the parameters that need to be supplied for the examples to work.
 They can be defined in a file, set as environment variables or passed directly to the `run-example` script.
 
 **Note!** See the `README.md` of the API SDK examples in your preferred programming language on how to configure parameters.
-
 
 <a name="BITMOVIN_API_KEY">**`BITMOVIN_API_KEY`**</a> - Your API key for the Bitmovin API
 
@@ -239,18 +249,18 @@ Example: `/outputs`
 Example: `http://my-storage.biz/logo.png`
 
 <a name="TEXT_FILTER_TEXT">**`TEXT_FILTER_TEXT`**</a> - The text to be displayed by the text filter
- 
+
 <a name="DRM_KEY">**`DRM_KEY`**</a> - 16 byte encryption key, represented as 32 hexadecimal characters  
 Example: `cab5b529ae28d5cc5e3e7bc3fd4a544d`
 
 <a name="DRM_FAIRPLAY_IV">**`DRM_FAIRPLAY_IV`**</a> - 16 byte initialization vector, represented as 32 hexadecimal characters  
 Example: `08eecef4b026deec395234d94218273d`
- 
+
 <a name="DRM_FAIRPLAY_URI">**`DRM_FAIRPLAY_URI`**</a> - URI of the licensing server  
 Example: `skd://userspecifc?custom=information`
 
 <a name="DRM_WIDEVINE_KID">**`DRM_WIDEVINE_KID`**</a> - 16 byte encryption key id, represented as 32 hexadecimal characters  
 Example: `08eecef4b026deec395234d94218273d`
- 
+
 <a name="DRM_WIDEVINE_PSSH">**`DRM_WIDEVINE_PSSH`**</a> - Base64 encoded PSSH payload  
 Example: `QWRvYmVhc2Rmc2FkZmFzZg==`

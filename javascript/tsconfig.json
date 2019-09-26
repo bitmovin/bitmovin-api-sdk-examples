@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "removeComments": false,
+    "noImplicitAny": false,
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "strictNullChecks": true,
+    "declaration": true,
+    "declarationDir": "./dist",
+    "outDir": "./dist",
+    "target": "es5",
+    "lib": [
+      "dom",
+      "es2015",
+      "es2016"
+    ]
+  },
+  "include": [
+    "common/**/*",
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
