@@ -214,7 +214,7 @@ function createHttpInput(host: string): Promise<HttpInput> {
 function createH264VideoConfig(): Promise<H264VideoConfiguration> {
   const config = new H264VideoConfiguration({
     name: 'H.264 1080p 1.5 Mbit/s',
-    presetConfiguration: PresetConfiguration.VOD_HIGH_QUALITY,
+    presetConfiguration: PresetConfiguration.VOD_STANDARD,
     height: 1080,
     bitrate: 1500000
   });

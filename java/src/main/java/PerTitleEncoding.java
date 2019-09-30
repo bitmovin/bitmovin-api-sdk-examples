@@ -259,7 +259,7 @@ public class PerTitleEncoding {
   private static H264VideoConfiguration createBaseH264VideoConfig() throws BitmovinException {
     H264VideoConfiguration config = new H264VideoConfiguration();
     config.setName("Base H.264 video config");
-    config.setPresetConfiguration(PresetConfiguration.VOD_HIGH_QUALITY);
+    config.setPresetConfiguration(PresetConfiguration.VOD_STANDARD);
 
     return bitmovinApi.encoding.configurations.video.h264.create(config);
   }

@@ -394,7 +394,7 @@ public class BatchEncoding {
       throws BitmovinException {
     H264VideoConfiguration config = new H264VideoConfiguration();
     config.setName(String.format("H.264 %dp", height));
-    config.setPresetConfiguration(PresetConfiguration.VOD_HIGH_QUALITY);
+    config.setPresetConfiguration(PresetConfiguration.VOD_STANDARD);
     config.setHeight(height);
     config.setBitrate(bitrate);
 

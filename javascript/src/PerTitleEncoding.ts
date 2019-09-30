@@ -205,7 +205,7 @@ function createS3Output(bucketName: string, accessKey: string, secretKey: string
 function createBaseH264VideoConfig(): Promise<H264VideoConfiguration> {
   const config = new H264VideoConfiguration({
     name: 'Base H.264 video config',
-    presetConfiguration: PresetConfiguration.VOD_HIGH_QUALITY
+    presetConfiguration: PresetConfiguration.VOD_STANDARD
   });
 
   return bitmovinApi.encoding.configurations.video.h264.create(config);
