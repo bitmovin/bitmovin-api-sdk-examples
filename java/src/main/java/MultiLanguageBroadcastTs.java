@@ -333,7 +333,7 @@ public class MultiLanguageBroadcastTs {
   private static H264VideoConfiguration createH264VideoConfig() throws BitmovinException {
     H264VideoConfiguration config = new H264VideoConfiguration();
     config.setName("H.264 1080p 1.5 Mbit/s");
-    config.setPresetConfiguration(PresetConfiguration.VOD_HIGH_QUALITY);
+    config.setPresetConfiguration(PresetConfiguration.VOD_STANDARD);
     config.setHeight(1080);
     config.setBitrate(1_500_000L);
 

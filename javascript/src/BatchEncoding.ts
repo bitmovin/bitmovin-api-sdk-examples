@@ -373,7 +373,7 @@ function createStream(
 function createH264VideoConfig(height: number, bitrate: number): Promise<H264VideoConfiguration> {
   const config = new H264VideoConfiguration({
     name: `H.264 ${height}`,
-    presetConfiguration: PresetConfiguration.VOD_HIGH_QUALITY,
+    presetConfiguration: PresetConfiguration.VOD_STANDARD,
     height: height,
     bitrate: bitrate
   });

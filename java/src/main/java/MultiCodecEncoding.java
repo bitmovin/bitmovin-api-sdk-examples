@@ -250,7 +250,7 @@ public class MultiCodecEncoding {
   private static H264VideoConfiguration createH264VideoConfig() throws BitmovinException {
     H264VideoConfiguration config = new H264VideoConfiguration();
     config.setName("H.264 1080p 1.5 Mbit/s");
-    config.setPresetConfiguration(PresetConfiguration.VOD_HIGH_QUALITY);
+    config.setPresetConfiguration(PresetConfiguration.VOD_STANDARD);
     config.setHeight(1080);
     config.setBitrate(1_500_000L);
 
@@ -267,7 +267,7 @@ public class MultiCodecEncoding {
   private static H265VideoConfiguration createH265VideoConfig() throws BitmovinException {
     H265VideoConfiguration config = new H265VideoConfiguration();
     config.setName("H.265 video config");
-    config.setPresetConfiguration(PresetConfiguration.VOD_HIGH_QUALITY);
+    config.setPresetConfiguration(PresetConfiguration.VOD_STANDARD);
     config.setHeight(1080);
     config.setBitrate(1_500_000L);
 
