@@ -313,7 +313,7 @@ function buildAbsolutePath(relativePath: string): string {
 function createH264VideoConfig(height: number, bitrate: number): Promise<H264VideoConfiguration> {
   const config = new H264VideoConfiguration({
     name: `H.264 ${height}p ${bitrate / (1000 * 1000)} Mbit/s`,
-    presetConfiguration: PresetConfiguration.LIVE_HIGH_QUALITY,
+    presetConfiguration: PresetConfiguration.LIVE_STANDARD,
     height,
     width: Math.ceil(aspectRatio * height),
     bitrate

@@ -118,6 +118,13 @@ export default class ConfigProvider {
     );
   }
 
+  public getParameterByKey(key: string): string {
+    return this.getOrThrowException(
+      key,
+      `Configuration Parameter '${key}'`
+    );
+  }
+
   private getOrThrowException(key: string, description: string): any {
     for (const configurationName of Object.keys(this.configuration)) {
       const subConfiguration = this.configuration[configurationName];

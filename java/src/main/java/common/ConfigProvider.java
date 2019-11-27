@@ -128,6 +128,12 @@ public class ConfigProvider {
         "DRM_WIDEVINE_PSSH", "Base64 encoded PSSH payload Example: QWRvYmVhc2Rmc2FkZmFzZg==");
   }
 
+  /* This generic method will enable addition and use of new config settings in a simple way */
+  public String getParameterByKey(String keyName) {
+    return getOrThrowException(
+        keyName, String.format("Configuration Parameter '%s'", keyName));
+  }
+
   private String getOrThrowException(String key, String description) {
     for (String configurationName : configuration.keySet()) {
       Map<String, String> subConfiguration = this.configuration.get(configurationName);
