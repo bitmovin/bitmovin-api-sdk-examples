@@ -474,7 +474,7 @@ public class RtmpLiveEncoding {
       throws BitmovinException {
     H264VideoConfiguration config = new H264VideoConfiguration();
     config.setName(String.format("H.264 %dp live", height));
-    config.setPresetConfiguration(PresetConfiguration.LIVE_HIGH_QUALITY);
+    config.setPresetConfiguration(PresetConfiguration.LIVE_STANDARD);
     config.setHeight(height);
     config.setWidth((int) Math.ceil(aspectRatio * height));
     config.setBitrate(bitrate);
