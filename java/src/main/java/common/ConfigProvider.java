@@ -67,6 +67,26 @@ public class ConfigProvider {
         "The path to your Http input file. Example: videos/1080p_Sintel.mp4");
   }
 
+  public String getS3InputBucketName() {
+    return getOrThrowException(
+            "S3_INPUT_BUCKET_NAME", "The name of your S3 input bucket. Example: my-bucket-name");
+  }
+
+  public String getS3InputFilePath() {
+    return getOrThrowException(
+            "S3_INPUT_FILE_PATH",
+            "The path to your S3 input file. Example: videos/1080p_Sintel.mp4");
+  }
+
+  public String getS3InputArnRole() {
+    return getOrThrowException("S3_INPUT_ARN_ROLE", "The ARN role of your S3 role based input bucket.");
+  }
+
+  public String getS3InputExternalId() {
+    return getOrThrowException("S3_INPUT_EXT_ID", "The external ID of your S3 role based input bucket.");
+  }
+
+
   public String getS3OutputBucketName() {
     return getOrThrowException(
         "S3_OUTPUT_BUCKET_NAME", "The name of your S3 output bucket. Example: my-bucket-name");
@@ -78,6 +98,14 @@ public class ConfigProvider {
 
   public String getS3OutputSecretKey() {
     return getOrThrowException("S3_OUTPUT_SECRET_KEY", "The secret key of your S3 output bucket.");
+  }
+
+  public String getS3OutputArnRole() {
+    return getOrThrowException("S3_OUTPUT_ARN_ROLE", "The ARN role of your S3 role based output bucket.");
+  }
+
+  public String getS3OutputExternalId() {
+    return getOrThrowException("S3_OUTPUT_EXT_ID", "The external ID of your S3 role based output bucket.");
   }
 
   public String getS3OutputBasePath() {
