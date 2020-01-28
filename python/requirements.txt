@@ -1,0 +1,1 @@
+-e git+https://github.com/bitmovin/bitmovin-api-sdk-python.git#egg=bitmovin-api-sdk
