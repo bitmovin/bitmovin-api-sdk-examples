@@ -1,11 +1,13 @@
 <p align="center">
   <a href="https://www.bitmovin.com">
-      <img alt="Bitmovin Python API SDK Examples Header" src="https://cdn.bitmovin.com/frontend/encoding/openapi-clients/readme-headers/ReadmeHeader_PythonExamples.png" >
-    </a>
-  <h4 align="center">This folder contains examples demonstrating usage of the <a href="https://github.com/bitmovin/bitmovin-api-sdk-python" target="_blank">Bitmovin Python API SDK</a></h4>
+    <img alt="Bitmovin Dotnet API SDK Examples Header" src="https://cdn.bitmovin.com/frontend/encoding/openapi-clients/readme-headers/ReadmeHeader_CSharpExamples.png" >
+  </a>
+
+  <h4 align="center">This folder contains examples demonstrating usage of the <a href="https://github.com/bitmovin/bitmovin-api-sdk-dotnet" target="_blank">Bitmovin C# API SDK</a></h4>
 
   <p align="center">
-    <a href="../LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="license"></img></a>
+    <a href="https://badge.fury.io/nu/Bitmovin.Api.Sdk"><img src="https://badge.fury.io/nu/Bitmovin.Api.Sdk.svg" alt="NuGet version" height="18"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></img></a>
   </p>
 </p>
 
@@ -24,12 +26,11 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
 Configuration parameters will be retrieved from these sources in the listed order:
 
 1. Command line arguments passed when running the example (E.g.: `BITMOVIN_API_KEY=xyz`)
-2. A properties file located in the root folder of the Python examples at `./examples.properties` (see `examples.properties.template` as reference)
+2. A properties file located in the root folder of the C# examples at `./examples.properties` (see `examples.properties.template` as reference)
 3. Environment variables
 4. A properties file located in the home folder at `~/.bitmovin/examples.properties` (see `examples.properties.template` as reference)
 
 Here is an example of an `examples.properties` file:
-
 ```bash
 BITMOVIN_API_KEY=my-secret-d9fa-4f3b-b7a4-92c67a6d5056
 HTTP_INPUT_HOST=my-storage.biz
@@ -43,17 +44,14 @@ S3_OUTPUT_BASE_PATH=/output/finest/encodings
 ### How can I run an example?
 
 #### Linux
-
-Execute run_example.sh with the name of the desired [example](src) as first parameter, followed by a list of configuration parameters if needed.
-
+Execute run_example.sh with the name of the desired [example](Bitmovin.Api.Sdk.Examples) as first parameter, followed by a list of configuration parameters if needed.
 ```bash
-run-example.sh multi_codec_encoding BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
+run-example.sh PerTitleEncoding BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
 ```
 
 #### Windows
 
-Execute run_example.bat with the name of the desired [example](src) as first parameter, followed by a list of configuration parameters if needed.
-
+Execute run_example.bat with the name of the desired [example](Bitmovin.Api.Sdk.Examples) as first parameter, followed by a list of configuration parameters if needed.
 ```bash
-run-example.bat multi_codec_encoding BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
+run-example.bat PerTitleEncoding BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
 ```
