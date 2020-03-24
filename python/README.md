@@ -44,7 +44,7 @@ S3_OUTPUT_BASE_PATH=/output/finest/encodings
 
 #### Linux
 
-Execute run_example.sh with the name of the desired [example](examples) as first parameter, followed by a list of configuration parameters if needed.
+Execute run_example.sh with the name of the desired [example](src) as first parameter, followed by a list of configuration parameters if needed.
 
 ```bash
 run-example.sh multi_codec_encoding BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
@@ -52,7 +52,7 @@ run-example.sh multi_codec_encoding BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOS
 
 #### Windows
 
-Execute run_example.bat with the name of the desired [example](examples) as first parameter, followed by a list of configuration parameters if needed.
+Execute run_example.bat with the name of the desired [example](src) as first parameter, followed by a list of configuration parameters if needed.
 
 ```bash
 run-example.bat multi_codec_encoding BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz

@@ -52,7 +52,7 @@ run-example.sh PerTitleEncoding BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my
 
 #### Windows
 
-Execute run_example.bat with the name of the desired example as first parameter, followed by a list of configuration parameters if needed.
+Execute run_example.bat with the name of the desired [example](src/main/java) as first parameter, followed by a list of configuration parameters if needed.
 ```bash
 run-example.bat PerTitleEncoding BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
 ```
