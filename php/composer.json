@@ -1,0 +1,13 @@
+{
+    "name": "bitmovin/examples",
+    "authors": [
+        {
+            "name": "Bitmovin Inc",
+            "email": "support@bitmovin.com"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+        "bitmovin/bitmovin-api-sdk-php": "1.39.0"
+    }
+}
