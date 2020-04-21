@@ -47,7 +47,11 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
 ---
 ### Fixed Bitrate Ladder Encoding
 
-<a href="dotnet/Bitmovin.Api.Sdk.Examples/FixedBitrateLadder.cs">C#</a> - <a href="java/src/main/java/FixedBitrateLadder.java">Java</a> - <a href="javascript/src/FixedBitrateLadder.ts">TS/JS</a> - <a href="python/src/fixed_bitrate_ladder.py">Python</a>
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/FixedBitrateLadder.cs">C#</a> -
+<a href="java/src/main/java/FixedBitrateLadder.java">Java</a> -
+<a href="javascript/src/FixedBitrateLadder.ts">TS/JS</a> -
+<a href="php/src/FixedBitrateLadder.php">PHP</a> -
+<a href="python/src/fixed_bitrate_ladder.py">Python</a>
 
 This example demonstrates how to create multiple MP4 renditions in a single encoding, using a fixed resolution- and bitrate ladder.
 
@@ -66,7 +70,8 @@ Required configuration parameters:
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/DefaultManifest.cs">C#</a> -
 <a href="java/src/main/java/DefaultManifests.java">Java</a> -
 <a href="javascript/src/DefaultManifest.ts">TS/JS</a> -
-<a href="python/src/default_manifest.py">Python</a> 
+<a href="php/src/DefaultManifest.php">PHP</a> -
+<a href="python/src/default_manifest.py">Python</a>   
 
 This example demonstrates how to create basic DASH and HLS manifests based on a previously configured encoding. Default manifests will try include all the encoding's features that are supported by the respective manifest type.
 
@@ -85,6 +90,7 @@ Required configuration parameters:
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/PerTitleEncoding.cs">C#</a> -
 <a href="java/src/main/java/PerTitleEncoding.java">Java</a> -
 <a href="javascript/src/PerTitleEncoding.ts">TS/JS</a> -
+<a href="php/src/PerTitleEncoding.php">PHP</a> -
 <a href="python/src/per_title_encoding.py">Python</a>
 
 This example shows how to do a Per-Title encoding with default manifests. 
@@ -107,6 +113,7 @@ Required configuration parameters:
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/MultiCodecEncoding.cs">C#</a> -
 <a href="java/src/main/java/MultiCodecEncoding.java">Java</a> -
 <a href="javascript/src/MultiCodecEncoding.ts">TS/JS</a> -
+<a href="php/src/MultiCodecEncoding.php">PHP</a> -
 <a href="python/src/multi_codec_encoding.py">Python</a>
 
 This example demonstrates how to use different codecs and muxing types in a single encoding.
@@ -126,6 +133,7 @@ Required configuration parameters:
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/MultiLanguageBroadcastTs.cs">C#</a> -
 <a href="java/src/main/java/MultiLanguageBroadcastTs.java">Java</a> -
 <a href="javascript/src/MultiLanguageBroadcastTs.ts">TS/JS</a> -
+ <a href="php/src/MultiLanguageBroadcastTs.php">PHP</a> -
 <a href="python/src/multi_language_broadcast_ts.py">Python</a>
 
 This example demonstrates how multiple audio streams can be included in a BroadcastTS muxing. BroadcastTS muxings are [MPEG transport stream](https://en.wikipedia.org/wiki/MPEG_transport_stream) muxings which allow setting custom properties such as [PCR](https://en.wikipedia.org/wiki/MPEG_transport_stream#PCR) interval and [PID](https://en.wikipedia.org/wiki/MPEG_transport_stream#Packet_identifier_(PID))s for transmission to traditional broadcast targets like set top boxes, QAM streamers and similar devices. This muxing is not generally used for streaming to IP devices such as browsers, iOS, or Android devices.
@@ -145,6 +153,7 @@ Required configuration parameters:
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/Filters.cs">C#</a> -
 <a href="java/src/main/java/Filters.java">Java</a> -
 <a href="javascript/src/Filters.ts">TS/JS</a> -
+<a href="php/src/Filters.php">PHP</a> -
 <a href="python/src/filters.py">Python</a>
 
 This example demonstrates how to apply filters to a video stream. Filters will manipulate the content of a stream, e.g. remove noise or add a watermark image. See the [Encoding Filters API Reference](https://bitmovin.com/docs/encoding/api-reference/sections/filters) for a complete list of available filters.
@@ -166,6 +175,7 @@ This example demonstrates how to apply filters to a video stream. Filters will m
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/CencDrmContentProtection.cs">C#</a> -
 <a href="java/src/main/java/CencDrmContentProtection.java">Java</a> -
 <a href="javascript/src/CencDrmContentProtection.ts">TS/JS</a> -
+<a href="php/src/CencDrmContentProtection.php">PHP</a> -
 <a href="python/src/cenc_drm_content_protection.py">Python</a>
 
 This example shows how DRM content protection can be applied to a fragmented MP4 muxing. DRM is used to prevent playback on unauthorized devices (piracy) and requires integration with a key server.  
@@ -190,6 +200,7 @@ Required configuration parameters:
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/ServerSideAdInsertion.cs">C#</a> -
 <a href="java/src/main/java/ServerSideAdInsertion.java">Java</a> -
 <a href="javascript/src/ServerSideAdInsertion.ts">TS/JS</a> -
+<a href="php/src/ServerSideAdInsertion.php">PHP</a> -
 <a href="python/src/server_side_ad_insertion.py">Python</a>
 
 This example demonstrates how to create multiple fMP4 renditions with Server Side Ad Insertion (SSAI).
@@ -209,6 +220,7 @@ Required configuration parameters:
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/RtmpLiveEncoding.cs">C#</a> -
 <a href="java/src/main/java/RtmpLiveEncoding.java">Java</a> -
 <a href="javascript/src/RtmpLiveEncoding.ts">TS/JS</a> -
+<a href="php/src/RtmpLiveEncoding.php">PHP</a> -
 <a href="python/src/rtmp_live_encoding.py">Python</a>
 
 This example shows how to configure and start a live encoding using default DASH and HLS manifests. 
@@ -227,6 +239,7 @@ Required configuration parameters:
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/BatchEncoding.cs">C#</a> -
 <a href="java/src/main/java/BatchEncoding.java">Java</a> -
 <a href="javascript/src/BatchEncoding.ts">TS/JS</a> -
+<a href="php/src/BatchEncoding.php">PHP</a> -
 <a href="python/src/batch_encoding.py">Python</a>
 
 This example demonstrates how to efficiently execute a large batch of encodings in parallel. In 
