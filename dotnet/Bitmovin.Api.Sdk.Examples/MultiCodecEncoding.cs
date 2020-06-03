@@ -80,7 +80,7 @@ namespace Bitmovin.Api.Sdk.Examples
                 .WithLogger(new ConsoleLogger())
                 .Build();
 
-            var encoding = await CreateEncoding("Multi codec encoding", "Encoding with H.264, H.265 and VP9");
+            var encoding = await CreateEncoding("Multi codec encoding", "Encoding with different codecs and muxing types");
 
             var input = await CreateHttpInput(_configProvider.GetHttpInputHost());
             var output = await CreateS3Output(_configProvider.GetS3OutputBucketName(),
