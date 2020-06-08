@@ -78,7 +78,7 @@ public class MultiCodecEncoding {
             .build();
 
     Encoding encoding =
-        createEncoding("Multi codec encoding", "Encoding with H.264, H.265 and VP9");
+        createEncoding("Multi codec encoding", "Encoding with different codecs and muxing types");
 
     HttpInput input = createHttpInput(configProvider.getHttpInputHost());
     Output output =

@@ -44,7 +44,7 @@ bitmovin_api = BitmovinApi(api_key=config_provider.get_bitmovin_api_key(), logge
 
 
 def main():
-    encoding = _create_encoding(name=EXAMPLE_NAME, description="Encoding with different codecs and muxing type")
+    encoding = _create_encoding(name=EXAMPLE_NAME, description="Encoding with different codecs and muxing types")
 
     http_input = _create_http_input(host=config_provider.get_http_input_host())
     input_file_path = config_provider.get_http_input_file_path()
