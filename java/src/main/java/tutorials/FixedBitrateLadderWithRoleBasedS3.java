@@ -26,33 +26,34 @@ import com.bitmovin.api.sdk.model.Task;
 import common.ConfigProvider;
 import feign.Logger.Level;
 import feign.slf4j.Slf4jLogger;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * This example demonstrates how to create multiple MP4 renditions in a single encoding, using a
- * fixed resolution- and bitrate ladder.
- * This differs from the plain FixedBitrateLadder example only in the fact
- * that it uses S3 inputs and outputs with AWS IAM role based access.
- * Role based access spares the user from providing their S3 Access and Secret Keys to Bitmovin.
+ * fixed resolution- and bitrate ladder. This differs from the plain FixedBitrateLadder example only
+ * in the fact that it uses S3 inputs and outputs with AWS IAM role based access. Role based access
+ * spares the user from providing their S3 Access and Secret Keys to Bitmovin.
  *
  * <p>The following configuration parameters are expected:
  *
  * <ul>
  *   <li>BITMOVIN_API_KEY - Your API key for the Bitmovin API
  *   <li>S3_INPUT_BUCKET_NAME - The name of your S3 input bucket. Example: my-input-bucket-name
- *   <li>S3_INPUT_ARN_ROLE - The ARN name of the role you granted Bitmovin access to on your S3 input bucket
- *   <li>S3_INPUT_EXT_ID - The External ID of the role you granted Bitmovin access to on your S3 input bucket
- *   <li>S3_INPUT_FILE_PATH - The path to your source file on your S3 input bucket
- *       Example: /videos/Sintel1080.mkv
+ *   <li>S3_INPUT_ARN_ROLE - The ARN name of the role you granted Bitmovin access to on your S3
+ *       input bucket
+ *   <li>S3_INPUT_EXT_ID - The External ID of the role you granted Bitmovin access to on your S3
+ *       input bucket
+ *   <li>S3_INPUT_FILE_PATH - The path to your source file on your S3 input bucket Example:
+ *       /videos/Sintel1080.mkv
  *   <li>S3_OUTPUT_BUCKET_NAME - The name of your S3 output bucket. Example: my-output-bucket-name
- *   <li>S3_OUTPUT_ARN_ROLE - The ARN name of the role you granted Bitmovin access to on your S3 output bucket
- *   <li>S3_OUTPUT_EXT_ID - The External ID of the role you granted Bitmovin access to on your S3 output bucket
+ *   <li>S3_OUTPUT_ARN_ROLE - The ARN name of the role you granted Bitmovin access to on your S3
+ *       output bucket
+ *   <li>S3_OUTPUT_EXT_ID - The External ID of the role you granted Bitmovin access to on your S3
+ *       output bucket
  *   <li>S3_OUTPUT_BASE_PATH - The base path on your S3 output bucket where content will be written.
  *       Example: /outputs
  * </ul>
@@ -69,7 +70,8 @@ import java.util.List;
  * </ol>
  */
 public class FixedBitrateLadderWithRoleBasedS3 {
-  private static final Logger logger = LoggerFactory.getLogger(FixedBitrateLadderWithRoleBasedS3.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(FixedBitrateLadderWithRoleBasedS3.class);
 
   private static BitmovinApi bitmovinApi;
   private static ConfigProvider configProvider;
@@ -84,20 +86,21 @@ public class FixedBitrateLadderWithRoleBasedS3 {
             .build();
 
     Encoding encoding =
-        createEncoding("Multiple MP4 muxings from S3 role based input to S3 role based output", "Encoding with multiple MP4 muxings");
+        createEncoding(
+            "Multiple MP4 muxings from S3 role based input to S3 role based output",
+            "Encoding with multiple MP4 muxings");
 
     S3RoleBasedInput input =
-         createS3RoleBasedInput(
+        createS3RoleBasedInput(
             configProvider.getS3InputBucketName(),
             configProvider.getS3InputArnRole(),
             configProvider.getS3InputExternalId());
 
     Output output =
-         createS3RoleBasedOutput(
+        createS3RoleBasedOutput(
             configProvider.getS3OutputBucketName(),
             configProvider.getS3OutputArnRole(),
             configProvider.getS3OutputExternalId());
-
 
     String inputFilePath = configProvider.getS3InputFilePath();
 
@@ -205,15 +208,13 @@ public class FixedBitrateLadderWithRoleBasedS3 {
     return bitmovinApi.encoding.encodings.create(encoding);
   }
 
-
   /**
    * Creates a resource representing an AWS S3 cloud storage bucket from which source content will
    * be transferred. For alternative input methods see <a
    * href="https://bitmovin.com/docs/encoding/articles/supported-input-output-storages">list of
    * supported input and output storages</a>
    *
-   * <p>The provided credentials need to allow <i>read</i> and <i>list</i> operations.
-   * See <a
+   * <p>The provided credentials need to allow <i>read</i> and <i>list</i> operations. See <a
    * href="https://bitmovin.com/docs/encoding/faqs/how-do-i-create-a-aws-s3-bucket-which-can-be-used-as-output-location">creating
    * an S3 bucket and setting permissions</a> for further information
    *
@@ -226,11 +227,12 @@ public class FixedBitrateLadderWithRoleBasedS3 {
    * https://bitmovin.com/docs/encoding/api-reference/sections/outputs#/Encoding/PostEncodingInputsS3RoleBased
    *
    * @param bucketName The name of your S3 bucket
-   * @param arnRole The ARN name of the role in your S3 account that allows Bitmovin to access your S3 bucket
+   * @param arnRole The ARN name of the role in your S3 account that allows Bitmovin to access your
+   *     S3 bucket
    * @param roleExtId The external ID you assigned to above role
    */
-  private static S3RoleBasedInput createS3RoleBasedInput(String bucketName, String arnRole, String roleExtId)
-          throws BitmovinException {
+  private static S3RoleBasedInput createS3RoleBasedInput(
+      String bucketName, String arnRole, String roleExtId) throws BitmovinException {
 
     S3RoleBasedInput s3RoleBasedInput = new S3RoleBasedInput();
     s3RoleBasedInput.setBucketName(bucketName);
@@ -260,12 +262,12 @@ public class FixedBitrateLadderWithRoleBasedS3 {
    * https://bitmovin.com/docs/encoding/api-reference/sections/outputs#/Encoding/PostEncodingOutputsS3RoleBased
    *
    * @param bucketName The name of your S3 bucket
-   * @param arnRole The ARN name of the role in your S3 account that allows Bitmovin to access your S3 bucket
+   * @param arnRole The ARN name of the role in your S3 account that allows Bitmovin to access your
+   *     S3 bucket
    * @param roleExtId The external ID you assigned to above role
    */
-
-  private static S3RoleBasedOutput createS3RoleBasedOutput(String bucketName, String arnRole, String roleExtId)
-          throws BitmovinException {
+  private static S3RoleBasedOutput createS3RoleBasedOutput(
+      String bucketName, String arnRole, String roleExtId) throws BitmovinException {
 
     S3RoleBasedOutput s3RoleBasedOutput = new S3RoleBasedOutput();
     s3RoleBasedOutput.setBucketName(bucketName);

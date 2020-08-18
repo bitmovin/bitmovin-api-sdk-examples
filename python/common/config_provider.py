@@ -10,46 +10,36 @@ from common.bitmovin_argument import BitmovinArgument
 class ConfigProvider(object):
     _properties = {
         "BITMOVIN_API_KEY":
-            BitmovinArgument("bitmovin-api-key", "Your API key for the Bitmovin API.", True),
+            BitmovinArgument("Your API key for the Bitmovin API.", True),
         "HTTP_INPUT_HOST":
-            BitmovinArgument("http-input-host",
-                             "Hostname or IP address of the HTTP server hosting your input files, e.g.: my-storage.biz"),
+            BitmovinArgument("Hostname or IP address of the HTTP server hosting your input files, e.g.: my-storage.biz"),
         "HTTP_INPUT_FILE_PATH":
-            BitmovinArgument("http-input-file-path",
-                             "The path to your Http input file. Example: videos/1080p_Sintel.mp4"),
+            BitmovinArgument("The path to your Http input file. Example: videos/1080p_Sintel.mp4"),
         "S3_OUTPUT_BUCKET_NAME":
-            BitmovinArgument("s3-output-bucket-name",
-                             "The name of your S3 output bucket. Example: my-bucket-name"),
+            BitmovinArgument("The name of your S3 output bucket. Example: my-bucket-name"),
         "S3_OUTPUT_ACCESS_KEY":
-            BitmovinArgument("s3-output-access-key", "The access key of your S3 output bucket."),
+            BitmovinArgument("The access key of your S3 output bucket."),
         "S3_OUTPUT_SECRET_KEY":
-            BitmovinArgument("s3-output-secret-key", "The secret key of your S3 output bucket."),
+            BitmovinArgument("The secret key of your S3 output bucket."),
         "S3_OUTPUT_BASE_PATH":
-            BitmovinArgument("s3-output-base-path",
-                             "The base path on your S3 output bucket. Example: /outputs"),
+            BitmovinArgument("The base path on your S3 output bucket. Example: /outputs"),
         "WATERMARK_IMAGE_PATH":
-            BitmovinArgument("watermark-image-path",
-                             "The path to the watermark image. Example: http://my-storage.biz/logo.png"),
+            BitmovinArgument("The path to the watermark image. Example: http://my-storage.biz/logo.png"),
         "TEXT_FILTER_TEXT":
-            BitmovinArgument("text-filter-text", "The text to be displayed by the text filter."),
+            BitmovinArgument("The text to be displayed by the text filter."),
         "DRM_KEY":
-            BitmovinArgument("drm-key",
-                             "16 byte encryption key, represented as 32 hexadecimal characters Example: "
+            BitmovinArgument("16 byte encryption key, represented as 32 hexadecimal characters Example: "
                              "cab5b529ae28d5cc5e3e7bc3fd4a544d"),
         "DRM_FAIRPLAY_IV":
-            BitmovinArgument("drm-fairplay-ic",
-                             "16 byte initialization vector, represented as 32 hexadecimal characters Example: "
+            BitmovinArgument("16 byte initialization vector, represented as 32 hexadecimal characters Example: "
                              "08eecef4b026deec395234d94218273d"),
         "DRM_FAIRPLAY_URI":
-            BitmovinArgument("drm-fairplay-uri",
-                             "URI of the licensing server Example: skd://userspecifc?custom=information"),
+            BitmovinArgument("URI of the licensing server Example: skd://userspecifc?custom=information"),
         "DRM_WIDEVINE_KID":
-            BitmovinArgument("drm-widevine-kid",
-                             "16 byte encryption key id, represented as 32 hexadecimal characters Example: "
+            BitmovinArgument("16 byte encryption key id, represented as 32 hexadecimal characters Example: "
                              "08eecef4b026deec395234d94218273d"),
         "DRM_WIDEVINE_PSSH":
-            BitmovinArgument("drm-widevine-pssh",
-                             "Base64 encoded PSSH payload Example: QWRvYmVhc2Rmc2FkZmFzZg==")
+            BitmovinArgument("Base64 encoded PSSH payload Example: QWRvYmVhc2Rmc2FkZmFzZg==")
     }
 
     def __init__(self):
@@ -123,7 +113,7 @@ class ConfigProvider(object):
 
         for name in self._properties:
             parser.add_option(
-                "--{}".format(self._properties[name].argument_name),
+                "--{}".format(name),
                 dest=name,
                 help=self._properties[name].description
             )

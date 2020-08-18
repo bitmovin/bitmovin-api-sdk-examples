@@ -69,23 +69,23 @@ public class ConfigProvider {
 
   public String getS3InputBucketName() {
     return getOrThrowException(
-            "S3_INPUT_BUCKET_NAME", "The name of your S3 input bucket. Example: my-bucket-name");
+        "S3_INPUT_BUCKET_NAME", "The name of your S3 input bucket. Example: my-bucket-name");
   }
 
   public String getS3InputFilePath() {
     return getOrThrowException(
-            "S3_INPUT_FILE_PATH",
-            "The path to your S3 input file. Example: videos/1080p_Sintel.mp4");
+        "S3_INPUT_FILE_PATH", "The path to your S3 input file. Example: videos/1080p_Sintel.mp4");
   }
 
   public String getS3InputArnRole() {
-    return getOrThrowException("S3_INPUT_ARN_ROLE", "The ARN role of your S3 role based input bucket.");
+    return getOrThrowException(
+        "S3_INPUT_ARN_ROLE", "The ARN role of your S3 role based input bucket.");
   }
 
   public String getS3InputExternalId() {
-    return getOrThrowException("S3_INPUT_EXT_ID", "The external ID of your S3 role based input bucket.");
+    return getOrThrowException(
+        "S3_INPUT_EXT_ID", "The external ID of your S3 role based input bucket.");
   }
-
 
   public String getS3OutputBucketName() {
     return getOrThrowException(
@@ -101,11 +101,13 @@ public class ConfigProvider {
   }
 
   public String getS3OutputArnRole() {
-    return getOrThrowException("S3_OUTPUT_ARN_ROLE", "The ARN role of your S3 role based output bucket.");
+    return getOrThrowException(
+        "S3_OUTPUT_ARN_ROLE", "The ARN role of your S3 role based output bucket.");
   }
 
   public String getS3OutputExternalId() {
-    return getOrThrowException("S3_OUTPUT_EXT_ID", "The external ID of your S3 role based output bucket.");
+    return getOrThrowException(
+        "S3_OUTPUT_EXT_ID", "The external ID of your S3 role based output bucket.");
   }
 
   public String getS3OutputBasePath() {
@@ -158,8 +160,7 @@ public class ConfigProvider {
 
   /* This generic method will enable addition and use of new config settings in a simple way */
   public String getParameterByKey(String keyName) {
-    return getOrThrowException(
-        keyName, String.format("Configuration Parameter '%s'", keyName));
+    return getOrThrowException(keyName, String.format("Configuration Parameter '%s'", keyName));
   }
 
   private String getOrThrowException(String key, String description) {
