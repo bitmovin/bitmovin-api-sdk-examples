@@ -43,9 +43,6 @@ import com.bitmovin.api.sdk.model.WebmMuxing;
 import common.ConfigProvider;
 import feign.Logger.Level;
 import feign.slf4j.Slf4jLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -56,6 +53,8 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This example showcases how to run a multi-codec workflow with the Bitmovin API following the best
@@ -89,8 +88,8 @@ import java.util.concurrent.Executors;
  *       examples.properties.template as reference)
  * </ol>
  */
-public class MultiCodecEncodings {
-  private static final Logger logger = LoggerFactory.getLogger(MultiCodecEncodings.class);
+public class MultiCodecEncoding {
+  private static final Logger logger = LoggerFactory.getLogger(MultiCodecEncoding.class);
   private static final String DATE_STRING =
       new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date());
 
@@ -923,7 +922,7 @@ public class MultiCodecEncodings {
    * @return The absolute path
    */
   public static String buildAbsolutePath(String relativePath) {
-    String className = MultiCodecEncodings.class.getSimpleName();
+    String className = MultiCodecEncoding.class.getSimpleName();
     return Paths.get(
             configProvider.getS3OutputBasePath(),
             String.format("%s-%s", className, DATE_STRING),

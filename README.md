@@ -30,7 +30,7 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
 + [Per-Title Encoding](#per-title-encoding)  
    Generate optimized renditions by letting the Per-Title algorithm choose resolutions and bitrates based on the complexity of your content
 + [Multi Codec Encoding](#multi-codec-encoding)  
-   Combine different codecs and muxings in a single encoding
+   Run a multi-codec workflow following the best practices.
 + [Multi-language Broadcast TS Encoding](#multi-language-broadcast-ts-encoding)  
    Add multiple audio streams to a Broadcast TS muxing
 + [Applying Filters](#applying-filters)  
@@ -116,7 +116,7 @@ Required configuration parameters:
 <a href="php/src/MultiCodecEncoding.php">PHP</a> -
 <a href="python/src/multi_codec_encoding.py">Python</a>
 
-This example demonstrates how to use different codecs and muxing types in a single encoding.
+This example showcases how to run a multi-codec workflow following the best practices.
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
