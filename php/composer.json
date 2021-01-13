@@ -1,5 +1,6 @@
 {
     "name": "bitmovin/examples",
+    "description": "Examples demonstrating the usage of the Bitmovin API SDK.",
     "authors": [
         {
             "name": "Bitmovin Inc",
@@ -8,6 +9,6 @@
     ],
     "require": {
         "php": "^7.1",
-        "bitmovin/bitmovin-api-sdk-php": "1.46.0"
+        "bitmovin/bitmovin-api-sdk-php": "1.56.0"
     }
 }

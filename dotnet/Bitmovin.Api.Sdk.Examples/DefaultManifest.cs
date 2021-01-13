@@ -440,7 +440,7 @@ namespace Bitmovin.Api.Sdk.Examples
         {
             var aclEntry = new AclEntry()
             {
-                Permission = AclPermission.PUBLICREAD
+                Permission = AclPermission.PUBLIC_READ
             };
 
             var encodingOutput = new EncodingOutput()

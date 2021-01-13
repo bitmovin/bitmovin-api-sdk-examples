@@ -119,10 +119,7 @@ export default class ConfigProvider {
   }
 
   public getParameterByKey(key: string): string {
-    return this.getOrThrowException(
-      key,
-      `Configuration Parameter '${key}'`
-    );
+    return this.getOrThrowException(key, `Configuration Parameter '${key}'`);
   }
 
   private getOrThrowException(key: string, description: string): any {
@@ -179,8 +176,8 @@ export default class ConfigProvider {
 
   private static parseKeyValueList(keyValues: string[]): {[key: string]: string} {
     return keyValues
-      .map(x => x.trim().split('='))
-      .map(parts => ({key: parts[0], value: parts.slice(1).join('=')}))
+      .map((x) => x.trim().split('='))
+      .map((parts) => ({key: parts[0], value: parts.slice(1).join('=')}))
       .filter(({value}) => value)
       .reduce((result, {key, value}) => Object.assign(result, {[key]: value}), {});
   }
