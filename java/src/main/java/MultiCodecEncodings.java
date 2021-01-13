@@ -1,5 +1,7 @@
 import com.bitmovin.api.sdk.BitmovinApi;
 import com.bitmovin.api.sdk.model.AacAudioConfiguration;
+import com.bitmovin.api.sdk.model.Ac3AudioConfiguration;
+import com.bitmovin.api.sdk.model.Ac3ChannelLayout;
 import com.bitmovin.api.sdk.model.AclEntry;
 import com.bitmovin.api.sdk.model.AclPermission;
 import com.bitmovin.api.sdk.model.AudioAdaptationSet;
@@ -41,16 +43,19 @@ import com.bitmovin.api.sdk.model.WebmMuxing;
 import common.ConfigProvider;
 import feign.Logger.Level;
 import feign.slf4j.Slf4jLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This example showcases how to run a multi-codec workflow with the Bitmovin API following the best
@@ -89,58 +94,106 @@ public class MultiCodecEncodings {
   private static final String DATE_STRING =
       new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date());
 
-  private static final String HLS_AUDIO_GROUP_FMP4 = "audio-fmp4";
-  private static final String HLS_AUDIO_GROUP_TS = "audio-ts";
+  private static final String HLS_AUDIO_GROUP_AAC_FMP4 = "audio-aac-fmp4";
+  private static final String HLS_AUDIO_GROUP_AAC_TS = "audio-aac-ts";
+  private static final String HLS_AUDIO_GROUP_AC3_FMP4 = "audio-ac3-fmp4";
 
   private static BitmovinApi bitmovinApi;
   private static ConfigProvider configProvider;
 
   // Helper classes for manifest generation
-  private static class H264AndAACEncodingTracking {
-    final Encoding encoding;
+  private static class Rendition {
+    public int height;
+    public Long bitrate;
 
-    Stream h264VideoStream;
-    Stream aacAudioStream;
-    TsMuxing h264TsMuxing;
-    Fmp4Muxing aacFmp4Muxing;
-    TsMuxing aacTsMuxing;
-    CmafMuxing h264CmafMuxing;
-
-    static final String H264_TS_SEGMENTS_PATH = "video/h264/ts";
-    static final String H264_CMAF_SEGMENTS_PATH = "video/h264/cmaf";
-    static final String AAC_FMP4_SEGMENTS_PATH = "audio/aac/fmp4";
-    static final String AAC_TS_SEGMENTS_PATH = "audio/aac/ts";
-
-    public H264AndAACEncodingTracking(Encoding encoding) {
-      this.encoding = encoding;
+    public Rendition(int height, Long bitrate) {
+      this.height = height;
+      this.bitrate = bitrate;
     }
   }
 
-  private static class H265EncodingTracking {
+  private static class H264AndAacEncodingTracking {
     final Encoding encoding;
 
-    Stream h265VideoStream;
+    List<Rendition> renditions;
+    Map<Rendition, Stream> h264VideoStreams;
+    Map<Rendition, CmafMuxing> h264CmafMuxings;
+    Map<Rendition, TsMuxing> h264TsMuxings;
 
-    Fmp4Muxing h265Fmp4Muxing;
+    Stream aacAudioStream;
+    Fmp4Muxing aacFmp4Muxing;
+    TsMuxing aacTsMuxing;
 
-    static final String H265_FMP4_SEGMENTS_PATH = "video/h265/fmp4";
+    static final String H264_TS_SEGMENTS_PATH_FORMAT = "video/h264/ts/%dp_%d";
+    static final String H264_CMAF_SEGMENTS_PATH_FORMAT = "video/h264/cmaf/%dp_%d";
+    static final String AAC_FMP4_SEGMENTS_PATH = "audio/aac/fmp4";
+    static final String AAC_TS_SEGMENTS_PATH = "audio/aac/ts";
 
-    public H265EncodingTracking(Encoding encoding) {
+    public H264AndAacEncodingTracking(Encoding encoding) {
       this.encoding = encoding;
+      h264VideoStreams = new HashMap<>();
+      h264CmafMuxings = new HashMap<>();
+      h264TsMuxings = new HashMap<>();
+
+      renditions =
+          Arrays.asList(
+              new Rendition(234, 145_000L),
+              new Rendition(360, 365_000L),
+              new Rendition(432, 730_000L),
+              new Rendition(540, 2_000_000L),
+              new Rendition(720, 3_000_000L));
+    }
+  }
+
+  private static class H265AndAc3EncodingTracking {
+    final Encoding encoding;
+
+    List<Rendition> renditions;
+    Map<Rendition, Stream> h265VideoStreams;
+    Map<Rendition, Fmp4Muxing> h265Fmp4Muxings;
+
+    Stream ac3AudioStream;
+    Fmp4Muxing ac3Fmp4Muxing;
+
+    static final String H265_FMP4_SEGMENTS_PATH_FORMAT = "video/h265/fmp4/%dp_%d";
+    static final String AC3_FMP4_SEGMENTS_PATH = "audio/ac3/fmp4";
+
+    public H265AndAc3EncodingTracking(Encoding encoding) {
+      this.encoding = encoding;
+      h265VideoStreams = new HashMap<>();
+      h265Fmp4Muxings = new HashMap<>();
+
+      renditions =
+          Arrays.asList(
+              new Rendition(540, 600_000L),
+              new Rendition(720, 2_400_000L),
+              new Rendition(1080, 4_500_000L),
+              new Rendition(2160, 11_600_000L));
     }
   }
 
   private static class Vp9AndVorbisEncodingTracking {
     final Encoding encoding;
 
-    WebmMuxing vp9WebmMuxing;
+    List<Rendition> renditions;
+
+    Map<Rendition, WebmMuxing> vp9WebmMuxing;
     WebmMuxing vorbisWebmMuxing;
 
-    static final String VP9_WEBM_SEGMENTS_PATH = "video/webm/vp9";
+    static final String VP9_WEBM_SEGMENTS_PATH_FORMAT = "video/webm/vp9/%dp_%d";
     static final String VORBIS_WEBM_SEGMENTS_PATH = "audio/vorbis/webm";
 
     public Vp9AndVorbisEncodingTracking(Encoding encoding) {
       this.encoding = encoding;
+
+      vp9WebmMuxing = new HashMap<>();
+
+      renditions =
+          Arrays.asList(
+              new Rendition(540, 600_000L),
+              new Rendition(720, 2_400_000L),
+              new Rendition(1080, 4_500_000L),
+              new Rendition(2160, 11_600_000L));
     }
   }
 
@@ -162,10 +215,11 @@ public class MultiCodecEncodings {
 
     String inputFilePath = configProvider.getHttpInputFilePath();
 
-    H264AndAACEncodingTracking h264AndAacEncodingTracking =
+    H264AndAacEncodingTracking h264AndAacEncodingTracking =
         createH264AndAacEncoding(input, inputFilePath, output);
-    H265EncodingTracking h265EncodingTracking = createH265Encoding(input, inputFilePath, output);
-    Vp9AndVorbisEncodingTracking vp9AndVorbisEncoding =
+    H265AndAc3EncodingTracking h265AndAc3EncodingTracking =
+        createH265AndAc3Encoding(input, inputFilePath, output);
+    Vp9AndVorbisEncodingTracking vp9AndVorbisEncodingTracking =
         createVp9AndVorbisEncoding(input, inputFilePath, output);
 
     ExecutorService executor = Executors.newFixedThreadPool(3);
@@ -173,8 +227,8 @@ public class MultiCodecEncodings {
     List<Callable<Encoding>> encodingTasks =
         Arrays.asList(
             () -> executeEncoding(h264AndAacEncodingTracking.encoding),
-            () -> executeEncoding(h265EncodingTracking.encoding),
-            () -> executeEncoding(vp9AndVorbisEncoding.encoding));
+            () -> executeEncoding(h265AndAc3EncodingTracking.encoding),
+            () -> executeEncoding(vp9AndVorbisEncodingTracking.encoding));
 
     executor.invokeAll(encodingTasks);
 
@@ -182,11 +236,14 @@ public class MultiCodecEncodings {
 
     DashManifest dashManifest =
         createDashManifest(
-            output, h264AndAacEncodingTracking, h265EncodingTracking, vp9AndVorbisEncoding);
+            output,
+            h264AndAacEncodingTracking,
+            h265AndAc3EncodingTracking,
+            vp9AndVorbisEncodingTracking);
     executeDashManifest(dashManifest);
 
     HlsManifest hlsManifest =
-        createHlsManifest(output, h264AndAacEncodingTracking, h265EncodingTracking);
+        createHlsManifest(output, h264AndAacEncodingTracking, h265AndAc3EncodingTracking);
     executeHlsManifest(hlsManifest);
   }
 
@@ -198,70 +255,103 @@ public class MultiCodecEncodings {
    * @param output the output that should be used
    * @return the tracking information for the encoding
    */
-  private static H264AndAACEncodingTracking createH264AndAacEncoding(
+  private static H264AndAacEncodingTracking createH264AndAacEncoding(
       HttpInput input, String inputFilePath, Output output) {
 
     Encoding encoding =
         createEncoding(
-            "H.264 Encoding", "H.264 -> TS muxing, H.264 -> CMAF muxing, AAC -> fMP4 muxing");
+            "H.264 Encoding",
+            "H.264 -> TS muxing, H.264 -> CMAF muxing, AAC -> fMP4 muxing, AAC -> TS muxing");
 
-    H264AndAACEncodingTracking encodingTracking = new H264AndAACEncodingTracking(encoding);
+    H264AndAacEncodingTracking encodingTracking = new H264AndAacEncodingTracking(encoding);
 
-    // Add an H.264 video stream to the encoding
-    H264VideoConfiguration h264Config = createH264VideoConfig();
-    Stream h264VideoStream = createStream(encoding, input, inputFilePath, h264Config);
-    encodingTracking.h264VideoStream = h264VideoStream;
+    for (Rendition rendition : encodingTracking.renditions) {
+      H264VideoConfiguration videoConfiguration =
+          createH264VideoConfig(rendition.height, rendition.bitrate);
 
-    // Create an fMP4 muxing with the H.264 stream
-    encodingTracking.h264TsMuxing =
-        createTsMuxing(
-            encoding, output, H264AndAACEncodingTracking.H264_TS_SEGMENTS_PATH, h264VideoStream);
+      Stream videoStream = createStream(encoding, input, inputFilePath, videoConfiguration);
 
-    // Create a CMAF muxing with the H.264 stream
-    encodingTracking.h264CmafMuxing =
-        createCmafMuxing(
-            encoding, output, H264AndAACEncodingTracking.H264_CMAF_SEGMENTS_PATH, h264VideoStream);
+      String cmafMuxingOutputPath =
+          String.format(
+              H264AndAacEncodingTracking.H264_CMAF_SEGMENTS_PATH_FORMAT,
+              rendition.height,
+              rendition.bitrate);
+
+      String tsMuxingOutputPath =
+          String.format(
+              H264AndAacEncodingTracking.H264_TS_SEGMENTS_PATH_FORMAT,
+              rendition.height,
+              rendition.bitrate);
+
+      CmafMuxing cmafMuxing = createCmafMuxing(encoding, output, cmafMuxingOutputPath, videoStream);
+      TsMuxing tsMuxing = createTsMuxing(encoding, output, tsMuxingOutputPath, videoStream);
+
+      encodingTracking.h264VideoStreams.put(rendition, videoStream);
+      encodingTracking.h264CmafMuxings.put(rendition, cmafMuxing);
+      encodingTracking.h264TsMuxings.put(rendition, tsMuxing);
+    }
 
     // Add an AAC audio stream to the encoding
     AacAudioConfiguration aacConfig = createAacAudioConfig();
     Stream aacAudioStream = createStream(encoding, input, inputFilePath, aacConfig);
     encodingTracking.aacAudioStream = aacAudioStream;
 
-    // Create a fMP4 muxing with the AAC stream
+    // Create a fMP4 muxing and a TS muxing with the AAC stream
     encodingTracking.aacFmp4Muxing =
         createFmp4Muxing(
-            encoding, output, H264AndAACEncodingTracking.AAC_FMP4_SEGMENTS_PATH, aacAudioStream);
+            encoding, output, H264AndAacEncodingTracking.AAC_FMP4_SEGMENTS_PATH, aacAudioStream);
 
     encodingTracking.aacTsMuxing =
         createTsMuxing(
-            encoding, output, H264AndAACEncodingTracking.AAC_TS_SEGMENTS_PATH, aacAudioStream);
+            encoding, output, H264AndAacEncodingTracking.AAC_TS_SEGMENTS_PATH, aacAudioStream);
 
     return encodingTracking;
   }
 
   /**
-   * Creates the encoding with H264 codec/Ts muxing, H264 codec/CMAF muxing, AAC codec/fMP4 muxing
+   * Creates the encoding with H265 codec/fMP4 muxing, AC3 codec/fMP4 muxing
    *
    * @param input the input that should be used
    * @param inputFilePath the path to the input file
    * @param output the output that should be used
    * @return the tracking information for the encoding
    */
-  private static H265EncodingTracking createH265Encoding(
+  private static H265AndAc3EncodingTracking createH265AndAc3Encoding(
       HttpInput input, String inputFilePath, Output output) {
 
-    Encoding encoding = createEncoding("H.265 Encoding", "H.265 -> FMP4 muxing");
-    H265EncodingTracking encodingTracking = new H265EncodingTracking(encoding);
+    Encoding encoding =
+        createEncoding("H.265 Encoding", "H.265 -> fMP4 muxing, AC3 -> fMP4 muxing");
+    H265AndAc3EncodingTracking encodingTracking = new H265AndAc3EncodingTracking(encoding);
 
-    // Add an H.265 video stream to the encoding
-    H265VideoConfiguration h265Config = createH265VideoConfig();
-    Stream h265VideoStream = createStream(encoding, input, inputFilePath, h265Config);
-    encodingTracking.h265VideoStream = h265VideoStream;
+    // Add streams and muxings for h265 encoding
+    for (Rendition rendition : encodingTracking.renditions) {
+      H265VideoConfiguration videoConfiguration =
+          createH265VideoConfig(rendition.height, rendition.bitrate);
+      Stream videoStream = createStream(encoding, input, inputFilePath, videoConfiguration);
+      Fmp4Muxing fmp4Muxing =
+          createFmp4Muxing(
+              encoding,
+              output,
+              String.format(
+                  H265AndAc3EncodingTracking.H265_FMP4_SEGMENTS_PATH_FORMAT,
+                  rendition.height,
+                  rendition.bitrate),
+              videoStream);
 
-    // Create a FMP4 muxing with the H.264 stream
-    encodingTracking.h265Fmp4Muxing =
+      encodingTracking.h265VideoStreams.put(rendition, videoStream);
+      encodingTracking.h265Fmp4Muxings.put(rendition, fmp4Muxing);
+    }
+
+    Ac3AudioConfiguration ac3Config = createAC3AudioConfig();
+    encodingTracking.ac3AudioStream = createStream(encoding, input, inputFilePath, ac3Config);
+
+    // Create a fMP4 muxing with the AC3 stream
+    encodingTracking.ac3Fmp4Muxing =
         createFmp4Muxing(
-            encoding, output, H265EncodingTracking.H265_FMP4_SEGMENTS_PATH, h265VideoStream);
+            encoding,
+            output,
+            H265AndAc3EncodingTracking.AC3_FMP4_SEGMENTS_PATH,
+            encodingTracking.ac3AudioStream);
 
     return encodingTracking;
   }
@@ -281,14 +371,23 @@ public class MultiCodecEncodings {
 
     Vp9AndVorbisEncodingTracking encodingTracking = new Vp9AndVorbisEncodingTracking(encoding);
 
-    // Add a VP9 video stream to the encoding
-    Vp9VideoConfiguration vp9Config = createVp9VideoConfiguration();
-    Stream vp9VideoStream = createStream(encoding, input, inputFilePath, vp9Config);
+    // Create video streams and add webm muxings to the VP9 encoding
+    for (Rendition rendition : encodingTracking.renditions) {
+      Vp9VideoConfiguration vp9Config =
+          createVp9VideoConfiguration(rendition.height, rendition.bitrate);
+      Stream vp9VideoStream = createStream(encoding, input, inputFilePath, vp9Config);
 
-    // Create an WebM muxing with the VP9 stream
-    encodingTracking.vp9WebmMuxing =
-        createWebmMuxing(
-            encoding, output, Vp9AndVorbisEncodingTracking.VP9_WEBM_SEGMENTS_PATH, vp9VideoStream);
+      encodingTracking.vp9WebmMuxing.put(
+          rendition,
+          createWebmMuxing(
+              encoding,
+              output,
+              String.format(
+                  Vp9AndVorbisEncodingTracking.VP9_WEBM_SEGMENTS_PATH_FORMAT,
+                  rendition.height,
+                  rendition.bitrate),
+              vp9VideoStream));
+    }
 
     // Create Vorbis audio configuration
     VorbisAudioConfiguration vorbisAudioConfiguration = createVorbisAudioConfiguration();
@@ -302,6 +401,7 @@ public class MultiCodecEncodings {
             output,
             Vp9AndVorbisEncodingTracking.VORBIS_WEBM_SEGMENTS_PATH,
             vorbisAudioStream);
+
     return encodingTracking;
   }
 
@@ -310,82 +410,51 @@ public class MultiCodecEncodings {
    *
    * @param output the output that should be used
    * @param h264AndAacEncodingTracking the tracking information for the H264/AAC encoding
-   * @param h265EncodingTracking the tracking information for the H265 encoding
+   * @param h265AndAc3EncodingTracking the tracking information for the H265 encoding
    * @param vp9AndVorbisEncodingTracking the tracking information for the VP9/Vorbis encoding
    * @return the created DASH manifest
    */
   private static DashManifest createDashManifest(
       Output output,
-      H264AndAACEncodingTracking h264AndAacEncodingTracking,
-      H265EncodingTracking h265EncodingTracking,
+      H264AndAacEncodingTracking h264AndAacEncodingTracking,
+      H265AndAc3EncodingTracking h265AndAc3EncodingTracking,
       Vp9AndVorbisEncodingTracking vp9AndVorbisEncodingTracking) {
     DashManifest dashManifest = createDashManifest("stream.mpd", DashProfile.LIVE, output, "/");
 
     final Period period =
         bitmovinApi.encoding.manifests.dash.periods.create(dashManifest.getId(), new Period());
 
+    final VideoAdaptationSet videoAdaptationSetVp9 =
+        bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
+            dashManifest.getId(), period.getId(), new VideoAdaptationSet());
+
+    final VideoAdaptationSet videoAdaptationSetH265 =
+        bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
+            dashManifest.getId(), period.getId(), new VideoAdaptationSet());
+
     final VideoAdaptationSet videoAdaptationSetH264 =
         bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
             dashManifest.getId(), period.getId(), new VideoAdaptationSet());
 
-    VideoAdaptationSet videoAdaptationSetH265 =
-        bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
-            dashManifest.getId(), period.getId(), new VideoAdaptationSet());
-
-    VideoAdaptationSet videoAdaptationSetVp9 =
-        bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
-            dashManifest.getId(), period.getId(), new VideoAdaptationSet());
-
-    AudioAdaptationSet aacAudioAdaptationSet = new AudioAdaptationSet();
-    aacAudioAdaptationSet.setLang("en");
-    aacAudioAdaptationSet =
-        bitmovinApi.encoding.manifests.dash.periods.adaptationsets.audio.create(
-            dashManifest.getId(), period.getId(), aacAudioAdaptationSet);
-
-    AudioAdaptationSet vorbisAudioAdaptationSet = new AudioAdaptationSet();
-    vorbisAudioAdaptationSet.setLang("en");
-    vorbisAudioAdaptationSet =
-        bitmovinApi.encoding.manifests.dash.periods.adaptationsets.audio.create(
-            dashManifest.getId(), period.getId(), vorbisAudioAdaptationSet);
-
-    // Add representations to H264 adaptation set
-    // Add H264 CMAF muxing to H264 video adaptation set
-    createDashCmafRepresentation(
-        h264AndAacEncodingTracking.encoding,
-        h264AndAacEncodingTracking.h264CmafMuxing,
-        dashManifest,
-        period,
-        H264AndAACEncodingTracking.H264_CMAF_SEGMENTS_PATH,
-        videoAdaptationSetH264.getId());
-
-    // Add AAC FMP4 muxing to AAC audio adaptation set
-    createDashFmp4Representation(
-        h264AndAacEncodingTracking.encoding,
-        h264AndAacEncodingTracking.aacFmp4Muxing,
-        dashManifest,
-        period,
-        H264AndAACEncodingTracking.AAC_FMP4_SEGMENTS_PATH,
-        aacAudioAdaptationSet.getId());
-
-    // Add representations to H265 adaptation set
-    // Add H265 FMP4 muxing to H265 video adaptation set
-    createDashFmp4Representation(
-        h265EncodingTracking.encoding,
-        h265EncodingTracking.h265Fmp4Muxing,
-        dashManifest,
-        period,
-        H265EncodingTracking.H265_FMP4_SEGMENTS_PATH,
-        videoAdaptationSetH265.getId());
+    AudioAdaptationSet vorbisAudioAdaptationSet =
+        createAudioAdaptionSet(dashManifest, period, "en");
+    AudioAdaptationSet ac3AudioAdaptationSet = createAudioAdaptionSet(dashManifest, period, "en");
+    AudioAdaptationSet aacAudioAdaptationSet = createAudioAdaptionSet(dashManifest, period, "en");
 
     // Add representations to VP9 adaptation set
     // Add VP9 WEBM muxing to VP9 adaptation set
-    createDashWebmRepresentation(
-        vp9AndVorbisEncodingTracking.encoding,
-        vp9AndVorbisEncodingTracking.vp9WebmMuxing,
-        dashManifest,
-        period,
-        Vp9AndVorbisEncodingTracking.VP9_WEBM_SEGMENTS_PATH,
-        videoAdaptationSetVp9.getId());
+    for (Rendition rendition : vp9AndVorbisEncodingTracking.vp9WebmMuxing.keySet()) {
+      createDashWebmRepresentation(
+          vp9AndVorbisEncodingTracking.encoding,
+          vp9AndVorbisEncodingTracking.vp9WebmMuxing.get(rendition),
+          dashManifest,
+          period,
+          String.format(
+              Vp9AndVorbisEncodingTracking.VP9_WEBM_SEGMENTS_PATH_FORMAT,
+              rendition.height,
+              rendition.bitrate),
+          videoAdaptationSetVp9.getId());
+    }
 
     // Add VORBIS WEBM muxing to VORBIS audio adaptation set
     createDashWebmRepresentation(
@@ -396,6 +465,54 @@ public class MultiCodecEncodings {
         Vp9AndVorbisEncodingTracking.VORBIS_WEBM_SEGMENTS_PATH,
         vorbisAudioAdaptationSet.getId());
 
+    // Add representations to H265 adaptation set
+    // Add H265 FMP4 muxing to H265 video adaptation set
+    for (Rendition rendition : h265AndAc3EncodingTracking.h265Fmp4Muxings.keySet()) {
+      createDashFmp4Representation(
+          h265AndAc3EncodingTracking.encoding,
+          h265AndAc3EncodingTracking.h265Fmp4Muxings.get(rendition),
+          dashManifest,
+          period,
+          String.format(
+              H265AndAc3EncodingTracking.H265_FMP4_SEGMENTS_PATH_FORMAT,
+              rendition.height,
+              rendition.bitrate),
+          videoAdaptationSetH265.getId());
+    }
+
+    // Add AC3 FMP4 muxing to AAC audio adaptation set
+    createDashFmp4Representation(
+        h265AndAc3EncodingTracking.encoding,
+        h265AndAc3EncodingTracking.ac3Fmp4Muxing,
+        dashManifest,
+        period,
+        H265AndAc3EncodingTracking.AC3_FMP4_SEGMENTS_PATH,
+        ac3AudioAdaptationSet.getId());
+
+    // Add representations to H264 adaptation set
+    // Add H264 CMAF muxing to H264 video adaptation set
+    for (Rendition rendition : h264AndAacEncodingTracking.h264CmafMuxings.keySet()) {
+      createDashCmafRepresentation(
+          h264AndAacEncodingTracking.encoding,
+          h264AndAacEncodingTracking.h264CmafMuxings.get(rendition),
+          dashManifest,
+          period,
+          String.format(
+              H264AndAacEncodingTracking.H264_CMAF_SEGMENTS_PATH_FORMAT,
+              rendition.height,
+              rendition.bitrate),
+          videoAdaptationSetH264.getId());
+    }
+
+    // Add AAC FMP4 muxing to AAC audio adaptation set
+    createDashFmp4Representation(
+        h264AndAacEncodingTracking.encoding,
+        h264AndAacEncodingTracking.aacFmp4Muxing,
+        dashManifest,
+        period,
+        H264AndAacEncodingTracking.AAC_FMP4_SEGMENTS_PATH,
+        aacAudioAdaptationSet.getId());
+
     return dashManifest;
   }
 
@@ -404,14 +521,39 @@ public class MultiCodecEncodings {
    *
    * @param output the output that should be used
    * @param h264AndAacEncodingTracking the tracking information for the H264/AAC encoding
-   * @param h265EncodingTracking the tracking information for the H265 encoding
+   * @param h265AndAc3EncodingTracking the tracking information for the H265 encoding
    * @return the created HLS manifest
    */
   private static HlsManifest createHlsManifest(
       Output output,
-      H264AndAACEncodingTracking h264AndAacEncodingTracking,
-      H265EncodingTracking h265EncodingTracking) {
+      H264AndAacEncodingTracking h264AndAacEncodingTracking,
+      H265AndAc3EncodingTracking h265AndAc3EncodingTracking) {
     HlsManifest hlsManifest = createHlsMasterManifest("master.m3u8", output, "/");
+
+    // Create h265 audio playlists
+    createAudioMediaPlaylist(
+        h265AndAc3EncodingTracking.encoding,
+        hlsManifest,
+        h265AndAc3EncodingTracking.ac3Fmp4Muxing,
+        h265AndAc3EncodingTracking.ac3AudioStream,
+        "audio_ac3_fmp4.m3u8",
+        H265AndAc3EncodingTracking.AC3_FMP4_SEGMENTS_PATH,
+        HLS_AUDIO_GROUP_AC3_FMP4);
+
+    // Create h265 video playlists
+    for (Rendition rendition : h265AndAc3EncodingTracking.h265Fmp4Muxings.keySet()) {
+      createVideoStreamPlaylist(
+          h265AndAc3EncodingTracking.encoding,
+          hlsManifest,
+          h265AndAc3EncodingTracking.h265Fmp4Muxings.get(rendition),
+          h265AndAc3EncodingTracking.h265VideoStreams.get(rendition),
+          String.format("video_h265_%dp_%d.m3u8", rendition.height, rendition.bitrate),
+          String.format(
+              H265AndAc3EncodingTracking.H265_FMP4_SEGMENTS_PATH_FORMAT,
+              rendition.height,
+              rendition.bitrate),
+          HLS_AUDIO_GROUP_AC3_FMP4);
+    }
 
     // Create h264 audio playlists
     createAudioMediaPlaylist(
@@ -419,38 +561,33 @@ public class MultiCodecEncodings {
         hlsManifest,
         h264AndAacEncodingTracking.aacFmp4Muxing,
         h264AndAacEncodingTracking.aacAudioStream,
-        "audio-fmp4.m3u8",
-        H264AndAACEncodingTracking.AAC_FMP4_SEGMENTS_PATH,
-        HLS_AUDIO_GROUP_FMP4);
+        "audio_aac_fmp4.m3u8",
+        H264AndAacEncodingTracking.AAC_FMP4_SEGMENTS_PATH,
+        HLS_AUDIO_GROUP_AAC_FMP4);
 
     createAudioMediaPlaylist(
         h264AndAacEncodingTracking.encoding,
         hlsManifest,
         h264AndAacEncodingTracking.aacTsMuxing,
         h264AndAacEncodingTracking.aacAudioStream,
-        "audio-ts.m3u8",
-        H264AndAACEncodingTracking.AAC_TS_SEGMENTS_PATH,
-        HLS_AUDIO_GROUP_TS);
+        "audio_aac_ts.m3u8",
+        H264AndAacEncodingTracking.AAC_TS_SEGMENTS_PATH,
+        HLS_AUDIO_GROUP_AAC_TS);
 
     // Create h264 video playlists
-    createVideoStreamPlaylist(
-        h264AndAacEncodingTracking.encoding,
-        hlsManifest,
-        h264AndAacEncodingTracking.h264TsMuxing,
-        h264AndAacEncodingTracking.h264VideoStream,
-        "videoH264.m3u8",
-        H264AndAACEncodingTracking.H264_TS_SEGMENTS_PATH,
-        HLS_AUDIO_GROUP_TS);
-
-    // Create h265 video playlists
-    createVideoStreamPlaylist(
-        h265EncodingTracking.encoding,
-        hlsManifest,
-        h265EncodingTracking.h265Fmp4Muxing,
-        h265EncodingTracking.h265VideoStream,
-        "videoH265.m3u8",
-        H265EncodingTracking.H265_FMP4_SEGMENTS_PATH,
-        HLS_AUDIO_GROUP_FMP4);
+    for (Rendition rendition : h264AndAacEncodingTracking.h264TsMuxings.keySet()) {
+      createVideoStreamPlaylist(
+          h264AndAacEncodingTracking.encoding,
+          hlsManifest,
+          h264AndAacEncodingTracking.h264TsMuxings.get(rendition),
+          h264AndAacEncodingTracking.h264VideoStreams.get(rendition),
+          String.format("video_h264_%dp_%d.m3u8", rendition.height, rendition.bitrate),
+          String.format(
+              H264AndAacEncodingTracking.H264_TS_SEGMENTS_PATH_FORMAT,
+              rendition.height,
+              rendition.bitrate),
+          HLS_AUDIO_GROUP_AAC_TS);
+    }
 
     return hlsManifest;
   }
@@ -568,12 +705,12 @@ public class MultiCodecEncodings {
    * <p>API endpoint:
    * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsVideoH264
    */
-  private static H264VideoConfiguration createH264VideoConfig() {
+  private static H264VideoConfiguration createH264VideoConfig(int height, long bitrate) {
     H264VideoConfiguration config = new H264VideoConfiguration();
-    config.setName("H.264 1080p 1.5 Mbit/s");
+    config.setName("H.264 video config " + height + "p");
     config.setPresetConfiguration(PresetConfiguration.VOD_STANDARD);
-    config.setHeight(1080);
-    config.setBitrate(1_500_000L);
+    config.setHeight(height);
+    config.setBitrate(bitrate);
 
     return bitmovinApi.encoding.configurations.video.h264.create(config);
   }
@@ -585,12 +722,12 @@ public class MultiCodecEncodings {
    * <p>API endpoint:
    * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsVideoH265
    */
-  private static H265VideoConfiguration createH265VideoConfig() {
+  private static H265VideoConfiguration createH265VideoConfig(int height, long bitrate) {
     H265VideoConfiguration config = new H265VideoConfiguration();
-    config.setName("H.265 video config");
+    config.setName("H.265 video config " + height + "p");
     config.setPresetConfiguration(PresetConfiguration.VOD_STANDARD);
-    config.setHeight(1080);
-    config.setBitrate(1_500_000L);
+    config.setHeight(height);
+    config.setBitrate(bitrate);
 
     return bitmovinApi.encoding.configurations.video.h265.create(config);
   }
@@ -602,12 +739,12 @@ public class MultiCodecEncodings {
    * <p>API endpoint:
    * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsVideoVp9
    */
-  private static Vp9VideoConfiguration createVp9VideoConfiguration() {
+  private static Vp9VideoConfiguration createVp9VideoConfiguration(int height, long bitrate) {
     Vp9VideoConfiguration config = new Vp9VideoConfiguration();
-    config.setName("VP9 video configuration");
+    config.setName("VP9 video configuration " + height + "p");
     config.setPresetConfiguration(PresetConfiguration.VOD_STANDARD);
-    config.setHeight(1080);
-    config.setBitrate(1_500_000L);
+    config.setHeight(height);
+    config.setBitrate(bitrate);
 
     return bitmovinApi.encoding.configurations.video.vp9.create(config);
   }
@@ -739,6 +876,22 @@ public class MultiCodecEncodings {
     muxing.setSegmentLength(4.0);
 
     return bitmovinApi.encoding.encodings.muxings.ts.create(encoding.getId(), muxing);
+  }
+
+  /**
+   * Creates an AC3 audio configuration.
+   *
+   * <p>API endpoint:
+   * https://bitmovin.com/docs/encoding/api-reference/all#/Encoding/PostEncodingConfigurationsAudioAc3
+   */
+  private static Ac3AudioConfiguration createAC3AudioConfig() {
+    Ac3AudioConfiguration config = new Ac3AudioConfiguration();
+    config.setName("Ac3 Channel Layout 5.1");
+    config.setBitrate(196_000L);
+    config.setRate(48_000d);
+    config.setChannelLayout(Ac3ChannelLayout.CL_5_1);
+
+    return bitmovinApi.encoding.configurations.audio.ac3.create(config);
   }
 
   /**
@@ -995,6 +1148,16 @@ public class MultiCodecEncodings {
 
     bitmovinApi.encoding.manifests.dash.periods.adaptationsets.representations.webm.create(
         dashManifest.getId(), period.getId(), adaptationSetId, dashWebmRepresentation);
+  }
+
+  /** Creates an audio adaption set for the dash manifest */
+  private static AudioAdaptationSet createAudioAdaptionSet(
+      DashManifest dashManifest, Period period, String language) {
+    AudioAdaptationSet audioAdaptationSet = new AudioAdaptationSet();
+    audioAdaptationSet.setLang(language);
+
+    return bitmovinApi.encoding.manifests.dash.periods.adaptationsets.audio.create(
+        dashManifest.getId(), period.getId(), audioAdaptationSet);
   }
 
   /**

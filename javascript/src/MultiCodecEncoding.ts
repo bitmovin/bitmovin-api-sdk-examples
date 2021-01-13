@@ -5,25 +5,42 @@ import BitmovinApi, {
   Ac3AudioConfiguration,
   AclEntry,
   AclPermission,
+  AudioAdaptationSet,
+  AudioMediaInfo,
+  CmafMuxing,
   CodecConfiguration,
   ConsoleLogger,
+  DashManifest,
+  DashProfile,
+  DashCmafRepresentation,
+  DashFmp4Representation,
+  DashRepresentationType,
+  DashWebmRepresentation,
   Encoding,
   EncodingOutput,
+  Fmp4Muxing,
   H264VideoConfiguration,
   H265VideoConfiguration,
+  HlsManifest,
   HttpInput,
   Input,
   MessageType,
-  Mp4Muxing,
+  Muxing,
   MuxingStream,
   Output,
+  Period,
   PresetConfiguration,
-  ProgressiveTsMuxing,
   S3Output,
   Status,
   Stream,
+  StreamInfo,
   StreamInput,
-  Task
+  Task,
+  TsMuxing,
+  VideoAdaptationSet,
+  VorbisAudioConfiguration,
+  Vp9VideoConfiguration,
+  WebmMuxing
 } from '@bitmovin/api-sdk';
 
 /**
@@ -56,7 +73,11 @@ import BitmovinApi, {
  * </ol>
  */
 
-const exampleName = 'MultiCodecEncoding';
+const exampleName = `MultiCodecEncoding`;
+const DATE_STRING = new Date().toISOString();
+const HLS_AUDIO_GROUP_AAC_FMP4 = 'audio-aac-fmp4';
+const HLS_AUDIO_GROUP_AAC_TS = 'audio-aac-ts';
+const HLS_AUDIO_GROUP_AC3_FMP4 = 'audio-ac3-fmp4';
 
 const configProvider: ConfigProvider = new ConfigProvider();
 
@@ -65,11 +86,93 @@ const bitmovinApi: BitmovinApi = new BitmovinApi({
   logger: new ConsoleLogger()
 });
 
-async function main() {
-  const encoding = await createEncoding(exampleName, 'Encoding with different codecs and muxing types');
+class Rendition {
+  height: number;
+  bitrate: number;
 
+  constructor(height: number, bitrate: number) {
+    this.height = height;
+    this.bitrate = bitrate;
+  }
+}
+
+class H264AndAacEncodingTracking {
+  public encoding: Encoding;
+
+  renditions: Array<Rendition> = [
+    new Rendition(234, 145000),
+    new Rendition(360, 365000),
+    new Rendition(432, 730000),
+    new Rendition(540, 2000000),
+    new Rendition(720, 3000000)
+  ];
+
+  h264VideoStreams: Map<Rendition, Stream> = new Map<Rendition, Stream>();
+  h264TsMuxings: Map<Rendition, TsMuxing> = new Map<Rendition, TsMuxing>();
+  h264CmafMuxings: Map<Rendition, CmafMuxing> = new Map<Rendition, CmafMuxing>();
+
+  aacAudioStream: Stream;
+  aacFmp4Muxing: Fmp4Muxing;
+  aacTsMuxing: TsMuxing;
+
+  readonly H264_TS_SEGMENTS_PATH = 'video/h264/ts';
+  readonly H264_CMAF_SEGMENTS_PATH = 'video/h264/cmaf';
+  readonly AAC_FMP4_SEGMENTS_PATH = 'audio/aac/fmp4';
+  readonly AAC_TS_SEGMENTS_PATH = 'audio/aac/ts';
+
+  constructor(encoding: Encoding) {
+    this.encoding = encoding;
+  }
+}
+
+class H265AndAc3EncodingTracking {
+  encoding: Encoding;
+
+  renditions: Array<Rendition> = [
+    new Rendition(540, 600000),
+    new Rendition(720, 2400000),
+    new Rendition(1080, 4500000),
+    new Rendition(2160, 11600000)
+  ];
+
+  h265VideoStreams: Map<Rendition, Stream> = new Map<Rendition, Stream>();
+  h265Fmp4Muxings: Map<Rendition, Fmp4Muxing> = new Map<Rendition, Fmp4Muxing>();
+
+  ac3AudioStream: Stream;
+  ac3Fmp4Muxing: Fmp4Muxing;
+
+  readonly H265_FMP4_SEGMENTS_PATH = 'video/h265/fmp4';
+  readonly AC3_FMP4_SEGMENTS_PATH = 'audio/ac3/fmp4';
+
+  constructor(encoding: Encoding) {
+    this.encoding = encoding;
+  }
+}
+
+class Vp9AndVorbisEncodingTracking {
+  encoding: Encoding;
+
+  renditions: Array<Rendition> = [
+    new Rendition(540, 600000),
+    new Rendition(720, 2400000),
+    new Rendition(1080, 4500000),
+    new Rendition(2160, 11600000)
+  ];
+
+  vp9WebmMuxings: Map<Rendition, WebmMuxing> = new Map<Rendition, WebmMuxing>();
+  vorbisWebmMuxing: WebmMuxing;
+
+  readonly VP9_WEBM_SEGMENTS_PATH = 'video/webm/vp9';
+  readonly VORBIS_WEBM_SEGMENTS_PATH = 'audio/vorbis/webm';
+
+  constructor(encoding: Encoding) {
+    this.encoding = encoding;
+  }
+}
+
+async function main() {
   const input = await createHttpInput(configProvider.getHttpInputHost());
-  const inputFilePath = configProvider.getHttpInputFilePath();
+  const inputPath = configProvider.getHttpInputFilePath();
 
   const output = await createS3Output(
     configProvider.getS3OutputBucketName(),
@@ -77,38 +180,602 @@ async function main() {
     configProvider.getS3OutputSecretKey()
   );
 
-  // Add an H.264 video stream to the encoding
-  const h264VideoConfiguration = await createH264VideoConfig();
-  const h264videoStream = await createStream(encoding, input, inputFilePath, h264VideoConfiguration);
+  const h264AndAacEncodingTracking = await createH264AndAacEncoding(input, inputPath, output);
+  const h265AndAc3EncodingTracking = await createH265AndAc3Encoding(input, inputPath, output);
+  const vp9AndVorbisEncodingTracking = await createVp9AndVorbisEncoding(input, inputPath, output);
 
-  // Add an H.265 video stream to the encoding
-  const h265VideoConfiguration = await createH265VideoConfig();
-  const h265videoStream = await createStream(encoding, input, inputFilePath, h265VideoConfiguration);
+  await Promise.all([
+    executeEncoding(h264AndAacEncodingTracking.encoding),
+    executeEncoding(h265AndAc3EncodingTracking.encoding),
+    executeEncoding(vp9AndVorbisEncodingTracking.encoding)
+  ]);
 
-  // Add an AAC audio stream to the encoding
-  const aacAudioConfiguration = await createAacAudioConfig();
-  const aacAudioStream = await createStream(encoding, input, inputFilePath, aacAudioConfiguration);
-
-  // Add an AC3 audio stream to the encoding
-  const ac3AudioConfiguration = await createAc3AudioConfig();
-  const ac3AudioStream = await createStream(encoding, input, inputFilePath, ac3AudioConfiguration);
-
-  // Create an MP4 muxing with the H.264 and AAC streams
-  await createMp4Muxing(encoding, output, 'mp4-h264-aac', [h264videoStream, aacAudioStream], 'video.mp4');
-
-  // Create an MP4 muxing with the H.265 and AC3 streams
-  await createMp4Muxing(encoding, output, 'mp4-h265-ac3', [h265videoStream, ac3AudioStream], 'video.mp4');
-
-  // Create a progressive TS muxing with the H.264 and AAC streams
-  await createProgressiveTsMuxing(
-    encoding,
+  const dashManifest = await createDashManifestWithRepresentations(
     output,
-    'progressivets-h264-aac',
-    [h264videoStream, aacAudioStream],
-    'video.ts'
+    h264AndAacEncodingTracking,
+    h265AndAc3EncodingTracking,
+    vp9AndVorbisEncodingTracking
   );
 
-  await executeEncoding(encoding);
+  await executeDashManifest(dashManifest);
+
+  const hlsManifest = await createHlsManifestWithRepresentations(
+    output,
+    h264AndAacEncodingTracking,
+    h265AndAc3EncodingTracking
+  );
+
+  await executeHlsManifest(hlsManifest);
+}
+
+/**
+ * Creates the encoding with H264 codec/TS muxing, H264 codec/CMAF muxing, AAC codec/fMP4 muxing
+ *
+ * @param input the input that should be used
+ * @param inputPath the path to the input file
+ * @param output the output that should be used
+ * @return the tracking information for the encoding
+ */
+async function createH264AndAacEncoding(
+  input: Input,
+  inputPath: string,
+  output: Output
+): Promise<H264AndAacEncodingTracking> {
+  const encoding = await createEncoding(
+    'H.264 Encoding',
+    'H.264 -> TS muxing, H.264 -> CMAF muxing, AAC -> fMP4 muxing, AAC -> TS muxing'
+  );
+
+  const encodingTracking = new H264AndAacEncodingTracking(encoding);
+
+  for (const rendition of encodingTracking.renditions) {
+    const videoConfiguration = await createH264VideoConfig(rendition.height, rendition.bitrate);
+
+    const videoStream = await createStream(encoding, input, inputPath, videoConfiguration);
+
+    const cmafMuxing = await createCmafMuxing(
+      encoding,
+      output,
+      `${encodingTracking.H264_CMAF_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
+      videoStream
+    );
+    const tsMuxing = await createTsMuxing(
+      encoding,
+      output,
+      `${encodingTracking.H264_TS_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
+      videoStream
+    );
+
+    encodingTracking.h264VideoStreams.set(rendition, videoStream);
+    encodingTracking.h264CmafMuxings.set(rendition, cmafMuxing);
+    encodingTracking.h264TsMuxings.set(rendition, tsMuxing);
+  }
+
+  const aacConfig = await createAacAudioConfig();
+  const aacAudioStream = await createStream(encoding, input, inputPath, aacConfig);
+
+  encodingTracking.aacAudioStream = aacAudioStream;
+
+  encodingTracking.aacFmp4Muxing = await createFmp4Muxing(
+    encoding,
+    output,
+    encodingTracking.AAC_FMP4_SEGMENTS_PATH,
+    aacAudioStream
+  );
+
+  encodingTracking.aacTsMuxing = await createTsMuxing(
+    encoding,
+    output,
+    encodingTracking.AAC_TS_SEGMENTS_PATH,
+    aacAudioStream
+  );
+
+  return encodingTracking;
+}
+
+/**
+ * Creates the encoding with H265 codec/fMP4 muxing, AC3 codec/fMP4 muxing
+ *
+ * @param input the input that should be used
+ * @param inputPath the path to the input file
+ * @param output the output that should be used
+ * @return the tracking information for the encoding
+ */
+async function createH265AndAc3Encoding(
+  input: Input,
+  inputPath: string,
+  output: Output
+): Promise<H265AndAc3EncodingTracking> {
+  const encoding = await createEncoding('H.265 Encoding', 'H.265 -> fMP4 muxing, AC3 -> fMP4 muxing');
+
+  const encodingTracking = new H265AndAc3EncodingTracking(encoding);
+
+  for (const rendition of encodingTracking.renditions) {
+    const videoConfiguration = await createH265VideoConfig(rendition.height, rendition.bitrate);
+
+    const videoStream = await createStream(encoding, input, inputPath, videoConfiguration);
+
+    const fmp4Muxing = await createFmp4Muxing(
+      encoding,
+      output,
+      `${encodingTracking.H265_FMP4_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
+      videoStream
+    );
+
+    encodingTracking.h265VideoStreams.set(rendition, videoStream);
+    encodingTracking.h265Fmp4Muxings.set(rendition, fmp4Muxing);
+  }
+
+  const ac3Config = await createAc3AudioConfig();
+  const ac3AudioStream = await createStream(encoding, input, inputPath, ac3Config);
+
+  encodingTracking.ac3AudioStream = ac3AudioStream;
+
+  encodingTracking.ac3Fmp4Muxing = await createFmp4Muxing(
+    encoding,
+    output,
+    encodingTracking.AC3_FMP4_SEGMENTS_PATH,
+    ac3AudioStream
+  );
+
+  return encodingTracking;
+}
+
+/**
+ * Created the encoding with VP9 codec/WebM muxing, Vorbis codec / WebM muxing
+ *
+ * @param input the input that should be used
+ * @param inputPath the path to the input file
+ * @param output the output that should be used
+ * @return the tracking information for the encoding
+ */
+async function createVp9AndVorbisEncoding(
+  input: Input,
+  inputPath: string,
+  output: Output
+): Promise<Vp9AndVorbisEncodingTracking> {
+  const encoding = await createEncoding('VP9/Vorbis Encoding', 'VP9 -> WebM muxing, Vorbis -> WebM muxing');
+
+  const encodingTracking = new Vp9AndVorbisEncodingTracking(encoding);
+
+  for (const rendition of encodingTracking.renditions) {
+    const videoConfiguration = await createVp9VideoConfiguration(rendition.height, rendition.bitrate);
+
+    const videoStream = await createStream(encoding, input, inputPath, videoConfiguration);
+
+    const fmp4Muxing = await createWebmMuxing(
+      encoding,
+      output,
+      `${encodingTracking.VP9_WEBM_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
+      videoStream
+    );
+
+    encodingTracking.vp9WebmMuxings.set(rendition, fmp4Muxing);
+  }
+
+  const vorbisAudioConfig = await createVorbisAudioConfiguration();
+  const vorbisAudioStream = await createStream(encoding, input, inputPath, vorbisAudioConfig);
+
+  encodingTracking.vorbisWebmMuxing = await createWebmMuxing(
+    encoding,
+    output,
+    encodingTracking.VORBIS_WEBM_SEGMENTS_PATH,
+    vorbisAudioStream
+  );
+
+  return encodingTracking;
+}
+
+/**
+ * Creates the DASH manifest with all the representations.
+ *
+ * @param output the output that should be used
+ * @param h264AndAacEncodingTracking the tracking information for the H264/AAC encoding
+ * @param h265AndAc3EncodingTracking the tracking information for the H265 encoding
+ * @param vp9AndVorbisEncodingTracking the tracking information for the VP9/Vorbis encoding
+ * @return the created DASH manifest
+ */
+async function createDashManifestWithRepresentations(
+  output: Output,
+  h264AndAacEncodingTracking: H264AndAacEncodingTracking,
+  h265AndAc3EncodingTracking: H265AndAc3EncodingTracking,
+  vp9AndVorbisEncodingTracking: Vp9AndVorbisEncodingTracking
+): Promise<DashManifest> {
+  const dashManifest = await createDashManifest('stream.mpd', DashProfile.LIVE, output, '/');
+
+  const period = await bitmovinApi.encoding.manifests.dash.periods.create(dashManifest.id!, new Period());
+
+  const videoAdaptationSetVp9 = await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
+    dashManifest.id!,
+    period.id!,
+    new VideoAdaptationSet()
+  );
+  const videoAdaptationSetH265 = await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
+    dashManifest.id!,
+    period.id!,
+    new VideoAdaptationSet()
+  );
+  const videoAdaptationSetH264 = await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
+    dashManifest.id!,
+    period.id!,
+    new VideoAdaptationSet()
+  );
+
+  const vorbisAudioAdaptationSet = await createAudioAdaptionSet(dashManifest, period, 'en');
+  const ac3AudioAdaptationSet = await createAudioAdaptionSet(dashManifest, period, 'en');
+  const aacAudioAdaptationSet = await createAudioAdaptionSet(dashManifest, period, 'en');
+
+  for (const [rendition, vp9WebmMuxing] of vp9AndVorbisEncodingTracking.vp9WebmMuxings) {
+    await createDashWebmRepresentation(
+      vp9AndVorbisEncodingTracking.encoding,
+      vp9WebmMuxing,
+      dashManifest,
+      period,
+      `${vp9AndVorbisEncodingTracking.VP9_WEBM_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
+      videoAdaptationSetVp9.id!
+    );
+  }
+
+  // Add VORBIS WEBM muxing to VORBIS audio adaptation set
+  await createDashWebmRepresentation(
+    vp9AndVorbisEncodingTracking.encoding,
+    vp9AndVorbisEncodingTracking.vorbisWebmMuxing,
+    dashManifest,
+    period,
+    vp9AndVorbisEncodingTracking.VORBIS_WEBM_SEGMENTS_PATH,
+    vorbisAudioAdaptationSet.id!
+  );
+
+  // Add representations to H265 adaptation set
+  // Add H265 FMP4 muxing to H265 video adaptation set
+  for (const [rendition, h265Fmp4Muxing] of h265AndAc3EncodingTracking.h265Fmp4Muxings) {
+    await createDashFmp4Representation(
+      h265AndAc3EncodingTracking.encoding,
+      h265Fmp4Muxing,
+      dashManifest,
+      period,
+      `${h265AndAc3EncodingTracking.H265_FMP4_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
+      videoAdaptationSetH265.id!
+    );
+  }
+
+  // Add AC3 FMP4 muxing to AAC audio adaptation set
+  await createDashFmp4Representation(
+    h265AndAc3EncodingTracking.encoding,
+    h265AndAc3EncodingTracking.ac3Fmp4Muxing,
+    dashManifest,
+    period,
+    h265AndAc3EncodingTracking.AC3_FMP4_SEGMENTS_PATH,
+    ac3AudioAdaptationSet.id!
+  );
+
+  // Add representations to H264 adaptation set
+  // Add H264 CMAF muxing to H264 video adaptation set
+  for (const [rendition, h264CmafMuxing] of h264AndAacEncodingTracking.h264CmafMuxings) {
+    await createDashCmafRepresentation(
+      h264AndAacEncodingTracking.encoding,
+      h264CmafMuxing,
+      dashManifest,
+      period,
+      `${h264AndAacEncodingTracking.H264_CMAF_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
+      videoAdaptationSetH264.id!
+    );
+  }
+
+  // Add AAC FMP4 muxing to AAC audio adaptation set
+  await createDashFmp4Representation(
+    h264AndAacEncodingTracking.encoding,
+    h264AndAacEncodingTracking.aacFmp4Muxing,
+    dashManifest,
+    period,
+    h264AndAacEncodingTracking.AAC_FMP4_SEGMENTS_PATH,
+    aacAudioAdaptationSet.id!
+  );
+
+  return dashManifest;
+}
+
+async function createHlsManifestWithRepresentations(
+  output: Output,
+  h264AndAacEncodingTracking: H264AndAacEncodingTracking,
+  h265AndAc3EncodingTracking: H265AndAc3EncodingTracking
+): Promise<HlsManifest> {
+  const hlsManifest = await createHlsMasterManifest('master.m3u8', output, '/');
+
+  // Create h265 audio playlists
+  await createAudioMediaPlaylist(
+    h265AndAc3EncodingTracking.encoding,
+    hlsManifest,
+    h265AndAc3EncodingTracking.ac3Fmp4Muxing,
+    h265AndAc3EncodingTracking.ac3AudioStream,
+    'audio_ac3_fmp4.m3u8',
+    h265AndAc3EncodingTracking.AC3_FMP4_SEGMENTS_PATH,
+    HLS_AUDIO_GROUP_AC3_FMP4
+  );
+
+  // Create h265 video playlists
+  for (const [rendition, h265Fmp4Muxing] of h265AndAc3EncodingTracking.h265Fmp4Muxings) {
+    await createVideoStreamPlaylist(
+      h265AndAc3EncodingTracking.encoding,
+      hlsManifest,
+      h265Fmp4Muxing,
+      h265AndAc3EncodingTracking.h265VideoStreams.get(rendition)!,
+      `video_h265_${rendition.height}p_${rendition.bitrate}.m3u8`,
+      `${h265AndAc3EncodingTracking.H265_FMP4_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
+      HLS_AUDIO_GROUP_AC3_FMP4
+    );
+  }
+
+  // Create h264 audio playlists
+  await createAudioMediaPlaylist(
+    h264AndAacEncodingTracking.encoding,
+    hlsManifest,
+    h264AndAacEncodingTracking.aacFmp4Muxing,
+    h264AndAacEncodingTracking.aacAudioStream,
+    'audio_aac_fmp4.m3u8',
+    h264AndAacEncodingTracking.AAC_FMP4_SEGMENTS_PATH,
+    HLS_AUDIO_GROUP_AAC_FMP4
+  );
+
+  await createAudioMediaPlaylist(
+    h264AndAacEncodingTracking.encoding,
+    hlsManifest,
+    h264AndAacEncodingTracking.aacTsMuxing,
+    h264AndAacEncodingTracking.aacAudioStream,
+    'audio_aac_ts.m3u8',
+    h264AndAacEncodingTracking.AAC_TS_SEGMENTS_PATH,
+    HLS_AUDIO_GROUP_AAC_TS
+  );
+
+  // Create h264 video playlists
+  for (const [rendition, h264TsMuxing] of h264AndAacEncodingTracking.h264TsMuxings) {
+    await createVideoStreamPlaylist(
+      h264AndAacEncodingTracking.encoding,
+      hlsManifest,
+      h264TsMuxing,
+      h264AndAacEncodingTracking.h264VideoStreams.get(rendition)!,
+      `video_h264_${rendition.height}p_${rendition.bitrate}.m3u8`,
+      `${h264AndAacEncodingTracking.H264_TS_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
+      HLS_AUDIO_GROUP_AAC_TS
+    );
+  }
+
+  return hlsManifest;
+}
+
+/** Creates the HLS master manifest. */
+async function createHlsMasterManifest(name: string, output: Output, outputPath: string): Promise<HlsManifest> {
+  const hlsManifest = new HlsManifest({
+    name: name,
+    outputs: [buildEncodingOutput(output, outputPath)]
+  });
+
+  return bitmovinApi.encoding.manifests.hls.create(hlsManifest);
+}
+
+/**
+ * Creates an HLS audio media playlist.
+ *
+ * <p>API endpoint:
+ * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsMediaAudioByManifestId
+ *
+ * @param encoding the encoding where the resources belong to
+ * @param manifest the manifest where the audio playlist should be added
+ * @param audioMuxing the audio muxing that should be used
+ * @param audioStream the audio stream of the muxing
+ * @param audioSegmentsPath the path to the audio segments
+ */
+async function createAudioMediaPlaylist(
+  encoding: Encoding,
+  manifest: HlsManifest,
+  audioMuxing: Muxing,
+  audioStream: Stream,
+  uri: string,
+  audioSegmentsPath: string,
+  audioGroup: string
+) {
+  const audioMediaInfo = new AudioMediaInfo({
+    name: uri,
+    uri: uri,
+    groupId: audioGroup,
+    encodingId: encoding.id,
+    streamId: audioStream.id,
+    muxingId: audioMuxing.id,
+    language: 'en',
+    assocLanguage: 'en',
+    autoselect: false,
+    isDefault: false,
+    forced: false,
+    segmentPath: audioSegmentsPath
+  });
+
+  await bitmovinApi.encoding.manifests.hls.media.audio.create(manifest.id!, audioMediaInfo);
+}
+
+/**
+ * Creates an HLS video playlist
+ *
+ * <p>API endpoint:
+ * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHls
+ *
+ * @param encoding the encoding where the resources belong to
+ * @param manifest the master manifest where the video stream playlist should belong to
+ * @param videoMuxing the muxing that should be used
+ * @param videoStream the stream of the muxing
+ * @param uri the relative uri of the playlist file that will be generated
+ * @param segmentPath the path pointing to the respective video segments
+ */
+async function createVideoStreamPlaylist(
+  encoding: Encoding,
+  manifest: HlsManifest,
+  videoMuxing: Muxing,
+  videoStream: Stream,
+  uri: string,
+  segmentPath: string,
+  audioGroup: string
+) {
+  const streamInfo = new StreamInfo({
+    uri: uri,
+    encodingId: encoding.id,
+    streamId: videoStream.id,
+    muxingId: videoMuxing.id,
+    audio: audioGroup,
+    segmentPath: segmentPath
+  });
+
+  await bitmovinApi.encoding.manifests.hls.streams.create(manifest.id!, streamInfo);
+}
+
+/**
+ * Creates a DASH WEBM representation
+ *
+ * <p>API endpoint:
+ * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDashPeriodsAdaptationsetsRepresentationsWebmByManifestIdAndPeriodIdAndAdaptationsetId
+ *
+ * @param encoding the encoding where the resources belong to
+ * @param muxing the muxing that should be used for this representation
+ * @param dashManifest the dash manifest to which the representation should be added
+ * @param period the period to which the represenation should be added
+ * @param segmentPath the path to the WEBM segments
+ * @param adaptationSetId the adaptationset to which the representation should be added
+ */
+async function createDashWebmRepresentation(
+  encoding: Encoding,
+  muxing: WebmMuxing,
+  dashManifest: DashManifest,
+  period: Period,
+  segmentPath: string,
+  adaptationSetId: string
+) {
+  const dashWebmRepresentation = new DashWebmRepresentation({
+    type: DashRepresentationType.TEMPLATE,
+    encodingId: encoding.id,
+    muxingId: muxing.id,
+    segmentPath: segmentPath
+  });
+
+  await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.representations.webm.create(
+    dashManifest.id!,
+    period.id!,
+    adaptationSetId,
+    dashWebmRepresentation
+  );
+}
+
+/**
+ * Creates a DASH fMP4 representation.
+ *
+ * <p>API endpoint:
+ * https://bitmovin.com/docs/encoding/api-reference/all#/Encoding/PostEncodingEncodingsMuxingsFmp4ByEncodingId
+ *
+ * @param encoding the encoding where the resources belong to
+ * @param muxing the muxing that should be used for this representation
+ * @param dashManifest the dash manifest to which the representation should be added
+ * @param period the period to which the represenation should be added
+ * @param segmentPath the path to the WEBM segments
+ * @param adaptationSetId the adaptationset to which the representation should be added
+ */
+async function createDashFmp4Representation(
+  encoding: Encoding,
+  muxing: Fmp4Muxing,
+  dashManifest: DashManifest,
+  period: Period,
+  segmentPath: string,
+  adaptationSetId: string
+) {
+  const dashFmp4Representation = new DashFmp4Representation({
+    type: DashRepresentationType.TEMPLATE,
+    encodingId: encoding.id,
+    muxingId: muxing.id,
+    segmentPath: segmentPath
+  });
+
+  await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.representations.fmp4.create(
+    dashManifest.id!,
+    period.id!,
+    adaptationSetId,
+    dashFmp4Representation
+  );
+}
+
+/**
+ * Creates a DASH CMAF representation
+ *
+ * <p>API endpoint:
+ * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDashPeriodsAdaptationsetsRepresentationsCmafByManifestIdAndPeriodIdAndAdaptationsetId
+ *
+ * @param encoding the encoding where the resources belong to
+ * @param muxing the muxing that should be used for this representation
+ * @param dashManifest the dash manifest to which the representation should be added
+ * @param period the period to which the representation should be added
+ * @param segmentPath the path the the CMAF segments
+ * @param adaptationSetId the adaptation set to which the representation should be added
+ */
+async function createDashCmafRepresentation(
+  encoding: Encoding,
+  muxing: CmafMuxing,
+  dashManifest: DashManifest,
+  period: Period,
+  segmentPath: string,
+  adaptationSetId: string
+) {
+  const dashCmafRepresentation = new DashCmafRepresentation({
+    type: DashRepresentationType.TEMPLATE,
+    encodingId: encoding.id,
+    muxingId: muxing.id,
+    segmentPath: segmentPath
+  });
+
+  await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.representations.cmaf.create(
+    dashManifest.id!,
+    period.id!,
+    adaptationSetId,
+    dashCmafRepresentation
+  );
+}
+
+/**
+ * Creates a DASH manifest
+ *
+ * <p>API endpoint:
+ * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDash
+ *
+ * @param name the resource name
+ * @param dashProfile the DASH profile of the manifest (ON_DEMAND, LIVE)
+ * @param output the output of the manifest
+ * @param outputPath the output path where the manifest is written to
+ * @return the created manifest
+ */
+async function createDashManifest(
+  name: string,
+  dashProfile: DashProfile,
+  output: Output,
+  outputPath: string
+): Promise<DashManifest> {
+  const dashManifest = new DashManifest({
+    name: name,
+    profile: dashProfile,
+    outputs: [buildEncodingOutput(output, outputPath)]
+  });
+
+  return bitmovinApi.encoding.manifests.dash.create(dashManifest);
+}
+
+/** Creates an audio adaption set for the dash manifest */
+async function createAudioAdaptionSet(
+  dashManifest: DashManifest,
+  period: Period,
+  language: string
+): Promise<AudioAdaptationSet> {
+  const audioAdaptationSet = new AudioAdaptationSet({
+    lang: language
+  });
+
+  return bitmovinApi.encoding.manifests.dash.periods.adaptationsets.audio.create(
+    dashManifest.id!,
+    period.id!,
+    audioAdaptationSet
+  );
 }
 
 /**
@@ -225,23 +892,60 @@ function createHttpInput(host: string): Promise<HttpInput> {
  * @param encoding The encoding to add the muxing to
  * @param output The output that should be used for the muxing to write the segments to
  * @param outputPath The output path where the fragments will be written to
- * @param streams A list of streams to be added to the muxing
- * @param fileName The name of the file that will be written to the output
+ * @param stream A list of streams to be added to the muxing
  */
-function createProgressiveTsMuxing(
-  encoding: Encoding,
-  output: Output,
-  outputPath: string,
-  streams: Stream[],
-  fileName: string
-): Promise<ProgressiveTsMuxing> {
-  const muxing = new ProgressiveTsMuxing({
-    filename: fileName,
+function createTsMuxing(encoding: Encoding, output: Output, outputPath: string, stream: Stream): Promise<TsMuxing> {
+  const muxing = new TsMuxing({
     outputs: [buildEncodingOutput(output, outputPath)],
-    streams: streams.map(stream => new MuxingStream({streamId: stream.id}))
+    streams: [new MuxingStream({streamId: stream.id})],
+    segmentLength: 4.0
   });
 
-  return bitmovinApi.encoding.encodings.muxings.progressiveTs.create(encoding.id!, muxing);
+  return bitmovinApi.encoding.encodings.muxings.ts.create(encoding.id!, muxing);
+}
+
+/**
+ * Creates a CMAF muxing. This will generate segments with a given segment length for adaptive
+ * streaming.
+ *
+ * <p>API endpoint:
+ * https://bitmovin.com/docs/encoding/api-reference/all#/Encoding/PostEncodingEncodingsMuxingsCmafByEncodingId
+ *
+ * @param encoding The encoding to add the muxing to
+ * @param output The output that should be used for the muxing to write the segments to
+ * @param outputPath The output path where the fragmented segments will be written to
+ * @param stream The stream that is associated with the muxing
+ */
+function createCmafMuxing(encoding: Encoding, output: Output, outputPath: string, stream: Stream): Promise<CmafMuxing> {
+  const muxing = new CmafMuxing({
+    outputs: [buildEncodingOutput(output, outputPath)],
+    streams: [new MuxingStream({streamId: stream.id})],
+    segmentLength: 4.0
+  });
+
+  return bitmovinApi.encoding.encodings.muxings.cmaf.create(encoding.id!, muxing);
+}
+
+/**
+ * Creates a CMAF muxing. This will generate segments with a given segment length for adaptive
+ * streaming.
+ *
+ * <p>API endpoint:
+ * https://bitmovin.com/docs/encoding/api-reference/all#/Encoding/PostEncodingEncodingsMuxingsCmafByEncodingId
+ *
+ * @param encoding The encoding to add the muxing to
+ * @param output The output that should be used for the muxing to write the segments to
+ * @param outputPath The output path where the fragmented segments will be written to
+ * @param stream The stream that is associated with the muxing
+ */
+function createWebmMuxing(encoding: Encoding, output: Output, outputPath: string, stream: Stream): Promise<WebmMuxing> {
+  const muxing = new WebmMuxing({
+    outputs: [buildEncodingOutput(output, outputPath)],
+    streams: [new MuxingStream({streamId: stream.id})],
+    segmentLength: 4.0
+  });
+
+  return bitmovinApi.encoding.encodings.muxings.webm.create(encoding.id!, muxing);
 }
 
 /**
@@ -253,23 +957,16 @@ function createProgressiveTsMuxing(
  * @param encoding The encoding to add the MP4 muxing to
  * @param output The output that should be used for the muxing to write the segments to
  * @param outputPath The output path where the fragments will be written to
- * @param streams A list of streams to be added to the muxing
- * @param fileName The name of the file that will be written to the output
+ * @param stream A list of streams to be added to the muxing
  */
-function createMp4Muxing(
-  encoding: Encoding,
-  output: Output,
-  outputPath: string,
-  streams: Stream[],
-  fileName: string
-): Promise<Mp4Muxing> {
-  const muxing = new Mp4Muxing({
-    filename: fileName,
+function createFmp4Muxing(encoding: Encoding, output: Output, outputPath: string, stream: Stream): Promise<Fmp4Muxing> {
+  const muxing = new Fmp4Muxing({
     outputs: [buildEncodingOutput(output, outputPath)],
-    streams: streams.map(stream => new MuxingStream({streamId: stream.id}))
+    streams: [new MuxingStream({streamId: stream.id})],
+    segmentLength: 4.0
   });
 
-  return bitmovinApi.encoding.encodings.muxings.mp4.create(encoding.id!, muxing);
+  return bitmovinApi.encoding.encodings.muxings.fmp4.create(encoding.id!, muxing);
 }
 
 /**
@@ -302,7 +999,7 @@ function buildEncodingOutput(output: Output, outputPath: string): EncodingOutput
  * @return The absolute path
  */
 function buildAbsolutePath(relativePath: string): string {
-  return join(configProvider.getS3OutputBasePath(), exampleName, relativePath);
+  return join(configProvider.getS3OutputBasePath(), `${exampleName}-${DATE_STRING}`, relativePath);
 }
 
 /**
@@ -319,12 +1016,12 @@ function buildAbsolutePath(relativePath: string): string {
  * <p>API endpoint:
  * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsVideoH264
  */
-function createH264VideoConfig(): Promise<H264VideoConfiguration> {
+function createH264VideoConfig(height: number, bitrate: number): Promise<H264VideoConfiguration> {
   const config = new H264VideoConfiguration({
-    name: 'H.264 1080p 1.5 Mbit/s',
+    name: `H.264 ${height}p`,
     presetConfiguration: PresetConfiguration.VOD_STANDARD,
-    height: 1080,
-    bitrate: 1500000
+    height: height,
+    bitrate: bitrate
   });
 
   return bitmovinApi.encoding.configurations.video.h264.create(config);
@@ -337,15 +1034,49 @@ function createH264VideoConfig(): Promise<H264VideoConfiguration> {
  * <p>API endpoint:
  * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsVideoH265
  */
-function createH265VideoConfig(): Promise<H265VideoConfiguration> {
+function createH265VideoConfig(height: number, bitrate: number): Promise<H265VideoConfiguration> {
   const config = new H265VideoConfiguration({
-    name: 'H.265 1080p 1.5 Mbit/s',
+    name: 'H.265 ${height}p',
     presetConfiguration: PresetConfiguration.VOD_STANDARD,
-    height: 1080,
-    bitrate: 1500000
+    height: height,
+    bitrate: bitrate
   });
 
   return bitmovinApi.encoding.configurations.video.h265.create(config);
+}
+
+/**
+ * Creates a base VP9 video configuration. The width of the video will be set accordingly to the
+ * aspect ratio of the source video.
+ *
+ * <p>API endpoint:
+ * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsVideoVp9
+ */
+function createVp9VideoConfiguration(height: number, bitrate: number): Promise<Vp9VideoConfiguration> {
+  const config = new Vp9VideoConfiguration({
+    name: 'VP9 video configuration ${height}p',
+    presetConfiguration: PresetConfiguration.VOD_STANDARD,
+    height: height,
+    bitrate: bitrate
+  });
+
+  return bitmovinApi.encoding.configurations.video.vp9.create(config);
+}
+
+/**
+ * Creates a Vorbis audio configuration. The sample rate of the audio will be set accordingly to
+ * the sample rate of the source audio.
+ *
+ * <p>API endpoint:
+ * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioVorbis
+ */
+function createVorbisAudioConfiguration(): Promise<VorbisAudioConfiguration> {
+  const config = new VorbisAudioConfiguration({
+    name: 'Vorbis 128 kbit/s',
+    bitrate: 128000
+  });
+
+  return bitmovinApi.encoding.configurations.audio.vorbis.create(config);
 }
 
 /**
@@ -409,6 +1140,68 @@ async function executeEncoding(encoding: Encoding): Promise<void> {
   }
 
   console.log('Encoding finished successfully');
+}
+
+/**
+ * Starts the dash manifest generation process and periodically polls its status until it reaches
+ * a final state
+ *
+ * <p>API endpoints:
+ * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDashStartByManifestId
+ * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsDashStatusByManifestId
+ *
+ * <p>Please note that you can also use our webhooks API instead of polling the status. For more
+ * information consult the API spec:
+ * https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
+ *
+ * @param dashManifest The dash manifest to be started
+ */
+async function executeDashManifest(dashManifest: DashManifest): Promise<void> {
+  await bitmovinApi.encoding.manifests.dash.start(dashManifest.id!);
+
+  let task: Task;
+  do {
+    await timeout(5000);
+    task = await bitmovinApi.encoding.manifests.dash.status(dashManifest.id!);
+  } while (task.status !== Status.FINISHED && task.status !== Status.ERROR);
+
+  if (task.status === Status.ERROR) {
+    logTaskErrors(task);
+    throw new Error('Dash manifest failed');
+  }
+
+  console.log('Dash manifest finished successfully');
+}
+
+/**
+ * Starts the hls manifest generation process and periodically polls its status until it reaches a
+ * final state
+ *
+ * <p>API endpoints:
+ * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
+ * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
+ *
+ * <p>Please note that you can also use our webhooks API instead of polling the status. For more
+ * information consult the API spec:
+ * https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
+ *
+ * @param hlsManifest The dash manifest to be started
+ */
+async function executeHlsManifest(hlsManifest: HlsManifest): Promise<void> {
+  await bitmovinApi.encoding.manifests.hls.start(hlsManifest.id!);
+
+  let task: Task;
+  do {
+    await timeout(5000);
+    task = await bitmovinApi.encoding.manifests.hls.status(hlsManifest.id!);
+  } while (task.status !== Status.FINISHED && task.status !== Status.ERROR);
+
+  if (task.status === Status.ERROR) {
+    logTaskErrors(task);
+    throw new Error('Hls manifest failed');
+  }
+
+  console.log('Hls manifest finished successfully');
 }
 
 function logTaskErrors(task: Task): void {
