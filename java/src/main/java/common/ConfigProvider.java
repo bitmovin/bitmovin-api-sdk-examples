@@ -55,6 +55,12 @@ public class ConfigProvider {
     return getOrThrowException("BITMOVIN_API_KEY", "Your API key for the Bitmovin API.");
   }
 
+  public String getBitmovinTenantOrgId() {
+    return getOrThrowException(
+        "BITMOVIN_TENANT_ORG_ID",
+        "The ID of the Organisation in which you want to perform the encoding.");
+  }
+
   public String getHttpInputHost() {
     return getOrThrowException(
         "HTTP_INPUT_HOST",

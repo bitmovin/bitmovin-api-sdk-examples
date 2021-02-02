@@ -20,6 +20,7 @@ This example demonstrates how to use different codecs and muxing types in a sing
 
 <ul>
   <li>BITMOVIN_API_KEY - Your API key for the Bitmovin API
+  <li>BITMOVIN_TENANT_ORG_ID - (optional) The ID of the Organisation in which you want to perform the encoding.
   <li>HTTP_INPUT_HOST - The Hostname or IP address of the HTTP server hosting your input files,
       e.g.: my-storage.biz
   <li>HTTP_INPUT_FILE_PATH - The path to your input file on the provided HTTP server Example:
@@ -45,7 +46,10 @@ This example demonstrates how to use different codecs and muxing types in a sing
 
 EXAMPLE_NAME = "MultiCodecEncoding-{}".format(datetime.now().isoformat(timespec='seconds'))
 config_provider = ConfigProvider()
-bitmovin_api = BitmovinApi(api_key=config_provider.get_bitmovin_api_key(), logger=BitmovinApiLogger())
+bitmovin_api = BitmovinApi(api_key=config_provider.get_bitmovin_api_key(),
+                           # uncomment the following line if you are working with a multi-tenant account
+                           # tenant_org_id=config_provider.get_bitmovin_tenant_org_id(),
+                           logger=BitmovinApiLogger())
 
 HLS_AUDIO_GROUP_AAC_FMP4 = "audio-aac-fmp4"
 HLS_AUDIO_GROUP_AAC_TS = "audio-aac-ts"

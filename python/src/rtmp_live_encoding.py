@@ -17,6 +17,7 @@ manifests. For more information see: https://bitmovin.com/live-encoding-live-str
 
 <ul>
   <li>BITMOVIN_API_KEY - Your API key for the Bitmovin API
+  <li>BITMOVIN_TENANT_ORG_ID - (optional) The ID of the Organisation in which you want to perform the encoding.
   <li>S3_OUTPUT_BUCKET_NAME - The name of your S3 output bucket. Example: my-bucket-name
   <li>S3_OUTPUT_ACCESS_KEY - The access key of your S3 output bucket
   <li>S3_OUTPUT_SECRET_KEY - The secret key of your S3 output bucket
@@ -47,7 +48,10 @@ max_minutes_to_wait_for_live_encoding_details = 5
 max_minutes_to_wait_for_encoding_status = 5
 
 config_provider = ConfigProvider()
-bitmovin_api = BitmovinApi(api_key=config_provider.get_bitmovin_api_key(), logger=BitmovinApiLogger())
+bitmovin_api = BitmovinApi(api_key=config_provider.get_bitmovin_api_key(),
+                           # uncomment the following line if you are working with a multi-tenant account
+                           # tenant_org_id=config_provider.get_bitmovin_tenant_org_id(),
+                           logger=BitmovinApiLogger())
 
 
 def main():

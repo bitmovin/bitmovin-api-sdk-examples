@@ -22,6 +22,10 @@ namespace Bitmovin.Api.Sdk.Examples
     /// <description>Your API key for the Bitmovin API</description>
     /// </item>
     /// <item>
+    /// <term>BITMOVIN_TENANT_ORG_ID</term>
+    /// <description>(optional) The ID of the Organisation in which you want to perform the encoding.</description>
+    /// </item>
+    /// <item>
     /// <term>S3_OUTPUT_BUCKET_NAME</term>
     /// <description>The name of your S3 output bucket. Example: my-bucket-name</description>
     /// </item>
@@ -80,6 +84,8 @@ namespace Bitmovin.Api.Sdk.Examples
             _configProvider = new ConfigProvider(args);
             _bitmovinApi = BitmovinApi.Builder
                 .WithApiKey(_configProvider.GetBitmovinApiKey())
+                // uncomment the following line if you are working with a multi-tenant account
+                // .WithTenantOrgIdKey(_configProvider.GetBitmovinTenantOrgId())
                 .WithLogger(new ConsoleLogger())
                 .Build();
 

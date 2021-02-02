@@ -16,6 +16,7 @@ using a fixed resolution- and bitrate ladder.
 
 <ul>
   <li>BITMOVIN_API_KEY - Your API key for the Bitmovin API
+  <li>BITMOVIN_TENANT_ORG_ID - (optional) The ID of the Organisation in which you want to perform the encoding.
   <li>HTTP_INPUT_HOST - The Hostname or IP address of the HTTP server hosting your input files,
       e.g.: my-storage.biz
   <li>HTTP_INPUT_FILE_PATH - The path to your input file on the provided HTTP server Example:
@@ -44,7 +45,10 @@ using a fixed resolution- and bitrate ladder.
 
 EXAMPLE_NAME = "FixedBitrateLadder"
 config_provider = ConfigProvider()
-bitmovin_api = BitmovinApi(api_key=config_provider.get_bitmovin_api_key(), logger=BitmovinApiLogger())
+bitmovin_api = BitmovinApi(api_key=config_provider.get_bitmovin_api_key(),
+                           # uncomment the following line if you are working with a multi-tenant account
+                           # tenant_org_id=config_provider.get_bitmovin_tenant_org_id(),
+                           logger=BitmovinApiLogger())
 
 
 def main():

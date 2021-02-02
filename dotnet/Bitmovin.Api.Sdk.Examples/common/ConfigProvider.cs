@@ -32,6 +32,12 @@ namespace Bitmovin.Api.Sdk.Examples.common
                 "Your API key for the Bitmovin API.");
         }
 
+        public string GetBitmovinTenantOrgId()
+        {
+            return GetOrThrowException("BITMOVIN_TENANT_ORG_ID",
+                "The ID of the Organisation in which you want to perform the encoding.");
+        }
+        
         public string GetHttpInputHost()
         {
             return GetOrThrowException("HTTP_INPUT_HOST",

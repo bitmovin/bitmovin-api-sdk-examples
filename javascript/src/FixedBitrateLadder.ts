@@ -30,6 +30,7 @@ import BitmovinApi, {
  *
  * <ul>
  *   <li>BITMOVIN_API_KEY - Your API key for the Bitmovin API
+ *   <li>BITMOVIN_TENANT_ORG_ID - (optional) The ID of the Organisation in which you want to perform the encoding.
  *   <li>HTTP_INPUT_HOST - The Hostname or IP address of the HTTP server hosting your input files,
  *       e.g.: my-storage.biz
  *   <li>HTTP_INPUT_FILE_PATH - The path to your input file on the provided HTTP server Example:
@@ -62,6 +63,8 @@ const configProvider: ConfigProvider = new ConfigProvider();
 
 const bitmovinApi: BitmovinApi = new BitmovinApi({
   apiKey: configProvider.getBitmovinApiKey(),
+  // uncomment the following line if you are working with a multi-tenant account
+  // tenantOrgId: configProvider.getBitmovinTenantOrgId(),
   logger: new ConsoleLogger()
 });
 

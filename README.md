@@ -57,6 +57,7 @@ This example demonstrates how to create multiple MP4 renditions in a single enco
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
 + `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
 + `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
@@ -77,6 +78,7 @@ This example demonstrates how to create basic DASH and HLS manifests based on a 
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
 + `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
 + `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
@@ -100,6 +102,7 @@ Visit https://bitmovin.com/per-title-encoding/ to get an insight what Per-Title 
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
 + `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
 + `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
@@ -120,6 +123,7 @@ This example showcases how to run a multi-codec workflow following the best prac
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
 + `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
 + `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
@@ -140,6 +144,7 @@ This example demonstrates how multiple audio streams can be included in a Broadc
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
 + `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
 + `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
@@ -160,6 +165,7 @@ This example demonstrates how to apply filters to a video stream. Filters will m
  
  Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
 + `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
 + `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
@@ -183,6 +189,7 @@ The encryption is configured to be compatible with both FairPlay and Widevine, u
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
 + `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
 + `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
@@ -207,6 +214,7 @@ This example demonstrates how to create multiple fMP4 renditions with Server Sid
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
 + `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
 + `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
@@ -228,6 +236,7 @@ For more information see: https://bitmovin.com/live-encoding-live-streaming
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
 + `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
 + `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
@@ -249,6 +258,7 @@ size.
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
 + `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
 + `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
@@ -264,6 +274,8 @@ They can be defined in a file, set as environment variables or passed directly t
 **Note!** See the `README.md` of the API SDK examples in your preferred programming language on how to configure parameters.
 
 <a name="BITMOVIN_API_KEY">**`BITMOVIN_API_KEY`**</a> - Your API key for the Bitmovin API
+
+<a name="BITMOVIN_TENANT_ORG_ID">**`BITMOVIN_TENANT_ORG_ID`**</a> - The ID of the Organisation in which you want to perform the encoding. Only required if working with a multi-tenant account.
 
 <a name="HTTP_INPUT_HOST">**`HTTP_INPUT_HOST`**</a> - The Hostname or IP address of the HTTP server hosting your input files  
 Example: `my-storage.biz`

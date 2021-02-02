@@ -51,6 +51,7 @@ use BitmovinApiSdk\Models\VideoConfiguration;
  *
  * <ul>
  *   <li>BITMOVIN_API_KEY - Your API key for the Bitmovin API
+ *   <li>BITMOVIN_TENANT_ORG_ID - (optional) The ID of the Organisation in which you want to perform the encoding.
  *   <li>HTTP_INPUT_HOST - The Hostname or IP address of the HTTP server hosting your input files,
  *       e.g.: my-storage.biz
  *   <li>S3_OUTPUT_BUCKET_NAME - The name of your S3 output bucket. Example: my-bucket-name
@@ -64,7 +65,7 @@ use BitmovinApiSdk\Models\VideoConfiguration;
  *
  * <ol>
  *   <li>command line arguments (eg BITMOVIN_API_KEY=xyz)
- *   <li>properties file located in the root folder of the JavaScript examples at ./examples.properties
+ *   <li>properties file located in the root folder of the PHP examples at ./examples.properties
  *       (see examples.properties.template as reference)
  *   <li>environment variables
  *   <li>properties file located in the home folder at ~/.bitmovin/examples.properties (see
@@ -93,6 +94,8 @@ define("MAX_RETRIES", 2);
 try {
     $bitmovinApi = new BitmovinApi(Configuration::create()
         ->apiKey($configProvider->getBitmovinApiKey())
+        // uncomment the following line if you are working with a multi-tenant account
+        // ->tenantOrgId($configProvider->getBitmovinTenantOrgId())        
         ->logger(new ConsoleLogger())
     );
 
