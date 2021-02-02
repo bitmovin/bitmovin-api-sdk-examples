@@ -1,22 +1,28 @@
+package tutorials.AudioChannelManipulations;
+
 import com.bitmovin.api.sdk.BitmovinApi;
 import com.bitmovin.api.sdk.common.BitmovinException;
 import com.bitmovin.api.sdk.model.AacAudioConfiguration;
+import com.bitmovin.api.sdk.model.Ac3AudioConfiguration;
+import com.bitmovin.api.sdk.model.Ac3ChannelLayout;
 import com.bitmovin.api.sdk.model.AclEntry;
 import com.bitmovin.api.sdk.model.AclPermission;
+import com.bitmovin.api.sdk.model.AudioMixChannelType;
+import com.bitmovin.api.sdk.model.AudioMixInputChannelLayout;
+import com.bitmovin.api.sdk.model.AudioMixInputStream;
+import com.bitmovin.api.sdk.model.AudioMixInputStreamChannel;
+import com.bitmovin.api.sdk.model.AudioMixInputStreamSourceChannel;
+import com.bitmovin.api.sdk.model.AudioMixSourceChannelType;
 import com.bitmovin.api.sdk.model.CodecConfiguration;
-import com.bitmovin.api.sdk.model.DashManifest;
-import com.bitmovin.api.sdk.model.DashManifestDefault;
-import com.bitmovin.api.sdk.model.DashManifestDefaultVersion;
 import com.bitmovin.api.sdk.model.Encoding;
 import com.bitmovin.api.sdk.model.EncodingOutput;
-import com.bitmovin.api.sdk.model.Fmp4Muxing;
 import com.bitmovin.api.sdk.model.H264VideoConfiguration;
-import com.bitmovin.api.sdk.model.HlsManifest;
-import com.bitmovin.api.sdk.model.HlsManifestDefault;
-import com.bitmovin.api.sdk.model.HlsManifestDefaultVersion;
 import com.bitmovin.api.sdk.model.HttpInput;
+import com.bitmovin.api.sdk.model.IngestInputStream;
 import com.bitmovin.api.sdk.model.Input;
+import com.bitmovin.api.sdk.model.InputStream;
 import com.bitmovin.api.sdk.model.MessageType;
+import com.bitmovin.api.sdk.model.Mp4Muxing;
 import com.bitmovin.api.sdk.model.MuxingStream;
 import com.bitmovin.api.sdk.model.Output;
 import com.bitmovin.api.sdk.model.PresetConfiguration;
@@ -32,11 +38,15 @@ import common.ConfigProvider;
 import feign.Logger.Level;
 import feign.slf4j.Slf4jLogger;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This example demonstrates how to create default DASH and HLS manifests for an encoding.
+ * This example demonstrates one mechanism to create a single output track from multiple mono input
+ * tracks.
  *
  * <p>The following configuration parameters are expected:
  *
@@ -46,8 +56,8 @@ import org.slf4j.LoggerFactory;
  *       the encoding.
  *   <li>HTTP_INPUT_HOST - The Hostname or IP address of the HTTP server hosting your input files,
  *       e.g.: my-storage.biz
- *   <li>HTTP_INPUT_FILE_PATH - The path to your input file on the provided HTTP server Example:
- *       videos/1080p_Sintel.mp4
+ *   <li>INPUT_FILE_8TRACKS_MONO - the path to a file containing a video with multiple mono audio
+ *       tracks
  *   <li>S3_OUTPUT_BUCKET_NAME - The name of your S3 output bucket. Example: my-bucket-name
  *   <li>S3_OUTPUT_ACCESS_KEY - The access key of your S3 output bucket
  *   <li>S3_OUTPUT_SECRET_KEY - The secret key of your S3 output bucket
@@ -66,9 +76,10 @@ import org.slf4j.LoggerFactory;
  *       examples.properties.template as reference)
  * </ol>
  */
-public class DefaultManifests {
+public class AudioChannelManipulation_5_MultipleInputMonoTracks {
 
-  private static final Logger logger = LoggerFactory.getLogger(DefaultManifests.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(AudioChannelManipulation_5_MultipleInputMonoTracks.class);
 
   private static BitmovinApi bitmovinApi;
   private static ConfigProvider configProvider;
@@ -86,31 +97,86 @@ public class DefaultManifests {
 
     Encoding encoding =
         createEncoding(
-            "Encoding with default manifests", "Encoding with HLS and DASH default manifests");
+            "Audio Mapping - Example 5",
+            "Creating stereo and surround tracks from multiple mono input tracks");
 
-    Input input = createHttpInput(configProvider.getHttpInputHost());
+    HttpInput input = createHttpInput(configProvider.getHttpInputHost());
     Output output =
         createS3Output(
             configProvider.getS3OutputBucketName(),
             configProvider.getS3OutputAccessKey(),
             configProvider.getS3OutputSecretKey());
 
-    // Add a template video stream to the encoding
     H264VideoConfiguration h264Config = createH264VideoConfig();
-    Stream videoStream =
-        createStream(encoding, input, configProvider.getHttpInputFilePath(), h264Config);
-    createFmp4Muxing(encoding, output, "video", videoStream);
+    AacAudioConfiguration aacConfig = createAacStereoAudioConfig();
+    Ac3AudioConfiguration ac3Config = createAc3SurroundAudioConfig();
 
-    // Add audio stream to the encoding
-    AacAudioConfiguration aacConfig = createAacAudioConfig();
-    Stream audioStream =
-        createStream(encoding, input, configProvider.getHttpInputFilePath(), aacConfig);
-    createFmp4Muxing(encoding, output, "audio", audioStream);
+    String inputFilePath = configProvider.getParameterByKey("INPUT_FILE_8TRACKS_MONO");
+    IngestInputStream videoIngestInputStream =
+        createIngestInputStream(encoding, input, inputFilePath);
+
+    List<ChannelMappingConfig> stereoMap = new ArrayList<>();
+    stereoMap.add(new ChannelMappingConfig(AudioMixChannelType.FRONT_LEFT, 0));
+    stereoMap.add(new ChannelMappingConfig(AudioMixChannelType.FRONT_RIGHT, 1));
+
+    List<ChannelMappingConfig> surroundMap = new ArrayList<>();
+    surroundMap.add(new ChannelMappingConfig(AudioMixChannelType.FRONT_LEFT, 2));
+    surroundMap.add(new ChannelMappingConfig(AudioMixChannelType.FRONT_RIGHT, 3));
+    surroundMap.add(new ChannelMappingConfig(AudioMixChannelType.BACK_LEFT, 4));
+    surroundMap.add(new ChannelMappingConfig(AudioMixChannelType.BACK_RIGHT, 5));
+    surroundMap.add(new ChannelMappingConfig(AudioMixChannelType.CENTER, 6));
+    surroundMap.add(new ChannelMappingConfig(AudioMixChannelType.LOW_FREQUENCY, 7));
+
+    AudioMixInputStream stereoMixInputStream =
+        createAudioMixInputStream(
+            encoding, input, inputFilePath, AudioMixInputChannelLayout.CL_STEREO, stereoMap);
+
+    AudioMixInputStream surroundMixInputStream =
+        createAudioMixInputStream(
+            encoding, input, inputFilePath, AudioMixInputChannelLayout.CL_5_1, surroundMap);
+
+    Stream videoStream = createStream(encoding, videoIngestInputStream, h264Config);
+    Stream audioStream1 = createStream(encoding, stereoMixInputStream, aacConfig);
+    Stream audioStream2 = createStream(encoding, surroundMixInputStream, ac3Config);
+
+    createMp4Muxing(
+        encoding,
+        output,
+        "/",
+        Arrays.asList(videoStream, audioStream1, audioStream2),
+        "stereo-and-surround-tracks-mapped.mp4");
 
     executeEncoding(encoding);
+  }
 
-    generateDashManifest(encoding, output, "/");
-    generateHlsManifest(encoding, output, "/");
+  /** Helper classes representing the mapping from source channels to output channels */
+  private static class ChannelMappingConfig {
+
+    private final AudioMixChannelType outputChannelType;
+    private final int sourceChannelNumber;
+
+    private ChannelMappingConfig(AudioMixChannelType outputChannelType, int sourceChannelNumber) {
+      this.outputChannelType = outputChannelType;
+      this.sourceChannelNumber = sourceChannelNumber;
+    }
+  }
+
+  /**
+   * Creates an Encoding object. This is the base object to configure your encoding.
+   *
+   * <p>API endpoint:
+   * https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/PostEncodingEncodings
+   *
+   * @param name A name that will help you identify the encoding, e.g. in the Bitmovin dashboard
+   * @param description An optional description providing more detailed information about the
+   *     encoding
+   */
+  private static Encoding createEncoding(String name, String description) throws BitmovinException {
+    Encoding encoding = new Encoding();
+    encoding.setName(name);
+    encoding.setDescription(description);
+
+    return bitmovinApi.encoding.encodings.create(encoding);
   }
 
   /**
@@ -171,41 +237,113 @@ public class DefaultManifests {
   }
 
   /**
-   * Creates an Encoding object. This is the base object to configure your encoding.
+   * Creates an IngestInputStream and adds it to an encoding
+   *
+   * <p>The IngestInputStream is used to define where a file to read a stream from is located
    *
    * <p>API endpoint:
-   * https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/PostEncodingEncodings
+   * https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/PostEncodingEncodingsInputStreamsIngestByEncodingId
    *
-   * @param name This is the name of the encoding
-   * @param description This is the description of the encoding
+   * @param encoding The encoding to which the stream will be added
+   * @param input The input resource providing the input file
+   * @param inputPath The path to the input file
    */
-  private static Encoding createEncoding(String name, String description) throws BitmovinException {
-    Encoding encoding = new Encoding();
-    encoding.setName(name);
-    encoding.setDescription(description);
+  private static IngestInputStream createIngestInputStream(
+      Encoding encoding, Input input, String inputPath) throws BitmovinException {
+    IngestInputStream ingestInputStream = new IngestInputStream();
+    ingestInputStream.setInputId(input.getId());
+    ingestInputStream.setInputPath(inputPath);
+    ingestInputStream.setSelectionMode(StreamSelectionMode.AUTO);
 
-    return bitmovinApi.encoding.encodings.create(encoding);
+    return bitmovinApi.encoding.encodings.inputStreams.ingest.create(
+        encoding.getId(), ingestInputStream);
   }
 
   /**
-   * Create a stream which binds an input file to a codec configuration. The stream is used later
-   * for muxings.
+   * Creates an IngestInputStream to select a specific audio strack in the input, and adds it to an
+   * encoding
+   *
+   * <p>The IngestInputStream is used to define where a file to read a stream from is located
+   *
+   * <p>API endpoint:
+   * https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/PostEncodingEncodingsInputStreamsIngestByEncodingId
+   *
+   * @param encoding The encoding to which the stream will be added
+   * @param input The input resource providing the input file
+   * @param inputPath The path to the input file
+   * @param position The relative position of the audio track to select in the input file
+   */
+  private static IngestInputStream createIngestInputStreamForAudioTrack(
+      Encoding encoding, Input input, String inputPath, Integer position) throws BitmovinException {
+    IngestInputStream ingestInputStream = new IngestInputStream();
+    ingestInputStream.setInputId(input.getId());
+    ingestInputStream.setInputPath(inputPath);
+    ingestInputStream.setSelectionMode(StreamSelectionMode.AUDIO_RELATIVE);
+    ingestInputStream.setPosition(position);
+
+    return bitmovinApi.encoding.encodings.inputStreams.ingest.create(
+        encoding.getId(), ingestInputStream);
+  }
+
+  /**
+   * Adds an audio stream to an encoding, by remixing multiple channels from a source input stream
+   *
+   * <p>API endpoint:
+   * https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/PostEncodingEncodingsInputStreamsAudioMixByEncodingId
+   *
+   * @param encoding The encoding to which the stream will be added
+   * @param inputFilePath The path to the input file
+   * @param mappingConfigs The configuration of the mapping of source channels to output channels
+   */
+  private static AudioMixInputStream createAudioMixInputStream(
+      Encoding encoding,
+      Input input,
+      String inputFilePath,
+      AudioMixInputChannelLayout channelLayout,
+      List<ChannelMappingConfig> mappingConfigs) {
+    AudioMixInputStream audioMixInputStream = new AudioMixInputStream();
+    audioMixInputStream.setChannelLayout(channelLayout);
+
+    for (ChannelMappingConfig mappingConfig : mappingConfigs) {
+      IngestInputStream audioIngestInputStream =
+          createIngestInputStreamForAudioTrack(
+              encoding, input, inputFilePath, mappingConfig.sourceChannelNumber);
+
+      AudioMixInputStreamChannel outputChannel = new AudioMixInputStreamChannel();
+      outputChannel.setInputStreamId(audioIngestInputStream.getId());
+      outputChannel.setOutputChannelType(mappingConfig.outputChannelType);
+
+      AudioMixInputStreamSourceChannel sourceChannel = new AudioMixInputStreamSourceChannel();
+      sourceChannel.setType(AudioMixSourceChannelType.CHANNEL_NUMBER);
+      sourceChannel.setChannelNumber(0);
+      outputChannel.addSourceChannelsItem(sourceChannel);
+
+      audioMixInputStream.addAudioMixChannelsItem(outputChannel);
+    }
+
+    audioMixInputStream =
+        bitmovinApi.encoding.encodings.inputStreams.audioMix.create(
+            encoding.getId(), audioMixInputStream);
+
+    return audioMixInputStream;
+  }
+
+  /**
+   * Adds a video or audio stream to an encoding, by mapping a codec configuration to an input
+   * stream
    *
    * <p>API endpoint:
    * https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/PostEncodingEncodingsStreamsByEncodingId
    *
-   * @param encoding The encoding where to add the stream to
-   * @param input The input where the input file is located
-   * @param inputPath The path to the input file
+   * @param encoding The encoding to which the stream will be added
+   * @param inputStream The inputStream resource providing the input file
    * @param codecConfiguration The codec configuration to be applied to the stream
    */
   private static Stream createStream(
-      Encoding encoding, Input input, String inputPath, CodecConfiguration codecConfiguration)
+      Encoding encoding, InputStream inputStream, CodecConfiguration codecConfiguration)
       throws BitmovinException {
     StreamInput streamInput = new StreamInput();
-    streamInput.setInputId(input.getId());
-    streamInput.setInputPath(inputPath);
-    streamInput.setSelectionMode(StreamSelectionMode.AUTO);
+    streamInput.setInputStreamId(inputStream.getId());
 
     Stream stream = new Stream();
     stream.addInputStreamsItem(streamInput);
@@ -245,7 +383,7 @@ public class DefaultManifests {
    * <p>API endpoint:
    * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAac
    */
-  private static AacAudioConfiguration createAacAudioConfig() throws BitmovinException {
+  private static AacAudioConfiguration createAacStereoAudioConfig() throws BitmovinException {
     AacAudioConfiguration config = new AacAudioConfiguration();
     config.setName("AAC 128 kbit/s");
     config.setBitrate(128_000L);
@@ -254,28 +392,46 @@ public class DefaultManifests {
   }
 
   /**
-   * Creates a fragmented MP4 muxing. This will generate segments with a given segment length for
-   * adaptive streaming.
+   * Creates a configuration for the AC3 audio codec to be applied to audio streams.
    *
    * <p>API endpoint:
-   * https://bitmovin.com/docs/encoding/api-reference/all#/Encoding/PostEncodingEncodingsMuxingsFmp4ByEncodingId
-   *
-   * @param encoding The encoding where to add the muxing to
-   * @param output The output that should be used for the muxing to write the segments to
-   * @param outputPath The output path where the fragmented segments will be written to
-   * @param stream The stream to be muxed
+   * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAc3
    */
-  private static Fmp4Muxing createFmp4Muxing(
-      Encoding encoding, Output output, String outputPath, Stream stream) throws BitmovinException {
-    MuxingStream muxingStream = new MuxingStream();
-    muxingStream.setStreamId(stream.getId());
+  private static Ac3AudioConfiguration createAc3SurroundAudioConfig() throws BitmovinException {
+    Ac3AudioConfiguration config = new Ac3AudioConfiguration();
+    config.setName("AC3 5.1 384 kbit/s");
+    config.setChannelLayout(Ac3ChannelLayout.CL_5_1);
+    config.setBitrate(384_000L);
 
-    Fmp4Muxing muxing = new Fmp4Muxing();
+    return bitmovinApi.encoding.configurations.audio.ac3.create(config);
+  }
+
+  /**
+   * Creates an MP4 muxing.
+   *
+   * <p>API endpoint:
+   * https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/PostEncodingEncodingsMuxingsMp4ByEncodingId
+   *
+   * @param encoding The encoding to add the MP4 muxing to
+   * @param output The output that should be used for the muxing to write the segments to
+   * @param outputPath The output path where the fragments will be written to
+   * @param streams A list of streams to be added to the muxing
+   * @param fileName The name of the file that will be written to the output
+   */
+  private static Mp4Muxing createMp4Muxing(
+      Encoding encoding, Output output, String outputPath, List<Stream> streams, String fileName)
+      throws BitmovinException {
+    Mp4Muxing muxing = new Mp4Muxing();
     muxing.addOutputsItem(buildEncodingOutput(output, outputPath));
-    muxing.addStreamsItem(muxingStream);
-    muxing.setSegmentLength(4.0);
+    muxing.setFilename(fileName);
 
-    return bitmovinApi.encoding.encodings.muxings.fmp4.create(encoding.getId(), muxing);
+    for (Stream stream : streams) {
+      MuxingStream muxingStream = new MuxingStream();
+      muxingStream.setStreamId(stream.getId());
+      muxing.addStreamsItem(muxingStream);
+    }
+
+    return bitmovinApi.encoding.encodings.muxings.mp4.create(encoding.getId(), muxing);
   }
 
   /**
@@ -307,7 +463,7 @@ public class DefaultManifests {
    * @return The absolute path
    */
   public static String buildAbsolutePath(String relativePath) {
-    String className = DefaultManifests.class.getSimpleName();
+    String className = AudioChannelManipulation_5_MultipleInputMonoTracks.class.getSimpleName();
     return Paths.get(configProvider.getS3OutputBasePath(), className, relativePath).toString();
   }
 
@@ -333,115 +489,14 @@ public class DefaultManifests {
     do {
       Thread.sleep(5000);
       task = bitmovinApi.encoding.encodings.status(encoding.getId());
-      logger.info("encoding status is {} (progress: {} %)", task.getStatus(), task.getProgress());
+      logger.info("Encoding status is {} (progress: {} %)", task.getStatus(), task.getProgress());
     } while (task.getStatus() != Status.FINISHED && task.getStatus() != Status.ERROR);
 
     if (task.getStatus() == Status.ERROR) {
       logTaskErrors(task);
       throw new RuntimeException("Encoding failed");
     }
-    logger.info("encoding finished successfully");
-  }
-
-  /**
-   * Creates an HLS default manifest that automatically includes all representations configured in
-   * the encoding.
-   *
-   * <p>API endpoint:
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsDefault
-   *
-   * @param encoding The encoding for which the manifest should be generated
-   * @param output The output to which the manifest should be written
-   * @param outputPath The path to which the manifest should be written
-   */
-  private static void generateHlsManifest(Encoding encoding, Output output, String outputPath)
-      throws Exception {
-    HlsManifestDefault hlsManifestDefault = new HlsManifestDefault();
-    hlsManifestDefault.setEncodingId(encoding.getId());
-    hlsManifestDefault.addOutputsItem(buildEncodingOutput(output, outputPath));
-    hlsManifestDefault.setName("master.m3u8");
-    hlsManifestDefault.setVersion(HlsManifestDefaultVersion.V1);
-
-    hlsManifestDefault = bitmovinApi.encoding.manifests.hls.defaultapi.create(hlsManifestDefault);
-    executeHlsManifestCreation(hlsManifestDefault);
-  }
-
-  /**
-   * Creates a DASH default manifest that automatically includes all representations configured in
-   * the encoding.
-   *
-   * <p>API endpoint:
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDash
-   *
-   * @param encoding The encoding for which the manifest should be generated
-   * @param output The output where the manifest should be written to
-   * @param outputPath The path to which the manifest should be written
-   */
-  private static void generateDashManifest(Encoding encoding, Output output, String outputPath)
-      throws Exception {
-    DashManifestDefault dashManifestDefault = new DashManifestDefault();
-    dashManifestDefault.setEncodingId(encoding.getId());
-    dashManifestDefault.setManifestName("stream.mpd");
-    dashManifestDefault.setVersion(DashManifestDefaultVersion.V1);
-    dashManifestDefault.addOutputsItem(buildEncodingOutput(output, outputPath));
-    dashManifestDefault =
-        bitmovinApi.encoding.manifests.dash.defaultapi.create(dashManifestDefault);
-    executeDashManifestCreation(dashManifestDefault);
-  }
-
-  /**
-   * Starts the DASH manifest creation and periodically polls its status until it reaches a final
-   * state
-   *
-   * <p>API endpoints:
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDashStartByManifestId
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsDashStatusByManifestId
-   *
-   * @param dashManifest The DASH manifest to be created
-   */
-  private static void executeDashManifestCreation(DashManifest dashManifest)
-      throws BitmovinException, InterruptedException {
-    bitmovinApi.encoding.manifests.dash.start(dashManifest.getId());
-
-    Task task;
-    do {
-      Thread.sleep(1000);
-      task = bitmovinApi.encoding.manifests.dash.status(dashManifest.getId());
-    } while (task.getStatus() != Status.FINISHED && task.getStatus() != Status.ERROR);
-
-    if (task.getStatus() == Status.ERROR) {
-      logTaskErrors(task);
-      throw new RuntimeException("DASH manifest creation failed");
-    }
-    logger.info("DASH manifest creation finished successfully");
-  }
-
-  /**
-   * Starts the HLS manifest creation and periodically polls its status until it reaches a final
-   * state
-   *
-   * <p>API endpoints:
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
-   *
-   * @param hlsManifest The HLS manifest to be created
-   */
-  private static void executeHlsManifestCreation(HlsManifest hlsManifest)
-      throws BitmovinException, InterruptedException {
-
-    bitmovinApi.encoding.manifests.hls.start(hlsManifest.getId());
-
-    Task task;
-    do {
-      Thread.sleep(1000);
-      task = bitmovinApi.encoding.manifests.hls.status(hlsManifest.getId());
-    } while (task.getStatus() != Status.FINISHED && task.getStatus() != Status.ERROR);
-
-    if (task.getStatus() == Status.ERROR) {
-      logTaskErrors(task);
-      throw new RuntimeException("HLS manifest creation failed");
-    }
-    logger.info("HLS manifest creation finished successfully");
+    logger.info("Encoding finished successfully");
   }
 
   private static void logTaskErrors(Task task) {

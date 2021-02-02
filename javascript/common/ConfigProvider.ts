@@ -37,6 +37,10 @@ export default class ConfigProvider {
     return this.getOrThrowException('BITMOVIN_API_KEY', 'Your API key for the Bitmovin API.');
   }
 
+  public getBitmovinTenantOrgId(): string {
+    return this.getOrThrowException('BITMOVIN_TENANT_ORG_ID', 'The ID of the Organisation in which you want to perform the encoding.');
+  }
+
   public getHttpInputHost(): string {
     return this.getOrThrowException(
       'HTTP_INPUT_HOST',

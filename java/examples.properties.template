@@ -1,5 +1,6 @@
 # copy this file and rename it to examples.properties
 BITMOVIN_API_KEY=
+BITMOVIN_TENANT_ORG_ID=
 HTTP_INPUT_HOST=
 HTTP_INPUT_FILE_PATH=
 S3_OUTPUT_BUCKET_NAME=

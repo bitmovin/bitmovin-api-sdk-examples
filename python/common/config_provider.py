@@ -11,6 +11,8 @@ class ConfigProvider(object):
     _properties = {
         "BITMOVIN_API_KEY":
             BitmovinArgument("Your API key for the Bitmovin API.", True),
+        "BITMOVIN_TENANT_ORG_ID":
+            BitmovinArgument("The ID of the Organisation in which you want to perform the encoding.", True),
         "HTTP_INPUT_HOST":
             BitmovinArgument("Hostname or IP address of the HTTP server hosting your input files, e.g.: my-storage.biz"),
         "HTTP_INPUT_FILE_PATH":
@@ -52,6 +54,9 @@ class ConfigProvider(object):
 
     def get_bitmovin_api_key(self):
         return self._get_or_throw_exception("BITMOVIN_API_KEY")
+
+    def get_bitmovin_tenant_org_id(self):
+        return self._get_or_throw_exception("BITMOVIN_TENANT_ORG_ID")
 
     def get_http_input_host(self):
         return self._get_or_throw_exception("HTTP_INPUT_HOST")

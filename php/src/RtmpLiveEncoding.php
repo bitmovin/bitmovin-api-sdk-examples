@@ -44,6 +44,7 @@ use BitmovinApiSdk\Models\Task;
  *
  * <ul>
  *   <li>BITMOVIN_API_KEY - Your API key for the Bitmovin API
+ *   <li>BITMOVIN_TENANT_ORG_ID - (optional) The ID of the Organisation in which you want to perform the encoding.
  *   <li>S3_OUTPUT_BUCKET_NAME - The name of your S3 output bucket. Example: my-bucket-name
  *   <li>S3_OUTPUT_ACCESS_KEY - The access key of your S3 output bucket
  *   <li>S3_OUTPUT_SECRET_KEY - The secret key of your S3 output bucket
@@ -55,7 +56,7 @@ use BitmovinApiSdk\Models\Task;
  *
  * <ol>
  *   <li>command line arguments (eg BITMOVIN_API_KEY=xyz)
- *   <li>properties file located in the root folder of the JAVA examples at ./examples.properties
+ *   <li>properties file located in the root folder of the PHP examples at ./examples.properties
  *       (see examples.properties.template as reference)
  *   <li>environment variables
  *   <li>properties file located in the home folder at ~/.bitmovin/examples.properties (see
@@ -82,6 +83,8 @@ $configProvider = new ConfigProvider();
 try {
     $bitmovinApi = new BitmovinApi(Configuration::create()
         ->apiKey($configProvider->getBitmovinApiKey())
+        // uncomment the following line if you are working with a multi-tenant account
+        // ->tenantOrgId($configProvider->getBitmovinTenantOrgId())        
         ->logger(new ConsoleLogger())
     );
 

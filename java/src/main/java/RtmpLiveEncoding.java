@@ -48,6 +48,8 @@ import org.slf4j.LoggerFactory;
  *
  * <ul>
  *   <li>BITMOVIN_API_KEY - Your API key for the Bitmovin API
+ *   <li>BITMOVIN_TENANT_ORG_ID - (optional) The ID of the Organisation in which you want to perform
+ *       the encoding.
  *   <li>S3_OUTPUT_BUCKET_NAME - The name of your S3 output bucket. Example: my-bucket-name
  *   <li>S3_OUTPUT_ACCESS_KEY - The access key of your S3 output bucket
  *   <li>S3_OUTPUT_SECRET_KEY - The secret key of your S3 output bucket
@@ -103,6 +105,8 @@ public class RtmpLiveEncoding {
     bitmovinApi =
         BitmovinApi.builder()
             .withApiKey(configProvider.getBitmovinApiKey())
+            // uncomment the following line if you are working with a multi-tenant account
+            // .withTenantOrgId(configProvider.getBitmovinTenantOrgId())
             .withLogger(
                 new Slf4jLogger(), Level.BASIC) // set the logger and log level for the API client
             .build();

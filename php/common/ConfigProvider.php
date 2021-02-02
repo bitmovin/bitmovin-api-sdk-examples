@@ -7,7 +7,7 @@
  *
  * <ol>
  *   <li>command line arguments (eg BITMOVIN_API_KEY=xyz)
- *   <li>properties file located in the root folder of the JavaScript examples at ./examples.properties
+ *   <li>properties file located in the root folder of the PHP examples at ./examples.properties
  *       (see examples.properties.template as reference)
  *   <li>environment variables
  *   <li>properties file located in the home folder at ~/.bitmovin/examples.properties (see
@@ -40,9 +40,24 @@ class ConfigProvider
      */
     public function getBitmovinApiKey(): string
     {
-        return $this->getOrThrowException('BITMOVIN_API_KEY', 'Your API key for the Bitmovin API.');
+        return $this->getOrThrowException(
+            'BITMOVIN_API_KEY', 
+            'Your API key for the Bitmovin API.'
+        );
     }
 
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function getBitmovinTenantOrgId(): string
+    {
+        return $this->getOrThrowException(
+            'BITMOVIN_TENANT_ORG_ID', 
+            'The ID of the Organisation in which you want to perform the encoding.'
+        );
+    }
+    
     /**
      * @return string
      * @throws Exception

@@ -42,6 +42,8 @@ import org.slf4j.LoggerFactory;
  *
  * <ul>
  *   <li>BITMOVIN_API_KEY - Your API key for the Bitmovin API
+ *   <li>BITMOVIN_TENANT_ORG_ID - (optional) The ID of the Organisation in which you want to perform
+ *       the encoding.
  *   <li>S3_INPUT_BUCKET_NAME - The name of your S3 input bucket. Example: my-input-bucket-name
  *   <li>S3_INPUT_ARN_ROLE - The ARN name of the role you granted Bitmovin access to on your S3
  *       input bucket
@@ -81,6 +83,8 @@ public class FixedBitrateLadderWithRoleBasedS3 {
     bitmovinApi =
         BitmovinApi.builder()
             .withApiKey(configProvider.getBitmovinApiKey())
+            // uncomment the following line if you are working with a multi-tenant account
+            // .withTenantOrgId(configProvider.getBitmovinTenantOrgId())
             .withLogger(
                 new Slf4jLogger(), Level.BASIC) // set the logger and log level for the API client
             .build();

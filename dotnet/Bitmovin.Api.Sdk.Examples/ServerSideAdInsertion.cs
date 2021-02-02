@@ -20,6 +20,10 @@ namespace Bitmovin.Api.Sdk.Examples
     /// <description>Your API key for the Bitmovin API</description>
     /// </item>
     /// <item>
+    /// <term>BITMOVIN_TENANT_ORG_ID</term>
+    /// <description>(optional) The ID of the Organisation in which you want to perform the encoding.</description>
+    /// </item>
+    /// <item>
     /// <term>HTTP_INPUT_HOST</term>
     /// <description>The Hostname or IP address of the HTTP server hosting your input files, e.g.: my-storage.biz</description>
     /// </item>
@@ -76,6 +80,8 @@ namespace Bitmovin.Api.Sdk.Examples
             _configProvider = new ConfigProvider(args);
             _bitmovinApi = BitmovinApi.Builder
                 .WithApiKey(_configProvider.GetBitmovinApiKey())
+                // uncomment the following line if you are working with a multi-tenant account
+                // .WithTenantOrgIdKey(_configProvider.GetBitmovinTenantOrgId())
                 .WithLogger(new ConsoleLogger())
                 .Build();
 
