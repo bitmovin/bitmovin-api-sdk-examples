@@ -9,7 +9,6 @@ use BitmovinApiSdk\Common\BitmovinApiException;
 use BitmovinApiSdk\Common\Logging\ConsoleLogger;
 use BitmovinApiSdk\Configuration;
 use BitmovinApiSdk\Models\AacAudioConfiguration;
-use BitmovinApiSdk\Models\Ac3AudioConfiguration;
 use BitmovinApiSdk\Models\AclEntry;
 use BitmovinApiSdk\Models\AclPermission;
 use BitmovinApiSdk\Models\AudioAdaptationSet;
@@ -22,6 +21,8 @@ use BitmovinApiSdk\Models\DashManifest;
 use BitmovinApiSdk\Models\DashProfile;
 use BitmovinApiSdk\Models\DashRepresentationType;
 use BitmovinApiSdk\Models\DashWebmRepresentation;
+use BitmovinApiSdk\Models\DolbyDigitalAudioConfiguration;
+use BitmovinApiSdk\Models\DolbyDigitalChannelLayout;
 use BitmovinApiSdk\Models\Encoding;
 use BitmovinApiSdk\Models\EncodingOutput;
 use BitmovinApiSdk\Models\Fmp4Muxing;
@@ -87,7 +88,7 @@ $DATE_STRING = date("Y-m-d") . "T" . date("H:i:s");
 
 const HLS_AUDIO_GROUP_AAC_FMP4 = "audio-aac-fmp4";
 const HLS_AUDIO_GROUP_AAC_TS = "audio-aac-ts";
-const HLS_AUDIO_GROUP_AC3_FMP4 = "audio-ac3-fmp4";
+const HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4 = "audio-dolby-digital-fmp4";
 
 $configProvider = new ConfigProvider();
 
@@ -136,7 +137,7 @@ class H264AndAacEncodingTracking
     }
 }
 
-class H265AndAc3EncodingTracking
+class H265AndDolbyDigitalEncodingTracking
 {
     public $encoding;
 
@@ -144,11 +145,11 @@ class H265AndAc3EncodingTracking
     public $h265VideoStreams;
     public $h265Fmp4Muxings;
 
-    public $ac3AudioStream;
-    public $ac3Fmp4Muxing;
+    public $dolbyDigitalAudioStream;
+    public $dolbyDigitalFmp4Muxing;
 
     public $H265_FMP4_SEGMENTS_PATH_FORMAT = "video/h265/fmp4/%dp_%d";
-    public $AC3_FMP4_SEGMENTS_PATH = "audio/ac3/fmp4";
+    public $DOLBY_DIGITAL_FMP4_SEGMENTS_PATH = "audio/dolby-digital/fmp4";
 
     public function __construct(Encoding $encoding)
     {
@@ -172,7 +173,7 @@ class Vp9AndVorbisEncodingTracking
     public $vp9WebmMuxing;
     public $vorbisWebmMuxing;
 
-    public $VP9_WEBM_SEGMENTS_PATH_FORMAT = "video/webm/vp9/%dp_%d";
+    public $VP9_WEBM_SEGMENTS_PATH_FORMAT = "video/vp9/webm/%dp_%d";
     public $VORBIS_WEBM_SEGMENTS_PATH = "audio/vorbis/webm";
 
     public function __construct(Encoding $encoding)
@@ -211,7 +212,7 @@ try {
         $inputFilePath,
         $output
     );
-    $h265AndAc3EncodingTracking = createH265AndAc3Encoding(
+    $h265AndDolbyDigitalEncodingTracking = createH265AndDolbyDigitalEncoding(
         $input,
         $inputFilePath,
         $output
@@ -224,14 +225,14 @@ try {
 
     executeEncodings([
         $h264AndAacEncodingTracking->encoding,
-        $h265AndAc3EncodingTracking->encoding,
+        $h265AndDolbyDigitalEncodingTracking->encoding,
         $vp9AndVorbisEncodingTracking->encoding,
     ]);
 
     $dashManifest = createDashManifestWithRepresentations(
         $output,
         $h264AndAacEncodingTracking,
-        $h265AndAc3EncodingTracking,
+        $h265AndDolbyDigitalEncodingTracking,
         $vp9AndVorbisEncodingTracking
     );
     executeDashManifest($dashManifest);
@@ -239,7 +240,7 @@ try {
     $hlsManifest = createHlsManifestWithRepresentations(
         $output,
         $h264AndAacEncodingTracking,
-        $h265AndAc3EncodingTracking
+        $h265AndDolbyDigitalEncodingTracking
     );
     executeHlsManifest($hlsManifest);
 } catch (Exception $exception) {
@@ -340,24 +341,24 @@ function createH264AndAacEncoding(
 }
 
 /**
- * Creates the encoding with H265 codec/fMP4 muxing, AC3 codec/fMP4 muxing
+ * Creates the encoding with H265 codec/fMP4 muxing, Dolby Digital codec/fMP4 muxing
  *
  * @param HttpInput $input the input that should be used
  * @param string $inputFilePath the path to the input file
  * @param Output $output the output that should be used
- * @return H265AndAc3EncodingTracking the tracking information for the encoding
+ * @return H265AndDolbyDigitalEncodingTracking the tracking information for the encoding
  * @throws BitmovinApiException
  */
-function createH265AndAc3Encoding(
+function createH265AndDolbyDigitalEncoding(
     HttpInput $input,
     string $inputFilePath,
     Output $output
 ) {
     $encoding = createEncoding(
         "H.265 Encoding",
-        "H.265 -> fMP4 muxing, AC3 -> fMP4 muxing"
+        "H.265 -> fMP4 muxing, Dolby Digital -> fMP4 muxing"
     );
-    $encodingTracking = new H265AndAc3EncodingTracking($encoding);
+    $encodingTracking = new H265AndDolbyDigitalEncodingTracking($encoding);
 
     // Add streams and muxings for h265 encoding
     foreach ($encodingTracking->renditions as $rendition) {
@@ -386,20 +387,20 @@ function createH265AndAc3Encoding(
         $encodingTracking->h265Fmp4Muxings[getKey($rendition)] = $fmp4Muxing;
     }
 
-    $ac3Config = createAc3Config();
-    $encodingTracking->ac3AudioStream = createStream(
+    $dolbyDigitalConfig = createDolbyDigitalConfig();
+    $encodingTracking->dolbyDigitalAudioStream = createStream(
         $encoding,
         $input,
         $inputFilePath,
-        $ac3Config
+        $dolbyDigitalConfig
     );
 
-    // Create a fMP4 muxing with the AC3 stream
-    $encodingTracking->ac3Fmp4Muxing = createFmp4Muxing(
+    // Create a fMP4 muxing with the Dolby Digital stream
+    $encodingTracking->dolbyDigitalFmp4Muxing = createFmp4Muxing(
         $encoding,
         $output,
-        $encodingTracking->AC3_FMP4_SEGMENTS_PATH,
-        $encodingTracking->ac3AudioStream
+        $encodingTracking->DOLBY_DIGITAL_FMP4_SEGMENTS_PATH,
+        $encodingTracking->dolbyDigitalAudioStream
     );
 
     return $encodingTracking;
@@ -473,7 +474,7 @@ function createVp9AndVorbisEncoding(
  *
  * @param Output $output the output that should be used
  * @param H264AndAacEncodingTracking $h264AndAacEncodingTracking the tracking information for the H264/AAC encoding
- * @param H265AndAc3EncodingTracking $h265AndAc3EncodingTracking the tracking information for the H265 encoding
+ * @param H265AndDolbyDigitalEncodingTracking $h265AndDolbyDigitalEncodingTracking the tracking information for the H265 encoding
  * @param Vp9AndVorbisEncodingTracking $vp9AndVorbisEncodingTracking the tracking information for the VP9/Vorbis encoding
  * @return DashManifest the created DASH manifest
  * @throws BitmovinApiException
@@ -481,7 +482,7 @@ function createVp9AndVorbisEncoding(
 function createDashManifestWithRepresentations(
     Output $output,
     H264AndAacEncodingTracking $h264AndAacEncodingTracking,
-    H265AndAc3EncodingTracking $h265AndAc3EncodingTracking,
+    H265AndDolbyDigitalEncodingTracking $h265AndDolbyDigitalEncodingTracking,
     Vp9AndVorbisEncodingTracking $vp9AndVorbisEncodingTracking
 ) {
     global $bitmovinApi;
@@ -520,7 +521,7 @@ function createDashManifestWithRepresentations(
         $period,
         "en"
     );
-    $ac3AudioAdaptationSet = createAudioAdaptionSet(
+    $dolbyDigitalAudioAdaptationSet = createAudioAdaptionSet(
         $dashManifest,
         $period,
         "en"
@@ -560,14 +561,14 @@ function createDashManifestWithRepresentations(
 
     // Add representations to H265 adaptation set
     // Add H265 FMP4 muxing to H265 video adaptation set
-    foreach ($h265AndAc3EncodingTracking->renditions as $rendition) {
+    foreach ($h265AndDolbyDigitalEncodingTracking->renditions as $rendition) {
         createDashFmp4Representation(
-            $h265AndAc3EncodingTracking->encoding,
-            $h265AndAc3EncodingTracking->h265Fmp4Muxings[getKey($rendition)],
+            $h265AndDolbyDigitalEncodingTracking->encoding,
+            $h265AndDolbyDigitalEncodingTracking->h265Fmp4Muxings[getKey($rendition)],
             $dashManifest,
             $period,
             sprintf(
-                $h265AndAc3EncodingTracking->H265_FMP4_SEGMENTS_PATH_FORMAT,
+                $h265AndDolbyDigitalEncodingTracking->H265_FMP4_SEGMENTS_PATH_FORMAT,
                 $rendition->height,
                 $rendition->bitrate
             ),
@@ -575,14 +576,14 @@ function createDashManifestWithRepresentations(
         );
     }
 
-    // Add AC3 FMP4 muxing to AAC audio adaptation set
+    // Add Dolby Digital FMP4 muxing to AAC audio adaptation set
     createDashFmp4Representation(
-        $h265AndAc3EncodingTracking->encoding,
-        $h265AndAc3EncodingTracking->ac3Fmp4Muxing,
+        $h265AndDolbyDigitalEncodingTracking->encoding,
+        $h265AndDolbyDigitalEncodingTracking->dolbyDigitalFmp4Muxing,
         $dashManifest,
         $period,
-        $h265AndAc3EncodingTracking->AC3_FMP4_SEGMENTS_PATH,
-        $ac3AudioAdaptationSet->id
+        $h265AndDolbyDigitalEncodingTracking->DOLBY_DIGITAL_FMP4_SEGMENTS_PATH,
+        $dolbyDigitalAudioAdaptationSet->id
     );
 
     // Add representations to H264 adaptation set
@@ -620,46 +621,46 @@ function createDashManifestWithRepresentations(
  *
  * @param Output $output the output that should be used
  * @param H264AndAacEncodingTracking $h264AndAacEncodingTracking the tracking information for the H264/AAC encoding
- * @param H265AndAc3EncodingTracking $h265AndAc3EncodingTracking the tracking information for the H265 encoding
+ * @param H265AndDolbyDigitalEncodingTracking $h265AndDolbyDigitalEncodingTracking the tracking information for the H265 encoding
  * @return HlsManifest the created HLS manifest
  * @throws BitmovinApiException
  */
 function createHlsManifestWithRepresentations(
     Output $output,
     H264AndAacEncodingTracking $h264AndAacEncodingTracking,
-    H265AndAc3EncodingTracking $h265AndAc3EncodingTracking
+    H265AndDolbyDigitalEncodingTracking $h265AndDolbyDigitalEncodingTracking
 ) {
     $hlsManifest = createHlsMasterManifest("master.m3u8", $output, "/");
 
     // Create h265 audio playlists
     createAudioMediaPlaylist(
-        $h265AndAc3EncodingTracking->encoding,
+        $h265AndDolbyDigitalEncodingTracking->encoding,
         $hlsManifest,
-        $h265AndAc3EncodingTracking->ac3Fmp4Muxing,
-        $h265AndAc3EncodingTracking->ac3AudioStream,
-        "audio_ac3_fmp4.m3u8",
-        $h265AndAc3EncodingTracking->AC3_FMP4_SEGMENTS_PATH,
-        HLS_AUDIO_GROUP_AC3_FMP4
+        $h265AndDolbyDigitalEncodingTracking->dolbyDigitalFmp4Muxing,
+        $h265AndDolbyDigitalEncodingTracking->dolbyDigitalAudioStream,
+        "audio_dolby_digital_fmp4.m3u8",
+        $h265AndDolbyDigitalEncodingTracking->DOLBY_DIGITAL_FMP4_SEGMENTS_PATH,
+        HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4
     );
 
     // Create h265 video playlists
-    foreach ($h265AndAc3EncodingTracking->renditions as $rendition) {
+    foreach ($h265AndDolbyDigitalEncodingTracking->renditions as $rendition) {
         createVideoStreamPlaylist(
-            $h265AndAc3EncodingTracking->encoding,
+            $h265AndDolbyDigitalEncodingTracking->encoding,
             $hlsManifest,
-            $h265AndAc3EncodingTracking->h265Fmp4Muxings[getKey($rendition)],
-            $h265AndAc3EncodingTracking->h265VideoStreams[getKey($rendition)],
+            $h265AndDolbyDigitalEncodingTracking->h265Fmp4Muxings[getKey($rendition)],
+            $h265AndDolbyDigitalEncodingTracking->h265VideoStreams[getKey($rendition)],
             sprintf(
                 "video_h265_%dp_%d.m3u8",
                 $rendition->height,
                 $rendition->bitrate
             ),
             sprintf(
-                $h265AndAc3EncodingTracking->H265_FMP4_SEGMENTS_PATH_FORMAT,
+                $h265AndDolbyDigitalEncodingTracking->H265_FMP4_SEGMENTS_PATH_FORMAT,
                 $rendition->height,
                 $rendition->bitrate
             ),
-            HLS_AUDIO_GROUP_AC3_FMP4
+            HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4
         );
     }
 
@@ -1085,24 +1086,25 @@ function createAacConfig()
 }
 
 /**
- * Creates an AC3 audio configuration. The sample rate of the audio will be set accordingly to the
+ * Creates a Dolby Digital audio configuration. The sample rate of the audio will be set accordingly to the
  * sample rate of the source audio.
  *
  * <p>API endpoint:
- * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAc3
- * @return Ac3AudioConfiguration
+ * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioDD
+ * @return DolbyDigitalAudioConfiguration
  * @throws BitmovinApiException
  */
-function createAc3Config()
+function createDolbyDigitalConfig()
 {
     global $bitmovinApi;
 
-    $ac3Config = new Ac3AudioConfiguration();
-    $ac3Config->name("AC3 128 kbit/s");
-    $ac3Config->bitrate(128000);
+    $dolbyDigitalConfig = new DolbyDigitalAudioConfiguration();
+    $dolbyDigitalConfig->name("Dolby Digital Channel Layout 5.1");
+    $dolbyDigitalConfig->bitrate(256000);
+    $dolbyDigitalConfig->channelLayout(DolbyDigitalChannelLayout::CL_5_1());
 
-    return $bitmovinApi->encoding->configurations->audio->ac3->create(
-        $ac3Config
+    return $bitmovinApi->encoding->configurations->audio->dolbyDigital->create(
+        $dolbyDigitalConfig
     );
 }
 
@@ -1120,7 +1122,7 @@ function createVorbisConfig()
     global $bitmovinApi;
 
     $vorbisConfig = new VorbisAudioConfiguration();
-    $vorbisConfig->name("AC3 128 kbit/s");
+    $vorbisConfig->name("Dolby Digital 128 kbit/s");
     $vorbisConfig->bitrate(128000);
 
     return $bitmovinApi->encoding->configurations->audio->vorbis->create(

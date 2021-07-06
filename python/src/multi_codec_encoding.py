@@ -4,12 +4,13 @@ import concurrent.futures
 from datetime import datetime
 from os import path
 
-from bitmovin_api_sdk import AacAudioConfiguration, Ac3AudioConfiguration, Ac3ChannelLayout, AclEntry, AclPermission, \
+from bitmovin_api_sdk import AacAudioConfiguration, AclEntry, AclPermission, \
     AudioAdaptationSet, AudioMediaInfo, BitmovinApi, BitmovinApiLogger, CmafMuxing, CodecConfiguration, \
-    DashCmafRepresentation, DashFmp4Representation, DashManifest, DashProfile, DashRepresentationType, Encoding, \
-    EncodingOutput, Fmp4Muxing, H264VideoConfiguration, H265VideoConfiguration, HlsManifest, HttpInput, Input, \
-    MessageType, Muxing, MuxingStream, Output, Period, PresetConfiguration, S3Output, Status, Stream, StreamInfo, \
-    StreamInput, Task, TsMuxing, VideoAdaptationSet, VorbisAudioConfiguration, Vp9VideoConfiguration, WebmMuxing
+    DashCmafRepresentation, DashFmp4Representation, DashManifest, DashProfile, DashRepresentationType, \
+    DolbyDigitalAudioConfiguration, DolbyDigitalChannelLayout, Encoding, EncodingOutput, Fmp4Muxing, \
+    H264VideoConfiguration, H265VideoConfiguration, HlsManifest, HttpInput, Input, MessageType, Muxing, MuxingStream, \
+    Output, Period, PresetConfiguration, S3Output, Status, Stream, StreamInfo, StreamInput, Task, TsMuxing, \
+    VideoAdaptationSet, VorbisAudioConfiguration, Vp9VideoConfiguration, WebmMuxing
 
 from common.config_provider import ConfigProvider
 
@@ -53,7 +54,7 @@ bitmovin_api = BitmovinApi(api_key=config_provider.get_bitmovin_api_key(),
 
 HLS_AUDIO_GROUP_AAC_FMP4 = "audio-aac-fmp4"
 HLS_AUDIO_GROUP_AAC_TS = "audio-aac-ts"
-HLS_AUDIO_GROUP_AC3_FMP4 = "audio-ac3-fmp4"
+HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4 = "audio-dolby-digital-fmp4"
 
 H264_TS_SEGMENTS_PATH_FORMAT = "video/h264/ts/{}p_{}"
 H264_CMAF_SEGMENTS_PATH_FORMAT = "video/h264/cmaf/{}p_{}"
@@ -61,9 +62,9 @@ AAC_FMP4_SEGMENTS_PATH = "audio/aac/fmp4"
 AAC_TS_SEGMENTS_PATH = "audio/aac/ts"
 
 H265_FMP4_SEGMENTS_PATH_FORMAT = "video/h265/fmp4/{}p_{}"
-AC3_FMP4_SEGMENTS_PATH = "audio/ac3/fmp4"
+DOLBY_DIGITAL_FMP4_SEGMENTS_PATH = "audio/dolby-digital/fmp4"
 
-VP9_WEBM_SEGMENTS_PATH_FORMAT = "video/webm/vp9/{}p_{}"
+VP9_WEBM_SEGMENTS_PATH_FORMAT = "video/vp9/webm/{}p_{}"
 VORBIS_WEBM_SEGMENTS_PATH = "audio/vorbis/webm"
 
 
@@ -95,14 +96,14 @@ class H264AndAacEncodingTracking:
                            Rendition(height=720, bitrate=3000000)]
 
 
-class H265AndAc3EncodingTracking:
+class H265AndDolbyDigitalEncodingTracking:
     def __init__(self, encoding):
         # type: (Encoding) -> None
 
         self.encoding = encoding
 
-        self.ac3_audio_stream = None
-        self.ac3_fmp4_muxing = None
+        self.dolby_digital_audio_stream = None
+        self.dolby_digital_fmp4_muxing = None
 
         self.h265_video_streams = {}
         self.h265_fmp4_muxings = {}
@@ -144,7 +145,7 @@ def main():
         output=output
     )
 
-    h265_and_ac3_encoding_tracking = _create_h265_and_ac3_encoding(
+    h265_and_dolby_digital_encoding_tracking = _create_h265_and_dolby_digital_encoding(
         encoding_input=http_input,
         input_path=input_path,
         output=output
@@ -159,14 +160,14 @@ def main():
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         executor.map(_execute_encoding, [
             h264_and_aac_encoding_tracking.encoding,
-            h265_and_ac3_encoding_tracking.encoding,
+            h265_and_dolby_digital_encoding_tracking.encoding,
             vp9_and_vorbis_encoding_tracking.encoding
         ])
 
     dash_manifest = _extend_dash_manifest(
         output=output,
         h264_and_aac_encoding_tracking=h264_and_aac_encoding_tracking,
-        h265_and_ac3_encoding_tracking=h265_and_ac3_encoding_tracking,
+        h265_and_dolby_digital_encoding_tracking=h265_and_dolby_digital_encoding_tracking,
         vp9_and_vorbis_encoding_tracking=vp9_and_vorbis_encoding_tracking
     )
     _execute_dash_manifest(dash_manifest=dash_manifest)
@@ -174,7 +175,7 @@ def main():
     hls_manifest = _extend_hls_manifest(
         output=output,
         h264_and_aac_encoding_tracking=h264_and_aac_encoding_tracking,
-        h265_and_ac3_encoding_tracking=h265_and_ac3_encoding_tracking
+        h265_and_dolby_digital_encoding_tracking=h265_and_dolby_digital_encoding_tracking
     )
     _execute_hls_manifest(hls_manifest=hls_manifest)
 
@@ -247,10 +248,10 @@ def _create_h264_and_aac_encoding(encoding_input, input_path, output):
     return encoding_tracking
 
 
-def _create_h265_and_ac3_encoding(encoding_input, input_path, output):
-    # type: (Input, str, Output) -> H265AndAc3EncodingTracking
+def _create_h265_and_dolby_digital_encoding(encoding_input, input_path, output):
+    # type: (Input, str, Output) -> H265AndDolbyDigitalEncodingTracking
     """
-    Creates the encoding with H265 codec/fMP4 muxing, AC3 codec/fMP4 muxing
+    Creates the encoding with H265 codec/fMP4 muxing, Dolby Digital codec/fMP4 muxing
 
     :param encoding_input: the input that should be used
     :param input_path: the path to the input file
@@ -258,8 +259,8 @@ def _create_h265_and_ac3_encoding(encoding_input, input_path, output):
     :return: the tracking information for the encoding
     """
 
-    encoding = _create_encoding(name="H.265 Encoding", description="H.265 -> fMP4 muxing, AC3 -> fMP4 muxing")
-    encoding_tracking = H265AndAc3EncodingTracking(encoding=encoding)
+    encoding = _create_encoding(name="H.265 Encoding", description="H.265 -> fMP4 muxing, Dolby Digital -> fMP4 muxing")
+    encoding_tracking = H265AndDolbyDigitalEncodingTracking(encoding=encoding)
 
     for rendition in encoding_tracking.renditions:
         video_configuration = _create_h265_video_configuration(height=rendition.height, bitrate=rendition.bitrate)
@@ -280,20 +281,20 @@ def _create_h265_and_ac3_encoding(encoding_input, input_path, output):
         encoding_tracking.h265_video_streams[rendition] = video_stream
         encoding_tracking.h265_fmp4_muxings[rendition] = fmp4_muxing
 
-    ac3_config = _create_ac3_audio_configuration()
-    ac3_audio_stream = _create_stream(
+    dolby_digital_config = _create_dolby_digital_audio_configuration()
+    dolby_digital_audio_stream = _create_stream(
         encoding=encoding,
         encoding_input=encoding_input,
         input_path=input_path,
-        codec_configuration=ac3_config
+        codec_configuration=dolby_digital_config
     )
 
-    encoding_tracking.ac3_audio_stream = ac3_audio_stream
-    encoding_tracking.ac3_fmp4_muxing = _create_fmp4_muxing(
+    encoding_tracking.dolby_digital_audio_stream = dolby_digital_audio_stream
+    encoding_tracking.dolby_digital_fmp4_muxing = _create_fmp4_muxing(
         encoding=encoding,
         output=output,
-        output_path=AC3_FMP4_SEGMENTS_PATH,
-        stream=ac3_audio_stream
+        output_path=DOLBY_DIGITAL_FMP4_SEGMENTS_PATH,
+        stream=dolby_digital_audio_stream
     )
 
     return encoding_tracking
@@ -350,15 +351,15 @@ def _create_vp9_and_vorbis_encoding(encoding_input, input_path, output):
 
 def _extend_dash_manifest(output,
                           h264_and_aac_encoding_tracking,
-                          h265_and_ac3_encoding_tracking,
+                          h265_and_dolby_digital_encoding_tracking,
                           vp9_and_vorbis_encoding_tracking):
-    # type: (Output, H264AndAacEncodingTracking, H265AndAc3EncodingTracking, Vp9AndVorbisEncodingTracking) -> DashManifest
+    # type: (Output, H264AndAacEncodingTracking, H265AndDolbyDigitalEncodingTracking, Vp9AndVorbisEncodingTracking) -> DashManifest
     """
     Creates the DASH manifest with all the representations.
 
     :param output: the output that should be used
     :param h264_and_aac_encoding_tracking: the tracking information for the H264/AAC encoding
-    :param h265_and_ac3_encoding_tracking: the tracking information for the H265 encoding
+    :param h265_and_dolby_digital_encoding_tracking: the tracking information for the H265 encoding
     :param vp9_and_vorbis_encoding_tracking: the tracking information for the VP9/Vorbis encoding
     :return: the created DASH manifest
     """
@@ -390,7 +391,7 @@ def _extend_dash_manifest(output,
         period_id=period.id,
         audio_adaptation_set=AudioAdaptationSet(lang="en"))
 
-    ac3_audio_adaptationset = bitmovin_api.encoding.manifests.dash.periods.adaptationsets.audio.create(
+    dolby_digital_audio_adaptationset = bitmovin_api.encoding.manifests.dash.periods.adaptationsets.audio.create(
         manifest_id=dash_manifest.id,
         period_id=period.id,
         audio_adaptation_set=AudioAdaptationSet(lang="en"))
@@ -423,21 +424,21 @@ def _extend_dash_manifest(output,
         )
 
     # Add representations to H265 adaptation set
-    # Add AC3 FMP4 muxing to AC3 audio adaptation set
+    # Add Dolby Digital FMP4 muxing to Dolby Digital audio adaptation set
     _create_dash_fmp4_representation(
-        encoding=h265_and_ac3_encoding_tracking.encoding,
-        muxing=h265_and_ac3_encoding_tracking.ac3_fmp4_muxing,
+        encoding=h265_and_dolby_digital_encoding_tracking.encoding,
+        muxing=h265_and_dolby_digital_encoding_tracking.dolby_digital_fmp4_muxing,
         dash_manifest=dash_manifest,
         period=period,
-        segment_path=AC3_FMP4_SEGMENTS_PATH,
-        adaptation_set_id=ac3_audio_adaptationset.id
+        segment_path=DOLBY_DIGITAL_FMP4_SEGMENTS_PATH,
+        adaptation_set_id=dolby_digital_audio_adaptationset.id
     )
 
     # Add H265 FMP4 muxing to H265 video adaptation set
-    for rendition in h265_and_ac3_encoding_tracking.h265_fmp4_muxings.keys():
+    for rendition in h265_and_dolby_digital_encoding_tracking.h265_fmp4_muxings.keys():
         _create_dash_fmp4_representation(
-            encoding=h265_and_ac3_encoding_tracking.encoding,
-            muxing=h265_and_ac3_encoding_tracking.h265_fmp4_muxings[rendition],
+            encoding=h265_and_dolby_digital_encoding_tracking.encoding,
+            muxing=h265_and_dolby_digital_encoding_tracking.h265_fmp4_muxings[rendition],
             dash_manifest=dash_manifest,
             period=period,
             segment_path=H265_FMP4_SEGMENTS_PATH_FORMAT.format(rendition.height, rendition.bitrate),
@@ -471,14 +472,14 @@ def _extend_dash_manifest(output,
 
 def _extend_hls_manifest(output,
                          h264_and_aac_encoding_tracking,
-                         h265_and_ac3_encoding_tracking):
-    # type: (Output, H264AndAacEncodingTracking, H265AndAc3EncodingTracking) -> HlsManifest
+                         h265_and_dolby_digital_encoding_tracking):
+    # type: (Output, H264AndAacEncodingTracking, H265AndDolbyDigitalEncodingTracking) -> HlsManifest
     """
     Creates the HLS manifest master playlist with the different sub playlists
 
     :param output: the output that should be used
     :param h264_and_aac_encoding_tracking: the tracking information for the H264/AAC encoding
-    :param h265_and_ac3_encoding_tracking: the tracking information for the H265 encoding
+    :param h265_and_dolby_digital_encoding_tracking: the tracking information for the H265 encoding
     :return: the created DASH manifest
     """
 
@@ -490,24 +491,24 @@ def _extend_hls_manifest(output,
 
     # Add representations to H265 adaptation set
     _create_audio_media_playlist(
-        encoding=h265_and_ac3_encoding_tracking.encoding,
+        encoding=h265_and_dolby_digital_encoding_tracking.encoding,
         manifest=hls_manifest,
-        audio_muxing=h265_and_ac3_encoding_tracking.ac3_fmp4_muxing,
-        audio_stream=h265_and_ac3_encoding_tracking.ac3_audio_stream,
-        uri="audio_ac3_fmp4.m3u8",
-        segments_path=AC3_FMP4_SEGMENTS_PATH,
-        audio_group=HLS_AUDIO_GROUP_AC3_FMP4
+        audio_muxing=h265_and_dolby_digital_encoding_tracking.dolby_digital_fmp4_muxing,
+        audio_stream=h265_and_dolby_digital_encoding_tracking.dolby_digital_audio_stream,
+        uri="audio_dolby_digital_fmp4.m3u8",
+        segments_path=DOLBY_DIGITAL_FMP4_SEGMENTS_PATH,
+        audio_group=HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4
     )
 
-    for rendition in h265_and_ac3_encoding_tracking.h265_fmp4_muxings.keys():
+    for rendition in h265_and_dolby_digital_encoding_tracking.h265_fmp4_muxings.keys():
         _create_video_media_playlist(
-            encoding=h265_and_ac3_encoding_tracking.encoding,
+            encoding=h265_and_dolby_digital_encoding_tracking.encoding,
             manifest=hls_manifest,
-            video_muxing=h265_and_ac3_encoding_tracking.h265_fmp4_muxings.get(rendition),
-            video_stream=h265_and_ac3_encoding_tracking.h265_video_streams.get(rendition),
+            video_muxing=h265_and_dolby_digital_encoding_tracking.h265_fmp4_muxings.get(rendition),
+            video_stream=h265_and_dolby_digital_encoding_tracking.h265_video_streams.get(rendition),
             uri="video_h265_{}p_{}.m3u8".format(rendition.height, rendition.bitrate),
             segment_path=H265_FMP4_SEGMENTS_PATH_FORMAT.format(rendition.height, rendition.bitrate),
-            audio_group=HLS_AUDIO_GROUP_AC3_FMP4
+            audio_group=HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4
         )
 
     # Add representations to H264 adaptation set
@@ -1030,22 +1031,22 @@ def _create_aac_audio_configuration():
     return bitmovin_api.encoding.configurations.audio.aac.create(aac_audio_configuration=config)
 
 
-def _create_ac3_audio_configuration():
-    # type: () -> Ac3AudioConfiguration
+def _create_dolby_digital_audio_configuration():
+    # type: () -> DolbyDigitalAudioConfiguration
     """
-    Creates an AC3 audio configuration.
+    Creates a Dolby Digital audio configuration.
 
     <p>API endpoint:
-    https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAc3
+    https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioDD
     """
 
-    config = Ac3AudioConfiguration(
-        name="AC3 196 kbit/s",
-        bitrate=196000,
-        channel_layout=Ac3ChannelLayout.CL_5_1
+    config = DolbyDigitalAudioConfiguration(
+        name="Dolby Digital 256 kbit/s",
+        bitrate=256_000,
+        channel_layout=DolbyDigitalChannelLayout.CL_5_1
     )
 
-    return bitmovin_api.encoding.configurations.audio.ac3.create(ac3_audio_configuration=config)
+    return bitmovin_api.encoding.configurations.audio.dolby_digital.create(dolby_digital_audio_configuration=config)
 
 
 def _create_vorbis_audio_configuration():
