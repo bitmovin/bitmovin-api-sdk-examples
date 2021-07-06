@@ -80,7 +80,7 @@ namespace Bitmovin.Api.Sdk.Examples
         private const string ClassName = "MultiCodecEncoding";
         private const string HLS_AUDIO_GROUP_AAC_FMP4 = "audio-aac-fmp4";
         private const string HLS_AUDIO_GROUP_AAC_TS = "audio-aac-ts";
-        private const string HLS_AUDIO_GROUP_AC3_FMP4 = "audio-ac3-fmp4";
+        private const string HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4 = "audio-dolby-digital-fmp4";
         private readonly string DATE_STRING = string.Concat(DateTime.UtcNow.ToString("s"), "Z");
 
         private class Rendition
@@ -127,7 +127,7 @@ namespace Bitmovin.Api.Sdk.Examples
             }
         }
 
-        private class H265AndAc3EncodingTracking
+        private class H265AndDolbyDigitalEncodingTracking
         {
             public Models.Encoding Encoding { get; }
 
@@ -142,13 +142,13 @@ namespace Bitmovin.Api.Sdk.Examples
             public Dictionary<Rendition, Stream> H265VideoStreams { get; } = new Dictionary<Rendition, Stream>();
             public Dictionary<Rendition, Fmp4Muxing> H265Fmp4Muxings { get; } = new Dictionary<Rendition, Fmp4Muxing>();
 
-            public Stream Ac3AudioStream { get; set; }
-            public Fmp4Muxing Ac3Fmp4Muxing { get; set; }
+            public Stream DolbyDigitalAudioStream { get; set; }
+            public Fmp4Muxing DolbyDigitalFmp4Muxing { get; set; }
 
             public const string H265_FMP4_SEGMENTS_PATH = "video/h265/fmp4/";
-            public const string AC3_FMP4_SEGMENTS_PATH = "audio/ac3/fmp4";
+            public const string DOLBY_DIGITAL_FMP4_SEGMENTS_PATH = "audio/dolby-digital/fmp4";
 
-            public H265AndAc3EncodingTracking(Models.Encoding encoding)
+            public H265AndDolbyDigitalEncodingTracking(Models.Encoding encoding)
             {
                 Encoding = encoding;
             }
@@ -169,7 +169,7 @@ namespace Bitmovin.Api.Sdk.Examples
             public Dictionary<Rendition, WebmMuxing> Vp9WebmMuxing { get; } = new Dictionary<Rendition, WebmMuxing>();
             public WebmMuxing VorbisWebmMuxing { get; set; }
 
-            public const string VP9_WEBM_SEGMENTS_PATH = "video/webm/vp9/";
+            public const string VP9_WEBM_SEGMENTS_PATH = "video/vp9/webm/";
             public const string VORBIS_WEBM_SEGMENTS_PATH = "audio/vorbis/webm";
 
             public Vp9AndVorbisEncodingTracking(Models.Encoding encoding)
@@ -196,20 +196,20 @@ namespace Bitmovin.Api.Sdk.Examples
             var inputFilePath = _configProvider.GetHttpInputFilePath();
 
             var h264AndAacEncodingTracking = await CreateH264AndAacEncoding(input, inputFilePath, output);
-            var h265AndAc3EncodingTracking = await CreateH265AndAc3Encoding(input, inputFilePath, output);
+            var h265AndDolbyDigitalEncodingTracking = await CreateH265AndDolbyDigitalEncoding(input, inputFilePath, output);
             var vp9AndVorbisEncodingTracking = await CreateVp9AndVorbisEncoding(input, inputFilePath, output);
 
             Task.WaitAll(ExecuteEncoding(h264AndAacEncodingTracking.Encoding),
-                ExecuteEncoding(h265AndAc3EncodingTracking.Encoding),
+                ExecuteEncoding(h265AndDolbyDigitalEncodingTracking.Encoding),
                 ExecuteEncoding(vp9AndVorbisEncodingTracking.Encoding));
 
             var dashManifest = await CreateDashManifest(output,
                 h264AndAacEncodingTracking,
-                h265AndAc3EncodingTracking,
+                h265AndDolbyDigitalEncodingTracking,
                 vp9AndVorbisEncodingTracking);
             await ExecuteDashManifest(dashManifest);
 
-            var hlsManifest = await CreateHlsManifest(output, h264AndAacEncodingTracking, h265AndAc3EncodingTracking);
+            var hlsManifest = await CreateHlsManifest(output, h264AndAacEncodingTracking, h265AndDolbyDigitalEncodingTracking);
             await ExecuteHlsManifest(hlsManifest);
         }
 
@@ -262,25 +262,25 @@ namespace Bitmovin.Api.Sdk.Examples
         }
 
         /// <summary>
-        /// Creates the encoding with H265 codec/fMP4 muxing, AC3 codec/fMP4 muxing
+        /// Creates the encoding with H265 codec/fMP4 muxing, Dolby Digital codec/fMP4 muxing
         /// </summary>
         /// <param name="input">the input that should be used</param>
         /// <param name="inputFilePath">the path to the input file</param>
         /// <param name="output">the output that should be used</param>
         /// <returns>the tracking information for the encoding</returns>
-        private async Task<H265AndAc3EncodingTracking> CreateH265AndAc3Encoding(HttpInput input, string inputFilePath,
+        private async Task<H265AndDolbyDigitalEncodingTracking> CreateH265AndDolbyDigitalEncoding(HttpInput input, string inputFilePath,
             Output output)
         {
-            var encoding = await CreateEncoding("H.265 Encoding", "H.265 -> fMP4 muxing, AC3 -> fMP4 muxing");
+            var encoding = await CreateEncoding("H.265 Encoding", "H.265 -> fMP4 muxing, Dolby Digital -> fMP4 muxing");
 
-            var encodingTracking = new H265AndAc3EncodingTracking(encoding);
+            var encodingTracking = new H265AndDolbyDigitalEncodingTracking(encoding);
 
             foreach (var rendition in encodingTracking.Renditions)
             {
                 var videoConfiguration = await CreateH265VideoConfiguration(rendition.Height, rendition.Bitrate);
                 var videoStream = await CreateStream(encoding, input, inputFilePath, videoConfiguration);
 
-                var fmp4MuxingOutputPath = $"{H265AndAc3EncodingTracking.H265_FMP4_SEGMENTS_PATH}" +
+                var fmp4MuxingOutputPath = $"{H265AndDolbyDigitalEncodingTracking.H265_FMP4_SEGMENTS_PATH}" +
                                            $"{rendition.Height}p_{rendition.Bitrate}";
 
                 var fmp4Muxing = await CreateFmp4Muxing(encoding, output, fmp4MuxingOutputPath, videoStream);
@@ -289,14 +289,14 @@ namespace Bitmovin.Api.Sdk.Examples
                 encodingTracking.H265Fmp4Muxings.Add(rendition, fmp4Muxing);
             }
 
-            // Add an AC3 audio stream to the encoding
-            var ac3AudioConfiguration = await CreateAc3AudioConfiguration();
-            var ac3AudioStream = await CreateStream(encoding, input, inputFilePath, ac3AudioConfiguration);
-            encodingTracking.Ac3AudioStream = ac3AudioStream;
+            // Add a Dolby Digital audio stream to the encoding
+            var dolbyDigitalAudioConfiguration = await CreateDolbyDigitalAudioConfiguration();
+            var dolbyDigitalAudioStream = await CreateStream(encoding, input, inputFilePath, dolbyDigitalAudioConfiguration);
+            encodingTracking.DolbyDigitalAudioStream = dolbyDigitalAudioStream;
 
-            // Create a fMP4 muxing muxing with the AC3 stream
-            encodingTracking.Ac3Fmp4Muxing = await CreateFmp4Muxing(encoding, output,
-                H265AndAc3EncodingTracking.AC3_FMP4_SEGMENTS_PATH, ac3AudioStream);
+            // Create a fMP4 muxing muxing with the Dolby Digital stream
+            encodingTracking.DolbyDigitalFmp4Muxing = await CreateFmp4Muxing(encoding, output,
+                H265AndDolbyDigitalEncodingTracking.DOLBY_DIGITAL_FMP4_SEGMENTS_PATH, dolbyDigitalAudioStream);
 
             return encodingTracking;
         }
@@ -351,12 +351,12 @@ namespace Bitmovin.Api.Sdk.Examples
         /// </summary>
         /// <param name="output">the output that should be used</param>
         /// <param name="h264AndAacEncodingTracking">the tracking information for the H264/AAC encoding</param>
-        /// <param name="h265AndAc3EncodingTracking">the tracking information for the H265 encoding</param>
+        /// <param name="h265AndDolbyDigitalEncodingTracking">the tracking information for the H265 encoding</param>
         /// <param name="vp9AndVorbisEncodingTracking">the tracking information for the VP9/Vorbis encoding</param>
         /// <returns>the created DASH manifest</returns>
         private async Task<DashManifest> CreateDashManifest(Output output,
             H264AndAacEncodingTracking h264AndAacEncodingTracking,
-            H265AndAc3EncodingTracking h265AndAc3EncodingTracking,
+            H265AndDolbyDigitalEncodingTracking h265AndDolbyDigitalEncodingTracking,
             Vp9AndVorbisEncodingTracking vp9AndVorbisEncodingTracking)
         {
             var dashManifest = await CreateDashManifest("stream.mpd", DashProfile.LIVE, output, "/");
@@ -377,7 +377,7 @@ namespace Bitmovin.Api.Sdk.Examples
                     dashManifest.Id, period.Id, new VideoAdaptationSet());
 
             var vorbisAudioAdaptationSet = await CreateAudioAdaptionSet(dashManifest, period, "en");
-            var ac3AudioAdaptationSet = await CreateAudioAdaptionSet(dashManifest, period, "en");
+            var dolbyDigitalAudioAdaptationSet = await CreateAudioAdaptionSet(dashManifest, period, "en");
             var aacAudioAdaptationSet = await CreateAudioAdaptionSet(dashManifest, period, "en");
 
             // Add representations to VP9 adaptation set
@@ -405,26 +405,26 @@ namespace Bitmovin.Api.Sdk.Examples
 
             // Add representations to H265 adaptation set
             // Add H265 FMP4 muxing to H265 video adaptation set
-            foreach (var rendition in h265AndAc3EncodingTracking.H265Fmp4Muxings.Keys)
+            foreach (var rendition in h265AndDolbyDigitalEncodingTracking.H265Fmp4Muxings.Keys)
             {
                 await CreateDashFmp4Representation(
-                    h265AndAc3EncodingTracking.Encoding,
-                    h265AndAc3EncodingTracking.H265Fmp4Muxings[rendition],
+                    h265AndDolbyDigitalEncodingTracking.Encoding,
+                    h265AndDolbyDigitalEncodingTracking.H265Fmp4Muxings[rendition],
                     dashManifest,
                     period,
-                    $"{H265AndAc3EncodingTracking.H265_FMP4_SEGMENTS_PATH}" +
+                    $"{H265AndDolbyDigitalEncodingTracking.H265_FMP4_SEGMENTS_PATH}" +
                     $"{rendition.Height}p_{rendition.Bitrate}",
                     videoAdaptationSetH265.Id);
             }
 
-            // Add AC3 FMP4 muxing to AAC audio adaptation set
+            // Add Dolby Digital FMP4 muxing to Dolby Digital audio adaptation set
             await CreateDashFmp4Representation(
-                h265AndAc3EncodingTracking.Encoding,
-                h265AndAc3EncodingTracking.Ac3Fmp4Muxing,
+                h265AndDolbyDigitalEncodingTracking.Encoding,
+                h265AndDolbyDigitalEncodingTracking.DolbyDigitalFmp4Muxing,
                 dashManifest,
                 period,
-                H265AndAc3EncodingTracking.AC3_FMP4_SEGMENTS_PATH,
-                ac3AudioAdaptationSet.Id);
+                H265AndDolbyDigitalEncodingTracking.DOLBY_DIGITAL_FMP4_SEGMENTS_PATH,
+                dolbyDigitalAudioAdaptationSet.Id);
 
             // Add representations to H264 adaptation set
             // Add H264 CMAF muxing to H264 video adaptation set
@@ -457,37 +457,37 @@ namespace Bitmovin.Api.Sdk.Examples
         /// </summary>
         /// <param name="output">the output that should be used</param>
         /// <param name="h264AndAacEncodingTracking">the tracking information for the H264/AAC encoding</param>
-        /// <param name="h265AndAc3EncodingTracking">the tracking information for the H265 encoding</param>
+        /// <param name="h265AndDolbyDigitalEncodingTracking">the tracking information for the H265 encoding</param>
         /// <returns>the created HLS manifest</returns>
         private async Task<HlsManifest> CreateHlsManifest(
             Output output,
             H264AndAacEncodingTracking h264AndAacEncodingTracking,
-            H265AndAc3EncodingTracking h265AndAc3EncodingTracking)
+            H265AndDolbyDigitalEncodingTracking h265AndDolbyDigitalEncodingTracking)
         {
             var hlsManifest = await CreateHlsMasterManifest("master.m3u8", output, "/");
 
             // Create h265 audio playlists
             await CreateAudioMediaPlaylist(
-                h265AndAc3EncodingTracking.Encoding,
+                h265AndDolbyDigitalEncodingTracking.Encoding,
                 hlsManifest,
-                h265AndAc3EncodingTracking.Ac3Fmp4Muxing,
-                h265AndAc3EncodingTracking.Ac3AudioStream,
-                "audio_ac3_fmp4.m3u8",
-                H265AndAc3EncodingTracking.AC3_FMP4_SEGMENTS_PATH,
-                HLS_AUDIO_GROUP_AC3_FMP4);
+                h265AndDolbyDigitalEncodingTracking.DolbyDigitalFmp4Muxing,
+                h265AndDolbyDigitalEncodingTracking.DolbyDigitalAudioStream,
+                "audio_dolby_digital_fmp4.m3u8",
+                H265AndDolbyDigitalEncodingTracking.DOLBY_DIGITAL_FMP4_SEGMENTS_PATH,
+                HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4);
 
             // Create h265 video playlists
-            foreach (var rendition in h265AndAc3EncodingTracking.H265Fmp4Muxings.Keys)
+            foreach (var rendition in h265AndDolbyDigitalEncodingTracking.H265Fmp4Muxings.Keys)
             {
                 await CreateVideoStreamPlaylist(
-                    h265AndAc3EncodingTracking.Encoding,
+                    h265AndDolbyDigitalEncodingTracking.Encoding,
                     hlsManifest,
-                    h265AndAc3EncodingTracking.H265Fmp4Muxings[rendition],
-                    h265AndAc3EncodingTracking.H265VideoStreams[rendition],
+                    h265AndDolbyDigitalEncodingTracking.H265Fmp4Muxings[rendition],
+                    h265AndDolbyDigitalEncodingTracking.H265VideoStreams[rendition],
                     $"video_h265_{rendition.Height}p_{rendition.Bitrate}.m3u8",
-                    $"{H265AndAc3EncodingTracking.H265_FMP4_SEGMENTS_PATH}" +
+                    $"{H265AndDolbyDigitalEncodingTracking.H265_FMP4_SEGMENTS_PATH}" +
                     $"{rendition.Height}p_{rendition.Bitrate}",
-                    HLS_AUDIO_GROUP_AC3_FMP4);
+                    HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4);
             }
 
             // Create h264 audio playlists
@@ -1037,21 +1037,22 @@ namespace Bitmovin.Api.Sdk.Examples
         }
 
         /// <summary>
-        /// Creates an AC3 audio configuration. The sample rate of the audio will be set accordingly to the
+        /// Creates a Dolby Digital audio configuration. The sample rate of the audio will be set accordingly to the
         /// sample rate of the source audio.<para />
         /// 
         /// API endpoint:
-        /// https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAc3
+        /// https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioDD
         /// </summary>
-        private Task<Ac3AudioConfiguration> CreateAc3AudioConfiguration()
+        private Task<DolbyDigitalAudioConfiguration> CreateDolbyDigitalAudioConfiguration()
         {
-            var config = new Ac3AudioConfiguration()
+            var config = new DolbyDigitalAudioConfiguration()
             {
-                Name = "AC3 128 kbit/s",
-                Bitrate = 128_000L
+                Name = "DolbyDigital Channel Layout 5.1",
+                Bitrate = 256_000L,
+                ChannelLayout = DolbyDigitalChannelLayout.CL_5_1
             };
 
-            return _bitmovinApi.Encoding.Configurations.Audio.Ac3.CreateAsync(config);
+            return _bitmovinApi.Encoding.Configurations.Audio.DolbyDigital.CreateAsync(config);
         }
 
         /// <summary>

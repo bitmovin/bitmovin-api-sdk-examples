@@ -23,7 +23,7 @@ namespace Bitmovin.Api.Sdk.Examples.common
             _configuration.Add("Environment variables", ParseEnvironmentVariables());
 
             _configuration.Add("System-wide properties file",
-                ParsePropertiesFile(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)));
+                ParsePropertiesFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".bitmovin")));
         }
 
         public string GetBitmovinApiKey()

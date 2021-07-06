@@ -3,8 +3,6 @@ package tutorials.AudioChannelManipulations;
 import com.bitmovin.api.sdk.BitmovinApi;
 import com.bitmovin.api.sdk.common.BitmovinException;
 import com.bitmovin.api.sdk.model.AacAudioConfiguration;
-import com.bitmovin.api.sdk.model.Ac3AudioConfiguration;
-import com.bitmovin.api.sdk.model.Ac3ChannelLayout;
 import com.bitmovin.api.sdk.model.AclEntry;
 import com.bitmovin.api.sdk.model.AclPermission;
 import com.bitmovin.api.sdk.model.AudioMixChannelType;
@@ -14,6 +12,8 @@ import com.bitmovin.api.sdk.model.AudioMixInputStreamChannel;
 import com.bitmovin.api.sdk.model.AudioMixInputStreamSourceChannel;
 import com.bitmovin.api.sdk.model.AudioMixSourceChannelType;
 import com.bitmovin.api.sdk.model.CodecConfiguration;
+import com.bitmovin.api.sdk.model.DolbyDigitalAudioConfiguration;
+import com.bitmovin.api.sdk.model.DolbyDigitalChannelLayout;
 import com.bitmovin.api.sdk.model.Encoding;
 import com.bitmovin.api.sdk.model.EncodingOutput;
 import com.bitmovin.api.sdk.model.H264VideoConfiguration;
@@ -109,7 +109,7 @@ public class AudioChannelManipulation_5_MultipleInputMonoTracks {
 
     H264VideoConfiguration h264Config = createH264VideoConfig();
     AacAudioConfiguration aacConfig = createAacStereoAudioConfig();
-    Ac3AudioConfiguration ac3Config = createAc3SurroundAudioConfig();
+    DolbyDigitalAudioConfiguration ddConfig = createDdSurroundAudioConfig();
 
     String inputFilePath = configProvider.getParameterByKey("INPUT_FILE_8TRACKS_MONO");
     IngestInputStream videoIngestInputStream =
@@ -133,11 +133,11 @@ public class AudioChannelManipulation_5_MultipleInputMonoTracks {
 
     AudioMixInputStream surroundMixInputStream =
         createAudioMixInputStream(
-            encoding, input, inputFilePath, AudioMixInputChannelLayout.CL_5_1, surroundMap);
+            encoding, input, inputFilePath, AudioMixInputChannelLayout.CL_5_1_BACK, surroundMap);
 
     Stream videoStream = createStream(encoding, videoIngestInputStream, h264Config);
     Stream audioStream1 = createStream(encoding, stereoMixInputStream, aacConfig);
-    Stream audioStream2 = createStream(encoding, surroundMixInputStream, ac3Config);
+    Stream audioStream2 = createStream(encoding, surroundMixInputStream, ddConfig);
 
     createMp4Muxing(
         encoding,
@@ -392,18 +392,18 @@ public class AudioChannelManipulation_5_MultipleInputMonoTracks {
   }
 
   /**
-   * Creates a configuration for the AC3 audio codec to be applied to audio streams.
+   * Creates a Dolby Digital audio configuration.
    *
    * <p>API endpoint:
-   * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAc3
+   * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioDD
    */
-  private static Ac3AudioConfiguration createAc3SurroundAudioConfig() throws BitmovinException {
-    Ac3AudioConfiguration config = new Ac3AudioConfiguration();
-    config.setName("AC3 5.1 384 kbit/s");
-    config.setChannelLayout(Ac3ChannelLayout.CL_5_1);
-    config.setBitrate(384_000L);
+  private static DolbyDigitalAudioConfiguration createDdSurroundAudioConfig() {
+    DolbyDigitalAudioConfiguration config = new DolbyDigitalAudioConfiguration();
+    config.setName("DolbyDigital Channel Layout 5.1");
+    config.setBitrate(256_000L);
+    config.setChannelLayout(DolbyDigitalChannelLayout.CL_5_1);
 
-    return bitmovinApi.encoding.configurations.audio.ac3.create(config);
+    return bitmovinApi.encoding.configurations.audio.dolbyDigital.create(config);
   }
 
   /**

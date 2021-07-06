@@ -2,7 +2,6 @@ import ConfigProvider from '../common/ConfigProvider';
 import {join} from 'path';
 import BitmovinApi, {
   AacAudioConfiguration,
-  Ac3AudioConfiguration,
   AclEntry,
   AclPermission,
   AudioAdaptationSet,
@@ -10,12 +9,14 @@ import BitmovinApi, {
   CmafMuxing,
   CodecConfiguration,
   ConsoleLogger,
-  DashManifest,
-  DashProfile,
   DashCmafRepresentation,
   DashFmp4Representation,
+  DashManifest,
+  DashProfile,
   DashRepresentationType,
   DashWebmRepresentation,
+  DolbyDigitalAudioConfiguration,
+  DolbyDigitalChannelLayout,
   Encoding,
   EncodingOutput,
   Fmp4Muxing,
@@ -78,7 +79,7 @@ const exampleName = `MultiCodecEncoding`;
 const DATE_STRING = new Date().toISOString();
 const HLS_AUDIO_GROUP_AAC_FMP4 = 'audio-aac-fmp4';
 const HLS_AUDIO_GROUP_AAC_TS = 'audio-aac-ts';
-const HLS_AUDIO_GROUP_AC3_FMP4 = 'audio-ac3-fmp4';
+const HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4 = 'audio-dolby-digital-fmp4';
 
 const configProvider: ConfigProvider = new ConfigProvider();
 
@@ -128,7 +129,7 @@ class H264AndAacEncodingTracking {
   }
 }
 
-class H265AndAc3EncodingTracking {
+class H265AndDolbyDigitalEncodingTracking {
   encoding: Encoding;
 
   renditions: Array<Rendition> = [
@@ -141,11 +142,11 @@ class H265AndAc3EncodingTracking {
   h265VideoStreams: Map<Rendition, Stream> = new Map<Rendition, Stream>();
   h265Fmp4Muxings: Map<Rendition, Fmp4Muxing> = new Map<Rendition, Fmp4Muxing>();
 
-  ac3AudioStream: Stream;
-  ac3Fmp4Muxing: Fmp4Muxing;
+  dolbyDigitalAudioStream: Stream;
+  dolbyDigitalFmp4Muxing: Fmp4Muxing;
 
   readonly H265_FMP4_SEGMENTS_PATH = 'video/h265/fmp4';
-  readonly AC3_FMP4_SEGMENTS_PATH = 'audio/ac3/fmp4';
+  readonly DOLBY_DIGITAL_FMP4_SEGMENTS_PATH = 'audio/dolby-digital/fmp4';
 
   constructor(encoding: Encoding) {
     this.encoding = encoding;
@@ -165,7 +166,7 @@ class Vp9AndVorbisEncodingTracking {
   vp9WebmMuxings: Map<Rendition, WebmMuxing> = new Map<Rendition, WebmMuxing>();
   vorbisWebmMuxing: WebmMuxing;
 
-  readonly VP9_WEBM_SEGMENTS_PATH = 'video/webm/vp9';
+  readonly VP9_WEBM_SEGMENTS_PATH = 'video/vp9/webm';
   readonly VORBIS_WEBM_SEGMENTS_PATH = 'audio/vorbis/webm';
 
   constructor(encoding: Encoding) {
@@ -184,19 +185,19 @@ async function main() {
   );
 
   const h264AndAacEncodingTracking = await createH264AndAacEncoding(input, inputPath, output);
-  const h265AndAc3EncodingTracking = await createH265AndAc3Encoding(input, inputPath, output);
+  const h265AndDolbyDigitalEncodingTracking = await createH265AndDolbyDigitalEncoding(input, inputPath, output);
   const vp9AndVorbisEncodingTracking = await createVp9AndVorbisEncoding(input, inputPath, output);
 
   await Promise.all([
     executeEncoding(h264AndAacEncodingTracking.encoding),
-    executeEncoding(h265AndAc3EncodingTracking.encoding),
+    executeEncoding(h265AndDolbyDigitalEncodingTracking.encoding),
     executeEncoding(vp9AndVorbisEncodingTracking.encoding)
   ]);
 
   const dashManifest = await createDashManifestWithRepresentations(
     output,
     h264AndAacEncodingTracking,
-    h265AndAc3EncodingTracking,
+    h265AndDolbyDigitalEncodingTracking,
     vp9AndVorbisEncodingTracking
   );
 
@@ -205,7 +206,7 @@ async function main() {
   const hlsManifest = await createHlsManifestWithRepresentations(
     output,
     h264AndAacEncodingTracking,
-    h265AndAc3EncodingTracking
+    h265AndDolbyDigitalEncodingTracking
   );
 
   await executeHlsManifest(hlsManifest);
@@ -277,21 +278,21 @@ async function createH264AndAacEncoding(
 }
 
 /**
- * Creates the encoding with H265 codec/fMP4 muxing, AC3 codec/fMP4 muxing
+ * Creates the encoding with H265 codec/fMP4 muxing, Dolby Digital codec/fMP4 muxing
  *
  * @param input the input that should be used
  * @param inputPath the path to the input file
  * @param output the output that should be used
  * @return the tracking information for the encoding
  */
-async function createH265AndAc3Encoding(
+async function createH265AndDolbyDigitalEncoding(
   input: Input,
   inputPath: string,
   output: Output
-): Promise<H265AndAc3EncodingTracking> {
-  const encoding = await createEncoding('H.265 Encoding', 'H.265 -> fMP4 muxing, AC3 -> fMP4 muxing');
+): Promise<H265AndDolbyDigitalEncodingTracking> {
+  const encoding = await createEncoding('H.265 Encoding', 'H.265 -> fMP4 muxing, Dolby Digital -> fMP4 muxing');
 
-  const encodingTracking = new H265AndAc3EncodingTracking(encoding);
+  const encodingTracking = new H265AndDolbyDigitalEncodingTracking(encoding);
 
   for (const rendition of encodingTracking.renditions) {
     const videoConfiguration = await createH265VideoConfig(rendition.height, rendition.bitrate);
@@ -309,16 +310,16 @@ async function createH265AndAc3Encoding(
     encodingTracking.h265Fmp4Muxings.set(rendition, fmp4Muxing);
   }
 
-  const ac3Config = await createAc3AudioConfig();
-  const ac3AudioStream = await createStream(encoding, input, inputPath, ac3Config);
+  const dolbyDigitalConfig = await createDolbyDigitalAudioConfig();
+  const dolbyDigitalAudioStream = await createStream(encoding, input, inputPath, dolbyDigitalConfig);
 
-  encodingTracking.ac3AudioStream = ac3AudioStream;
+  encodingTracking.dolbyDigitalAudioStream = dolbyDigitalAudioStream;
 
-  encodingTracking.ac3Fmp4Muxing = await createFmp4Muxing(
+  encodingTracking.dolbyDigitalFmp4Muxing = await createFmp4Muxing(
     encoding,
     output,
-    encodingTracking.AC3_FMP4_SEGMENTS_PATH,
-    ac3AudioStream
+    encodingTracking.DOLBY_DIGITAL_FMP4_SEGMENTS_PATH,
+    dolbyDigitalAudioStream
   );
 
   return encodingTracking;
@@ -374,14 +375,14 @@ async function createVp9AndVorbisEncoding(
  *
  * @param output the output that should be used
  * @param h264AndAacEncodingTracking the tracking information for the H264/AAC encoding
- * @param h265AndAc3EncodingTracking the tracking information for the H265 encoding
+ * @param h265AndDolbyDigitalEncodingTracking the tracking information for the H265 encoding
  * @param vp9AndVorbisEncodingTracking the tracking information for the VP9/Vorbis encoding
  * @return the created DASH manifest
  */
 async function createDashManifestWithRepresentations(
   output: Output,
   h264AndAacEncodingTracking: H264AndAacEncodingTracking,
-  h265AndAc3EncodingTracking: H265AndAc3EncodingTracking,
+  h265AndDolbyDigitalEncodingTracking: H265AndDolbyDigitalEncodingTracking,
   vp9AndVorbisEncodingTracking: Vp9AndVorbisEncodingTracking
 ): Promise<DashManifest> {
   const dashManifest = await createDashManifest('stream.mpd', DashProfile.LIVE, output, '/');
@@ -405,7 +406,7 @@ async function createDashManifestWithRepresentations(
   );
 
   const vorbisAudioAdaptationSet = await createAudioAdaptionSet(dashManifest, period, 'en');
-  const ac3AudioAdaptationSet = await createAudioAdaptionSet(dashManifest, period, 'en');
+  const dolbyDigitalAudioAdaptationSet = await createAudioAdaptionSet(dashManifest, period, 'en');
   const aacAudioAdaptationSet = await createAudioAdaptionSet(dashManifest, period, 'en');
 
   for (const [rendition, vp9WebmMuxing] of vp9AndVorbisEncodingTracking.vp9WebmMuxings) {
@@ -431,25 +432,25 @@ async function createDashManifestWithRepresentations(
 
   // Add representations to H265 adaptation set
   // Add H265 FMP4 muxing to H265 video adaptation set
-  for (const [rendition, h265Fmp4Muxing] of h265AndAc3EncodingTracking.h265Fmp4Muxings) {
+  for (const [rendition, h265Fmp4Muxing] of h265AndDolbyDigitalEncodingTracking.h265Fmp4Muxings) {
     await createDashFmp4Representation(
-      h265AndAc3EncodingTracking.encoding,
+      h265AndDolbyDigitalEncodingTracking.encoding,
       h265Fmp4Muxing,
       dashManifest,
       period,
-      `${h265AndAc3EncodingTracking.H265_FMP4_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
+      `${h265AndDolbyDigitalEncodingTracking.H265_FMP4_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
       videoAdaptationSetH265.id!
     );
   }
 
-  // Add AC3 FMP4 muxing to AAC audio adaptation set
+  // Add Dolby Digital FMP4 muxing to Dolby Digital audio adaptation set
   await createDashFmp4Representation(
-    h265AndAc3EncodingTracking.encoding,
-    h265AndAc3EncodingTracking.ac3Fmp4Muxing,
+    h265AndDolbyDigitalEncodingTracking.encoding,
+    h265AndDolbyDigitalEncodingTracking.dolbyDigitalFmp4Muxing,
     dashManifest,
     period,
-    h265AndAc3EncodingTracking.AC3_FMP4_SEGMENTS_PATH,
-    ac3AudioAdaptationSet.id!
+    h265AndDolbyDigitalEncodingTracking.DOLBY_DIGITAL_FMP4_SEGMENTS_PATH,
+    dolbyDigitalAudioAdaptationSet.id!
   );
 
   // Add representations to H264 adaptation set
@@ -481,31 +482,31 @@ async function createDashManifestWithRepresentations(
 async function createHlsManifestWithRepresentations(
   output: Output,
   h264AndAacEncodingTracking: H264AndAacEncodingTracking,
-  h265AndAc3EncodingTracking: H265AndAc3EncodingTracking
+  h265AndDolbyDigitalEncodingTracking: H265AndDolbyDigitalEncodingTracking
 ): Promise<HlsManifest> {
   const hlsManifest = await createHlsMasterManifest('master.m3u8', output, '/');
 
   // Create h265 audio playlists
   await createAudioMediaPlaylist(
-    h265AndAc3EncodingTracking.encoding,
+    h265AndDolbyDigitalEncodingTracking.encoding,
     hlsManifest,
-    h265AndAc3EncodingTracking.ac3Fmp4Muxing,
-    h265AndAc3EncodingTracking.ac3AudioStream,
-    'audio_ac3_fmp4.m3u8',
-    h265AndAc3EncodingTracking.AC3_FMP4_SEGMENTS_PATH,
-    HLS_AUDIO_GROUP_AC3_FMP4
+    h265AndDolbyDigitalEncodingTracking.dolbyDigitalFmp4Muxing,
+    h265AndDolbyDigitalEncodingTracking.dolbyDigitalAudioStream,
+    'audio_dolby_digital_fmp4.m3u8',
+    h265AndDolbyDigitalEncodingTracking.DOLBY_DIGITAL_FMP4_SEGMENTS_PATH,
+    HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4
   );
 
   // Create h265 video playlists
-  for (const [rendition, h265Fmp4Muxing] of h265AndAc3EncodingTracking.h265Fmp4Muxings) {
+  for (const [rendition, h265Fmp4Muxing] of h265AndDolbyDigitalEncodingTracking.h265Fmp4Muxings) {
     await createVideoStreamPlaylist(
-      h265AndAc3EncodingTracking.encoding,
+      h265AndDolbyDigitalEncodingTracking.encoding,
       hlsManifest,
       h265Fmp4Muxing,
-      h265AndAc3EncodingTracking.h265VideoStreams.get(rendition)!,
+      h265AndDolbyDigitalEncodingTracking.h265VideoStreams.get(rendition)!,
       `video_h265_${rendition.height}p_${rendition.bitrate}.m3u8`,
-      `${h265AndAc3EncodingTracking.H265_FMP4_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
-      HLS_AUDIO_GROUP_AC3_FMP4
+      `${h265AndDolbyDigitalEncodingTracking.H265_FMP4_SEGMENTS_PATH}/${rendition.height}p_${rendition.bitrate}`,
+      HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4
     );
   }
 
@@ -1098,19 +1099,20 @@ function createAacAudioConfig(): Promise<AacAudioConfiguration> {
 }
 
 /**
- * Creates an AC3 audio configuration. The sample rate of the audio will be set accordingly to the
+ * Creates a Dolby Digital audio configuration. The sample rate of the audio will be set accordingly to the
  * sample rate of the source audio.
  *
  * <p>API endpoint:
- * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAc3
+ * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioDD
  */
-function createAc3AudioConfig(): Promise<Ac3AudioConfiguration> {
-  const config = new Ac3AudioConfiguration({
-    name: 'AC3 128 kbit/s',
-    bitrate: 128000
+function createDolbyDigitalAudioConfig(): Promise<DolbyDigitalAudioConfiguration> {
+  const config = new DolbyDigitalAudioConfiguration({
+    name: 'Dolby Digital Channel Layout 5.1',
+    bitrate: 256000,
+    channelLayout: DolbyDigitalChannelLayout.CL_5_1
   });
 
-  return bitmovinApi.encoding.configurations.audio.ac3.create(config);
+  return bitmovinApi.encoding.configurations.audio.dolbyDigital.create(config);
 }
 
 /**

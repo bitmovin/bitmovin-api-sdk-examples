@@ -3,8 +3,6 @@ package tutorials.AudioChannelManipulations;
 import com.bitmovin.api.sdk.BitmovinApi;
 import com.bitmovin.api.sdk.common.BitmovinException;
 import com.bitmovin.api.sdk.model.AacAudioConfiguration;
-import com.bitmovin.api.sdk.model.Ac3AudioConfiguration;
-import com.bitmovin.api.sdk.model.Ac3ChannelLayout;
 import com.bitmovin.api.sdk.model.AclEntry;
 import com.bitmovin.api.sdk.model.AclPermission;
 import com.bitmovin.api.sdk.model.AudioMixChannelType;
@@ -366,21 +364,6 @@ public class AudioChannelManipulation_4_Downmixing {
     config.setBitrate(128_000L);
 
     return bitmovinApi.encoding.configurations.audio.aac.create(config);
-  }
-
-  /**
-   * Creates a configuration for the AC3 audio codec to be applied to audio streams.
-   *
-   * <p>API endpoint:
-   * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAc3
-   */
-  private static Ac3AudioConfiguration createAc3SurroundAudioConfig() throws BitmovinException {
-    Ac3AudioConfiguration config = new Ac3AudioConfiguration();
-    config.setName("AC3 5.1 384 kbit/s");
-    config.setChannelLayout(Ac3ChannelLayout.CL_5_1);
-    config.setBitrate(384_000L);
-
-    return bitmovinApi.encoding.configurations.audio.ac3.create(config);
   }
 
   /**
