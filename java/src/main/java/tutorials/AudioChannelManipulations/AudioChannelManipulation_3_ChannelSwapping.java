@@ -392,7 +392,9 @@ public class AudioChannelManipulation_3_ChannelSwapping {
       Thread.sleep(5000);
       task = bitmovinApi.encoding.encodings.status(encoding.getId());
       logger.info("Encoding status is {} (progress: {} %)", task.getStatus(), task.getProgress());
-    } while (task.getStatus() != Status.FINISHED && task.getStatus() != Status.ERROR);
+    } while (task.getStatus() != Status.FINISHED
+        && task.getStatus() != Status.ERROR
+        && task.getStatus() != Status.CANCELED);
 
     if (task.getStatus() == Status.ERROR) {
       logTaskErrors(task);

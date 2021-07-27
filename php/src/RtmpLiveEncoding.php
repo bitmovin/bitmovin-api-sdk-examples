@@ -105,7 +105,7 @@ try {
     $aacStream = createStream($encoding, $input, 'live', $aacConfig, 1);
 
     createFmp4Muxing($encoding, $output, 'video/' . $h264Config->height . 'p', $h264Stream);
-    createFmp4Muxing($encoding, $output, 'audio/' . ($aacConfig->bitrate / 1000) . "kbs", $aacStream);
+    createFmp4Muxing($encoding, $output, 'audio/' . ($aacConfig->bitrate / 1000) . "kbps", $aacStream);
 
     $dashManifest = createDefaultDashManifest($encoding, $output, '');
     $hlsManifest = createDefaultHlsManifest($encoding, $output, '');

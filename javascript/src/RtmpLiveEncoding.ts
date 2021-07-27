@@ -98,7 +98,7 @@ async function main() {
   const audioStream = await createStream(encoding, input, 'live', aacAudioConfiguration, 1);
 
   await createFmp4Muxing(encoding, output, `/video/${h264VideoConfiguration.height}p`, videoStream);
-  await createFmp4Muxing(encoding, output, `/audio/${aacAudioConfiguration.bitrate! / 1000}kbs`, audioStream);
+  await createFmp4Muxing(encoding, output, `/audio/${aacAudioConfiguration.bitrate! / 1000}kbps`, audioStream);
 
   const dashManifest: DashManifestDefault = await createDefaultDashManifest(encoding, output, '/');
   const hlsManifest: HlsManifestDefault = await createDefaultHlsManifest(encoding, output, '/');

@@ -1,7 +1,5 @@
 import com.bitmovin.api.sdk.BitmovinApi;
 import com.bitmovin.api.sdk.model.AacAudioConfiguration;
-import com.bitmovin.api.sdk.model.DolbyDigitalAudioConfiguration;
-import com.bitmovin.api.sdk.model.DolbyDigitalChannelLayout;
 import com.bitmovin.api.sdk.model.AclEntry;
 import com.bitmovin.api.sdk.model.AclPermission;
 import com.bitmovin.api.sdk.model.AudioAdaptationSet;
@@ -14,6 +12,8 @@ import com.bitmovin.api.sdk.model.DashManifest;
 import com.bitmovin.api.sdk.model.DashProfile;
 import com.bitmovin.api.sdk.model.DashRepresentationType;
 import com.bitmovin.api.sdk.model.DashWebmRepresentation;
+import com.bitmovin.api.sdk.model.DolbyDigitalAudioConfiguration;
+import com.bitmovin.api.sdk.model.DolbyDigitalChannelLayout;
 import com.bitmovin.api.sdk.model.Encoding;
 import com.bitmovin.api.sdk.model.EncodingOutput;
 import com.bitmovin.api.sdk.model.Fmp4Muxing;
@@ -241,7 +241,7 @@ public class MultiCodecEncoding {
         createDashManifest(
             output,
             h264AndAacEncodingTracking,
-                h265AndDolbyDigitalEncodingTracking,
+            h265AndDolbyDigitalEncodingTracking,
             vp9AndVorbisEncodingTracking);
     executeDashManifest(dashManifest);
 
@@ -324,7 +324,8 @@ public class MultiCodecEncoding {
 
     Encoding encoding =
         createEncoding("H.265 Encoding", "H.265 -> fMP4 muxing, Dolby Digital -> fMP4 muxing");
-    H265AndDolbyDigitalEncodingTracking encodingTracking = new H265AndDolbyDigitalEncodingTracking(encoding);
+    H265AndDolbyDigitalEncodingTracking encodingTracking =
+        new H265AndDolbyDigitalEncodingTracking(encoding);
 
     // Add streams and muxings for h265 encoding
     for (Rendition rendition : encodingTracking.renditions) {
@@ -346,7 +347,8 @@ public class MultiCodecEncoding {
     }
 
     DolbyDigitalAudioConfiguration dolbyDigitalConfig = createDolbyDigitalAudioConfig();
-    encodingTracking.dolbyDigitalAudioStream = createStream(encoding, input, inputFilePath, dolbyDigitalConfig);
+    encodingTracking.dolbyDigitalAudioStream =
+        createStream(encoding, input, inputFilePath, dolbyDigitalConfig);
 
     // Create a fMP4 muxing with the Dolby Digital stream
     encodingTracking.dolbyDigitalFmp4Muxing =
@@ -541,7 +543,7 @@ public class MultiCodecEncoding {
         h265AndDolbyDigitalEncodingTracking.dolbyDigitalAudioStream,
         "audio_dolby_digital_fmp4.m3u8",
         H265AndDolbyDigitalEncodingTracking.DOLBY_DIGITAL_FMP4_SEGMENTS_PATH,
-            HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4);
+        HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4);
 
     // Create h265 video playlists
     for (Rendition rendition : h265AndDolbyDigitalEncodingTracking.h265Fmp4Muxings.keySet()) {
@@ -555,7 +557,7 @@ public class MultiCodecEncoding {
               H265AndDolbyDigitalEncodingTracking.H265_FMP4_SEGMENTS_PATH_FORMAT,
               rendition.height,
               rendition.bitrate),
-              HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4);
+          HLS_AUDIO_GROUP_DOLBY_DIGITAL_FMP4);
     }
 
     // Create h264 audio playlists
@@ -954,8 +956,10 @@ public class MultiCodecEncoding {
     do {
       Thread.sleep(5000);
       task = bitmovinApi.encoding.encodings.status(encoding.getId());
-      logger.info("encoding status is {} (progress: {} %)", task.getStatus(), task.getProgress());
-    } while (task.getStatus() != Status.FINISHED && task.getStatus() != Status.ERROR);
+      logger.info("Encoding status is {} (progress: {} %)", task.getStatus(), task.getProgress());
+    } while (task.getStatus() != Status.FINISHED
+        && task.getStatus() != Status.ERROR
+        && task.getStatus() != Status.CANCELED);
 
     if (task.getStatus() == Status.ERROR) {
       logTaskErrors(task);

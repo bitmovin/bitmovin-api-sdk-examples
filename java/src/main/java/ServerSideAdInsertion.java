@@ -14,6 +14,9 @@ import com.bitmovin.api.sdk.model.HlsManifest;
 import com.bitmovin.api.sdk.model.HttpInput;
 import com.bitmovin.api.sdk.model.Input;
 import com.bitmovin.api.sdk.model.Keyframe;
+import com.bitmovin.api.sdk.model.Manifest;
+import com.bitmovin.api.sdk.model.ManifestGenerator;
+import com.bitmovin.api.sdk.model.ManifestResource;
 import com.bitmovin.api.sdk.model.MessageType;
 import com.bitmovin.api.sdk.model.Muxing;
 import com.bitmovin.api.sdk.model.MuxingStream;
@@ -136,32 +139,34 @@ public class ServerSideAdInsertion {
     // define keyframes that are used to insert advertisement tags into the manifest
     List<Keyframe> keyframes = createKeyframes(encoding, adBreakPlacements);
 
-    executeEncoding(encoding);
-
     // create the master manifest part that is referencing audio and video playlists
-    HlsManifest manifestHls = createHlsMasterManifest("master.m3u8", output, "/");
+    HlsManifest manifest = createHlsMasterManifest("master.m3u8", output, "/");
 
     // create audio playlist
     AudioMediaInfo audioMediaInfo =
-        createAudioMediaPlaylist(encoding, manifestHls, audioMuxing, "audio/");
+        createAudioMediaPlaylist(encoding, manifest, audioMuxing, "audio/");
 
     // insert the advertisement tags
-    placeAdvertisementTags(manifestHls, audioMediaInfo, keyframes);
+    placeAdvertisementTags(manifest, audioMediaInfo, keyframes);
 
     // create a video playlist for each video muxing and insert the advertisement tags
     for (Map.Entry<VideoConfiguration, Fmp4Muxing> videoMuxing : videoMuxings.entrySet()) {
       StreamInfo streamInfo =
           createVideoStreamPlaylist(
               encoding,
-              manifestHls,
-              videoMuxing.getKey().getBitrate(),
+              manifest,
+              String.format("video_%d.m3u8", videoMuxing.getKey().getHeight()),
               videoMuxing.getValue(),
               "video/" + videoMuxing.getKey().getHeight(),
               audioMediaInfo);
-      placeAdvertisementTags(manifestHls, streamInfo, keyframes);
+      placeAdvertisementTags(manifest, streamInfo, keyframes);
     }
 
-    executeHlsManifestCreation(manifestHls);
+    StartEncodingRequest startEncodingRequest = new StartEncodingRequest();
+    startEncodingRequest.setManifestGenerator(ManifestGenerator.V2);
+    startEncodingRequest.addVodHlsManifestsItem(buildManifestResource(manifest));
+
+    executeEncoding(encoding, startEncodingRequest);
   }
 
   /**
@@ -440,13 +445,13 @@ public class ServerSideAdInsertion {
   private static StreamInfo createVideoStreamPlaylist(
       Encoding encoding,
       HlsManifest manifest,
-      Long bitrate,
+      String filename,
       Muxing muxing,
       String segmentPath,
       AudioMediaInfo audioMediaInfo)
       throws BitmovinException {
     StreamInfo streamInfo = new StreamInfo();
-    streamInfo.setUri(String.format("video_%dkbps.m3u8", bitrate / 1000));
+    streamInfo.setUri(filename);
     streamInfo.setEncodingId(encoding.getId());
     streamInfo.setStreamId(muxing.getStreams().get(0).getStreamId());
     streamInfo.setMuxingId(muxing.getId());
@@ -502,6 +507,18 @@ public class ServerSideAdInsertion {
   }
 
   /**
+   * Wraps a manifest ID into a ManifestResource object, so it can be referenced in one of the
+   * StartEncodingRequest manifest lists.
+   *
+   * @param manifest The manifest to be generated at the end of the encoding process
+   */
+  private static ManifestResource buildManifestResource(Manifest manifest) {
+    ManifestResource manifestResource = new ManifestResource();
+    manifestResource.setManifestId(manifest.getId());
+    return manifestResource;
+  }
+
+  /**
    * Starts the actual encoding process and periodically polls its status until it reaches a final
    * state
    *
@@ -514,51 +531,26 @@ public class ServerSideAdInsertion {
    * https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
    *
    * @param encoding The encoding to be started
+   * @param startEncodingRequest The request object to be sent with the start call
    */
-  private static void executeEncoding(Encoding encoding)
+  private static void executeEncoding(Encoding encoding, StartEncodingRequest startEncodingRequest)
       throws InterruptedException, BitmovinException {
-    bitmovinApi.encoding.encodings.start(encoding.getId(), new StartEncodingRequest());
+    bitmovinApi.encoding.encodings.start(encoding.getId(), startEncodingRequest);
 
     Task task;
     do {
       Thread.sleep(5000);
       task = bitmovinApi.encoding.encodings.status(encoding.getId());
-      logger.info("encoding status is {} (progress: {} %)", task.getStatus(), task.getProgress());
-    } while (task.getStatus() != Status.FINISHED && task.getStatus() != Status.ERROR);
+      logger.info("Encoding status is {} (progress: {} %)", task.getStatus(), task.getProgress());
+    } while (task.getStatus() != Status.FINISHED
+        && task.getStatus() != Status.ERROR
+        && task.getStatus() != Status.CANCELED);
 
     if (task.getStatus() == Status.ERROR) {
       logTaskErrors(task);
       throw new RuntimeException("Encoding failed");
     }
-    logger.info("encoding finished successfully");
-  }
-
-  /**
-   * Starts the HLS manifest creation and periodically polls its status until it reaches a final
-   * state
-   *
-   * <p>API endpoints:
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
-   *
-   * @param hlsManifest The HLS manifest to be created
-   */
-  private static void executeHlsManifestCreation(HlsManifest hlsManifest)
-      throws BitmovinException, InterruptedException {
-
-    bitmovinApi.encoding.manifests.hls.start(hlsManifest.getId());
-
-    Task task;
-    do {
-      Thread.sleep(1000);
-      task = bitmovinApi.encoding.manifests.hls.status(hlsManifest.getId());
-    } while (task.getStatus() != Status.FINISHED && task.getStatus() != Status.ERROR);
-
-    if (task.getStatus() == Status.ERROR) {
-      logTaskErrors(task);
-      throw new RuntimeException("HLS manifest creation failed");
-    }
-    logger.info("HLS manifest creation finished successfully");
+    logger.info("Encoding finished successfully");
   }
 
   private static void logTaskErrors(Task task) {

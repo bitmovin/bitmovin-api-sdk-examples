@@ -1,13 +1,14 @@
 import time
+from os import path
 
-from bitmovin_api_sdk import AacAudioConfiguration, AclEntry, AclPermission, BitmovinApi, BitmovinApiLogger, \
-    DashManifestDefault, DashManifestDefaultVersion, Encoding, EncodingOutput, Fmp4Muxing, H264VideoConfiguration, \
-    HlsManifestDefault, HlsManifestDefaultVersion, HttpInput, MessageType, MuxingStream, PresetConfiguration, \
-    S3Output, Status, Stream, StreamInput
+from bitmovin_api_sdk import AacAudioConfiguration, AclEntry, AclPermission, BitmovinApi, \
+    BitmovinApiLogger, CodecConfiguration, DashManifest, DashManifestDefault, \
+    DashManifestDefaultVersion, Encoding, EncodingOutput, Fmp4Muxing, H264VideoConfiguration, \
+    HlsManifest, HlsManifestDefault, HlsManifestDefaultVersion, HttpInput, Input, ManifestGenerator, \
+    ManifestResource, MessageType, MuxingStream, Output, PresetConfiguration, S3Output, \
+    StartEncodingRequest, Status, Stream, StreamInput, Task
 
 from common.config_provider import ConfigProvider
-
-from os import path
 
 """
 This example demonstrates how to create default DASH and HLS manifests for an encoding.
@@ -98,24 +99,29 @@ def main():
         stream=aac_audio_stream
     )
 
-    # Execute the encoding
-    _execute_encoding(encoding=encoding)
-
-    # Generate DASH nad HLS manifest
-    _generate_dash_manifest(
-        encoding=encoding,
-        output=output,
-        output_path=""
-    )
-    _generate_hls_manifest(
+    dash_manifest = _create_default_dash_manifest(
         encoding=encoding,
         output=output,
         output_path=""
     )
 
+    hls_manifest = _create_default_hls_manifest(
+        encoding=encoding,
+        output=output,
+        output_path=""
+    )
 
-def _execute_encoding(encoding):
-    # type: (Encoding) -> None
+    start_encoding_request = StartEncodingRequest(
+        manifest_generator=ManifestGenerator.V2,
+        vod_dash_manifests=[ManifestResource(manifest_id=dash_manifest.id)],
+        vod_hls_manifests=[ManifestResource(manifest_id=hls_manifest.id)]
+    )
+
+    _execute_encoding(encoding=encoding, start_encoding_request=start_encoding_request)
+
+
+def _execute_encoding(encoding, start_encoding_request):
+    # type: (Encoding, StartEncodingRequest) -> None
     """
     Starts the actual encoding process and periodically polls its status until it reaches a final state
 
@@ -128,9 +134,11 @@ def _execute_encoding(encoding):
     https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
 
     :param encoding: The encoding to be started
+    :param start_encoding_request: The request object to be sent with the start call
     """
 
-    bitmovin_api.encoding.encodings.start(encoding_id=encoding.id)
+    bitmovin_api.encoding.encodings.start(encoding_id=encoding.id,
+                                          start_encoding_request=start_encoding_request)
 
     task = _wait_for_enoding_to_finish(encoding_id=encoding.id)
 
@@ -306,138 +314,6 @@ def _create_aac_audio_configuration():
     return bitmovin_api.encoding.configurations.audio.aac.create(aac_audio_configuration=config)
 
 
-def _generate_hls_manifest(encoding, output, output_path):
-    # type: (Encoding, Output, str) -> None
-    """
-    Creates an HLS default manifest that automatically includes all representations configured in
-    the encoding.
-
-    <p>API endpoint:
-    https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsDefault
-
-    @param encoding The encoding for which the manifest should be generated
-    @param output The output to which the manifest should be written
-    @param output_path The path to which the manifest should be written
-    """
-
-    hls_manifest_default = HlsManifestDefault(
-        encoding_id=encoding.id,
-        outputs=[_build_encoding_output(output, output_path)],
-        name="master.m3u8",
-        manifest_name="master.m3u8",
-        version=HlsManifestDefaultVersion.V1
-    )
-
-    hls_manifest_default = bitmovin_api.encoding.manifests.hls.default.create(hls_manifest_default=hls_manifest_default)
-    _execute_hls_manifest_creation(hls_manifest=hls_manifest_default)
-
-
-def _generate_dash_manifest(encoding, output, output_path):
-    # type: (Encoding, Output, str) -> None
-    """
-    Creates a DASH default manifest that automatically includes all representations configured in
-    the encoding.
-
-    <p>API endpoint:
-    https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDash
-
-    @param encoding The encoding for which the manifest should be generated
-    @param output The output to which the manifest should be written
-    @param output_path The path to which the manifest should be written
-    """
-
-    dash_manifest_default = DashManifestDefault(
-        encoding_id=encoding.id,
-        manifest_name="stream.mpd",
-        version=DashManifestDefaultVersion.V1,
-        outputs=[_build_encoding_output(output, output_path)]
-    )
-
-    dash_manifest_default = bitmovin_api.encoding.manifests.dash.default.create(
-        dash_manifest_default=dash_manifest_default
-    )
-
-    _execute_dash_manifest_creation(dash_manifest=dash_manifest_default)
-
-
-def _execute_hls_manifest_creation(hls_manifest):
-    # type: (HlsManifestDefault) -> None
-    """
-    Starts the HLS manifest creation and periodically polls its status until it
-    reaches a final state
-
-    <p>API endpoints:
-    https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
-    https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
-
-    @param hls_manifest The HLS manifest to be created
-    """
-    bitmovin_api.encoding.manifests.hls.start(manifest_id=hls_manifest.id)
-
-    task = _wait_for_hls_manifest_to_finish(manifest_id=hls_manifest.id)
-
-    while task.status is not Status.FINISHED and task.status is not Status.ERROR:
-        task = _wait_for_hls_manifest_to_finish(manifest_id=hls_manifest.id)
-
-    if task.status == Status.ERROR:
-        _log_task_errors(task)
-        raise Exception("HLS manifest creation failed")
-
-    print("HLS manifest creation finished successfully")
-
-
-def _execute_dash_manifest_creation(dash_manifest):
-    # type: (DashManifestDefault) -> None
-    """
-    Starts the DASH manifest creation and periodically polls its status until it
-    reaches a final state
-
-    <p>API endpoints:
-    https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDashStartByManifestId
-    https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsDashStatusByManifestId
-
-    @param dash_manifest The DASH manifest to be created
-    """
-    bitmovin_api.encoding.manifests.dash.start(manifest_id=dash_manifest.id)
-
-    task = _wait_for_dash_manifest_to_finish(manifest_id=dash_manifest.id)
-
-    while task.status is not Status.FINISHED and task.status is not Status.ERROR:
-        task = _wait_for_dash_manifest_to_finish(manifest_id=dash_manifest.id)
-
-    if task.status == Status.ERROR:
-        _log_task_errors(task)
-        raise Exception("DASH manifest creation failed")
-
-    print("DASH manifest creation finished successfully")
-
-
-def _wait_for_hls_manifest_to_finish(manifest_id):
-    # type: (str) -> Task
-    """
-    Waits one second and retrieves afterwards the status of the given hls manifest id
-
-    @param manifest_id The HLS manifest id to be checked
-    """
-
-    time.sleep(1)
-    task = bitmovin_api.encoding.manifests.hls.status(manifest_id=manifest_id)
-    return task
-
-
-def _wait_for_dash_manifest_to_finish(manifest_id):
-    # type: (str) -> Task
-    """
-    Waits one second and retrieves afterwards the status of the given dash manifest id
-
-    @param manifest_id The DASH manifest id to be checked
-    """
-
-    time.sleep(1)
-    task = bitmovin_api.encoding.manifests.dash.status(manifest_id=manifest_id)
-    return task
-
-
 def _create_fmp4_muxing(encoding, output, output_path, stream):
     # type: (Encoding, Output, str, Stream) -> Fmp4Muxing
     """
@@ -459,7 +335,56 @@ def _create_fmp4_muxing(encoding, output, output_path, stream):
         streams=[MuxingStream(stream_id=stream.id)]
     )
 
-    return bitmovin_api.encoding.encodings.muxings.fmp4.create(encoding_id=encoding.id, fmp4_muxing=muxing)
+    return bitmovin_api.encoding.encodings.muxings.fmp4.create(encoding_id=encoding.id,
+                                                               fmp4_muxing=muxing)
+
+
+def _create_default_dash_manifest(encoding, output, output_path):
+    # type: (Encoding, Output, str) -> DashManifest
+    """
+    Creates a DASH default manifest that automatically includes all representations configured in
+    the encoding.
+    <p>API endpoint:
+    https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDash
+    @param encoding The encoding for which the manifest should be generated
+    @param output The output to which the manifest should be written
+    @param output_path The path to which the manifest should be written
+    """
+
+    dash_manifest_default = DashManifestDefault(
+        encoding_id=encoding.id,
+        manifest_name="stream.mpd",
+        version=DashManifestDefaultVersion.V1,
+        outputs=[_build_encoding_output(output, output_path)]
+    )
+
+    return bitmovin_api.encoding.manifests.dash.default.create(
+        dash_manifest_default=dash_manifest_default
+    )
+
+
+def _create_default_hls_manifest(encoding, output, output_path):
+    # type: (Encoding, Output, str) -> HlsManifest
+    """
+    Creates an HLS default manifest that automatically includes all representations configured in
+    the encoding.
+    <p>API endpoint:
+    https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsDefault
+    @param encoding The encoding for which the manifest should be generated
+    @param output The output to which the manifest should be written
+    @param output_path The path to which the manifest should be written
+    """
+
+    hls_manifest_default = HlsManifestDefault(
+        encoding_id=encoding.id,
+        outputs=[_build_encoding_output(output, output_path)],
+        name="master.m3u8",
+        manifest_name="master.m3u8",
+        version=HlsManifestDefaultVersion.V1
+    )
+
+    return bitmovin_api.encoding.manifests.hls.default.create(
+        hls_manifest_default=hls_manifest_default)
 
 
 def _build_encoding_output(output, output_path):

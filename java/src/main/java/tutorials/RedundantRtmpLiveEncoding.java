@@ -293,7 +293,7 @@ public class RedundantRtmpLiveEncoding {
    * <p>API endpoint:
    * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDash
    *
-   * @param output The output where the manifest should be written to
+   * @param output The output to which the manifest should be written
    * @param outputPath The path where the generated manifest should be located
    * @param encoding The encoding for which the manifest should be generated
    */
@@ -315,7 +315,7 @@ public class RedundantRtmpLiveEncoding {
    * <p>API endpoint:
    * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsDefault
    *
-   * @param output The output where the manifest should be written to
+   * @param output The output to which the manifest should be written
    * @param outputPath The path where the generated manifest should be located
    * @param encoding The encoding for which the manifest should be generated
    */

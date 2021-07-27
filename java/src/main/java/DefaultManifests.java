@@ -16,6 +16,9 @@ import com.bitmovin.api.sdk.model.HlsManifestDefault;
 import com.bitmovin.api.sdk.model.HlsManifestDefaultVersion;
 import com.bitmovin.api.sdk.model.HttpInput;
 import com.bitmovin.api.sdk.model.Input;
+import com.bitmovin.api.sdk.model.Manifest;
+import com.bitmovin.api.sdk.model.ManifestGenerator;
+import com.bitmovin.api.sdk.model.ManifestResource;
 import com.bitmovin.api.sdk.model.MessageType;
 import com.bitmovin.api.sdk.model.MuxingStream;
 import com.bitmovin.api.sdk.model.Output;
@@ -107,10 +110,15 @@ public class DefaultManifests {
         createStream(encoding, input, configProvider.getHttpInputFilePath(), aacConfig);
     createFmp4Muxing(encoding, output, "audio", audioStream);
 
-    executeEncoding(encoding);
+    DashManifest dashManifest = createDefaultDashManifest(encoding, output, "/");
+    HlsManifest hlsManifest = createDefaultHlsManifest(encoding, output, "/");
 
-    generateDashManifest(encoding, output, "/");
-    generateHlsManifest(encoding, output, "/");
+    StartEncodingRequest startEncodingRequest = new StartEncodingRequest();
+    startEncodingRequest.setManifestGenerator(ManifestGenerator.V2);
+    startEncodingRequest.addVodDashManifestsItem(buildManifestResource(dashManifest));
+    startEncodingRequest.addVodHlsManifestsItem(buildManifestResource(hlsManifest));
+
+    executeEncoding(encoding, startEncodingRequest);
   }
 
   /**
@@ -324,23 +332,47 @@ public class DefaultManifests {
    * https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
    *
    * @param encoding The encoding to be started
+   * @param startEncodingRequest The request object to be sent with the start call
    */
-  private static void executeEncoding(Encoding encoding)
+  private static void executeEncoding(Encoding encoding, StartEncodingRequest startEncodingRequest)
       throws InterruptedException, BitmovinException {
-    bitmovinApi.encoding.encodings.start(encoding.getId(), new StartEncodingRequest());
+    bitmovinApi.encoding.encodings.start(encoding.getId(), startEncodingRequest);
 
     Task task;
     do {
       Thread.sleep(5000);
       task = bitmovinApi.encoding.encodings.status(encoding.getId());
-      logger.info("encoding status is {} (progress: {} %)", task.getStatus(), task.getProgress());
-    } while (task.getStatus() != Status.FINISHED && task.getStatus() != Status.ERROR);
+      logger.info("Encoding status is {} (progress: {} %)", task.getStatus(), task.getProgress());
+    } while (task.getStatus() != Status.FINISHED
+        && task.getStatus() != Status.ERROR
+        && task.getStatus() != Status.CANCELED);
 
     if (task.getStatus() == Status.ERROR) {
       logTaskErrors(task);
       throw new RuntimeException("Encoding failed");
     }
-    logger.info("encoding finished successfully");
+    logger.info("Encoding finished successfully");
+  }
+
+  /**
+   * Creates a DASH default manifest that automatically includes all representations configured in
+   * the encoding.
+   *
+   * <p>API endpoint:
+   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDashDefault
+   *
+   * @param encoding The encoding for which the manifest should be generated
+   * @param output The output to which the manifest should be written
+   * @param outputPath The path to which the manifest should be written
+   */
+  private static DashManifest createDefaultDashManifest(
+      Encoding encoding, Output output, String outputPath) {
+    DashManifestDefault dashManifestDefault = new DashManifestDefault();
+    dashManifestDefault.setEncodingId(encoding.getId());
+    dashManifestDefault.setManifestName("stream.mpd");
+    dashManifestDefault.setVersion(DashManifestDefaultVersion.V1);
+    dashManifestDefault.addOutputsItem(buildEncodingOutput(output, outputPath));
+    return bitmovinApi.encoding.manifests.dash.defaultapi.create(dashManifestDefault);
   }
 
   /**
@@ -354,94 +386,27 @@ public class DefaultManifests {
    * @param output The output to which the manifest should be written
    * @param outputPath The path to which the manifest should be written
    */
-  private static void generateHlsManifest(Encoding encoding, Output output, String outputPath)
-      throws Exception {
+  private static HlsManifest createDefaultHlsManifest(
+      Encoding encoding, Output output, String outputPath) {
     HlsManifestDefault hlsManifestDefault = new HlsManifestDefault();
     hlsManifestDefault.setEncodingId(encoding.getId());
     hlsManifestDefault.addOutputsItem(buildEncodingOutput(output, outputPath));
     hlsManifestDefault.setName("master.m3u8");
     hlsManifestDefault.setVersion(HlsManifestDefaultVersion.V1);
 
-    hlsManifestDefault = bitmovinApi.encoding.manifests.hls.defaultapi.create(hlsManifestDefault);
-    executeHlsManifestCreation(hlsManifestDefault);
+    return bitmovinApi.encoding.manifests.hls.defaultapi.create(hlsManifestDefault);
   }
 
   /**
-   * Creates a DASH default manifest that automatically includes all representations configured in
-   * the encoding.
+   * Wraps a manifest ID into a ManifestResource object, so it can be referenced in one of the
+   * StartEncodingRequest manifest lists.
    *
-   * <p>API endpoint:
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDash
-   *
-   * @param encoding The encoding for which the manifest should be generated
-   * @param output The output where the manifest should be written to
-   * @param outputPath The path to which the manifest should be written
+   * @param manifest The manifest to be generated at the end of the encoding process
    */
-  private static void generateDashManifest(Encoding encoding, Output output, String outputPath)
-      throws Exception {
-    DashManifestDefault dashManifestDefault = new DashManifestDefault();
-    dashManifestDefault.setEncodingId(encoding.getId());
-    dashManifestDefault.setManifestName("stream.mpd");
-    dashManifestDefault.setVersion(DashManifestDefaultVersion.V1);
-    dashManifestDefault.addOutputsItem(buildEncodingOutput(output, outputPath));
-    dashManifestDefault =
-        bitmovinApi.encoding.manifests.dash.defaultapi.create(dashManifestDefault);
-    executeDashManifestCreation(dashManifestDefault);
-  }
-
-  /**
-   * Starts the DASH manifest creation and periodically polls its status until it reaches a final
-   * state
-   *
-   * <p>API endpoints:
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDashStartByManifestId
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsDashStatusByManifestId
-   *
-   * @param dashManifest The DASH manifest to be created
-   */
-  private static void executeDashManifestCreation(DashManifest dashManifest)
-      throws BitmovinException, InterruptedException {
-    bitmovinApi.encoding.manifests.dash.start(dashManifest.getId());
-
-    Task task;
-    do {
-      Thread.sleep(1000);
-      task = bitmovinApi.encoding.manifests.dash.status(dashManifest.getId());
-    } while (task.getStatus() != Status.FINISHED && task.getStatus() != Status.ERROR);
-
-    if (task.getStatus() == Status.ERROR) {
-      logTaskErrors(task);
-      throw new RuntimeException("DASH manifest creation failed");
-    }
-    logger.info("DASH manifest creation finished successfully");
-  }
-
-  /**
-   * Starts the HLS manifest creation and periodically polls its status until it reaches a final
-   * state
-   *
-   * <p>API endpoints:
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
-   * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
-   *
-   * @param hlsManifest The HLS manifest to be created
-   */
-  private static void executeHlsManifestCreation(HlsManifest hlsManifest)
-      throws BitmovinException, InterruptedException {
-
-    bitmovinApi.encoding.manifests.hls.start(hlsManifest.getId());
-
-    Task task;
-    do {
-      Thread.sleep(1000);
-      task = bitmovinApi.encoding.manifests.hls.status(hlsManifest.getId());
-    } while (task.getStatus() != Status.FINISHED && task.getStatus() != Status.ERROR);
-
-    if (task.getStatus() == Status.ERROR) {
-      logTaskErrors(task);
-      throw new RuntimeException("HLS manifest creation failed");
-    }
-    logger.info("HLS manifest creation finished successfully");
+  private static ManifestResource buildManifestResource(Manifest manifest) {
+    ManifestResource manifestResource = new ManifestResource();
+    manifestResource.setManifestId(manifest.getId());
+    return manifestResource;
   }
 
   private static void logTaskErrors(Task task) {

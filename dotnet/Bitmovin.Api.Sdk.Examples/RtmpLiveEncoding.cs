@@ -107,7 +107,7 @@ namespace Bitmovin.Api.Sdk.Examples
             var aacAudioStream = await CreateStream(encoding, input, inputFilePath, aacConfig, 1);
 
             await CreateFmp4Muxing(encoding, output, $"/video/${h264VideoConfig.Height}p", h264VideoStream);
-            await CreateFmp4Muxing(encoding, output, $"/audio/${aacConfig.Bitrate! / 1000}kbs", aacAudioStream);
+            await CreateFmp4Muxing(encoding, output, $"/audio/${aacConfig.Bitrate! / 1000}kbps", aacAudioStream);
 
             var dashManifest = await CreateDefaultDashManifest(encoding, output, "/");
             var hlsManifest = await CreateDefaultHlsManifest(encoding, output, "/");

@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed72e661807cc910f5833ae5df2fdf51",
+    "content-hash": "461f8d17e21805d427b7936f9e348ebf",
     "packages": [
         {
             "name": "bitmovin/bitmovin-api-sdk-php",
-            "version": "1.78.0",
+            "version": "1.81.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bitmovin/bitmovin-api-sdk-php.git",
-                "reference": "6d4a5f6ffd972f86de5d583b907661722988beea"
+                "reference": "5141663b95618c07eb3a6c9c74c0ebf35eebdb88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bitmovin/bitmovin-api-sdk-php/zipball/6d4a5f6ffd972f86de5d583b907661722988beea",
-                "reference": "6d4a5f6ffd972f86de5d583b907661722988beea",
+                "url": "https://api.github.com/repos/bitmovin/bitmovin-api-sdk-php/zipball/5141663b95618c07eb3a6c9c74c0ebf35eebdb88",
+                "reference": "5141663b95618c07eb3a6c9c74c0ebf35eebdb88",
                 "shasum": ""
             },
             "require": {
@@ -46,7 +46,7 @@
                 }
             ],
             "description": "This is the Bitmovin API SDK for PHP",
-            "time": "2021-07-06T07:08:12+00:00"
+            "time": "2021-07-27T09:05:05+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -707,23 +707,23 @@
         },
         {
             "name": "symfony/translation",
-            "version": "v5.3.3",
+            "version": "v5.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/translation.git",
-                "reference": "380b8c9e944d0e364b25f28e8e555241eb49c01c"
+                "reference": "d89ad7292932c2699cbe4af98d72c5c6bbc504c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/translation/zipball/380b8c9e944d0e364b25f28e8e555241eb49c01c",
-                "reference": "380b8c9e944d0e364b25f28e8e555241eb49c01c",
+                "url": "https://api.github.com/repos/symfony/translation/zipball/d89ad7292932c2699cbe4af98d72c5c6bbc504c1",
+                "reference": "d89ad7292932c2699cbe4af98d72c5c6bbc504c1",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2.5",
                 "symfony/deprecation-contracts": "^2.1",
                 "symfony/polyfill-mbstring": "~1.0",
-                "symfony/polyfill-php80": "^1.15",
+                "symfony/polyfill-php80": "^1.16",
                 "symfony/translation-contracts": "^2.3"
             },
             "conflict": {
@@ -737,7 +737,7 @@
                 "symfony/translation-implementation": "2.3"
             },
             "require-dev": {
-                "psr/log": "~1.0",
+                "psr/log": "^1|^2|^3",
                 "symfony/config": "^4.4|^5.0",
                 "symfony/console": "^4.4|^5.0",
                 "symfony/dependency-injection": "^5.0",
@@ -781,7 +781,7 @@
             ],
             "description": "Provides tools to internationalize your application",
             "homepage": "https://symfony.com",
-            "time": "2021-06-27T12:22:47+00:00"
+            "time": "2021-07-25T09:39:16+00:00"
         },
         {
             "name": "symfony/translation-contracts",
