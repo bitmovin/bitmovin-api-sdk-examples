@@ -104,13 +104,26 @@ namespace Bitmovin.Api.Sdk.Examples
             var aacAudioStream = await CreateStream(encoding, input, inputFilePath, aacConfig, StreamMode.STANDARD);
 
             await CreateFmp4Muxing(encoding, output, "video/{height}/{bitrate}_{uuid}", h264VideoStream);
-            await CreateFmp4Muxing(encoding, output, $"/audio/{aacConfig.Bitrate / 1000}kbs",
-                aacAudioStream);
+            await CreateFmp4Muxing(encoding, output, $"/audio", aacAudioStream);
 
-            await ExecuteEncoding(encoding);
+            var dashManifest = await CreateDefaultDashManifest(encoding, output, "/");
+            var hlsManifest = await CreateDefaultHlsManifest(encoding, output, "/");
 
-            await GenerateDashManifest(encoding, output, "/");
-            await GenerateHlsManifest(encoding, output, "/");
+            var startEncodingRequest = new StartEncodingRequest()
+            {
+                PerTitle = new PerTitle()
+                {
+                    H264Configuration = new H264PerTitleConfiguration()
+                    {
+                        AutoRepresentations = new AutoRepresentation()
+                    }
+                },
+                ManifestGenerator = ManifestGenerator.V2,
+                VodDashManifests = new List<ManifestResource>() { BuildManifestResource(dashManifest) },
+                VodHlsManifests = new List<ManifestResource>() { BuildManifestResource(hlsManifest) }
+            };
+
+            await ExecuteEncoding(encoding, startEncodingRequest);
         }
 
         /// <summary>
@@ -121,24 +134,16 @@ namespace Bitmovin.Api.Sdk.Examples
         /// <br />
         /// https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/GetEncodingEncodingsStatusByEncodingId
         /// <para />
+        ///
         /// Please note that you can also use our webhooks API instead of polling the status. For more
         /// information consult the API spec:
         /// https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
         /// </summary>
         /// <param name="encoding">The encoding to be started</param>
+        /// <param name="startEncodingRequest">The request object to be sent with the start call</param>
         /// <exception cref="System.SystemException"></exception>
-        private async Task ExecuteEncoding(Models.Encoding encoding)
+        private async Task ExecuteEncoding(Models.Encoding encoding, StartEncodingRequest startEncodingRequest)
         {
-            var startEncodingRequest = new StartEncodingRequest()
-            {
-                PerTitle = new PerTitle()
-                {
-                    H264Configuration = new H264PerTitleConfiguration()
-                    {
-                        AutoRepresentations = new AutoRepresentation()
-                    }
-                }
-            };
             await _bitmovinApi.Encoding.Encodings.StartAsync(encoding.Id, startEncodingRequest);
 
             ServiceTaskStatus serviceTaskStatus;
@@ -167,18 +172,17 @@ namespace Bitmovin.Api.Sdk.Examples
         /// <param name="encoding">The encoding for which the manifest should be generated</param>
         /// <param name="output">The output to which the manifest should be written</param>
         /// <param name="outputPath">The path to which the manifest should be written</param>
-        private async Task GenerateDashManifest(Models.Encoding encoding, Output output, string outputPath)
+        private async Task<DashManifest> CreateDefaultDashManifest(Models.Encoding encoding, Output output, string outputPath)
         {
             var dashManifestDefault = new DashManifestDefault()
             {
                 EncodingId = encoding.Id,
                 ManifestName = "stream.mpd",
                 Version = DashManifestDefaultVersion.V1,
-                Outputs = new List<EncodingOutput>() {BuildEncodingOutput(output, outputPath)}
+                Outputs = new List<EncodingOutput>() { BuildEncodingOutput(output, outputPath) }
             };
 
-            dashManifestDefault = await _bitmovinApi.Encoding.Manifests.Dash.Default.CreateAsync(dashManifestDefault);
-            await ExecuteDashManifestCreation(dashManifestDefault);
+            return await _bitmovinApi.Encoding.Manifests.Dash.Default.CreateAsync(dashManifestDefault);
         }
 
         /// <summary>
@@ -190,78 +194,30 @@ namespace Bitmovin.Api.Sdk.Examples
         /// <param name="encoding">The encoding for which the manifest should be generated</param>
         /// <param name="output">The output to which the manifest should be written</param>
         /// <param name="outputPath">The path to which the manifest should be written</param>
-        private async Task GenerateHlsManifest(Models.Encoding encoding, Output output, string outputPath)
+        private async Task<HlsManifest> CreateDefaultHlsManifest(Models.Encoding encoding, Output output, string outputPath)
         {
             var hlsManifestDefault = new HlsManifestDefault()
             {
                 EncodingId = encoding.Id,
                 Name = "master.m3u8",
                 Version = HlsManifestDefaultVersion.V1,
-                Outputs = new List<EncodingOutput>() {BuildEncodingOutput(output, outputPath)}
+                Outputs = new List<EncodingOutput>() { BuildEncodingOutput(output, outputPath) }
             };
 
-            hlsManifestDefault = await _bitmovinApi.Encoding.Manifests.Hls.Default.CreateAsync(hlsManifestDefault);
-            await ExecuteHlsManifestCreation(hlsManifestDefault);
+            return await _bitmovinApi.Encoding.Manifests.Hls.Default.CreateAsync(hlsManifestDefault);
         }
 
         /// <summary>
-        /// Starts the DASH manifest creation and periodically polls its status until it reaches a final state<para />
-        /// 
-        /// API endpoints:
-        /// https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDashStartByManifestId
-        /// <br />
-        /// https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsDashStatusByManifestId
+        /// Wraps a manifest ID into a ManifestResource object, so it can be referenced in one of the
+        /// StartEncodingRequest manifest lists.
         /// </summary>
-        /// <param name="dashManifest">The DASH manifest to be created</param>
-        /// <exception cref="SystemException"></exception>
-        private async Task ExecuteDashManifestCreation(DashManifest dashManifest)
+        /// <param name="manifest">The manifest to be generated at the end of the encoding process</param>
+        private ManifestResource BuildManifestResource(Manifest manifest)
         {
-            await _bitmovinApi.Encoding.Manifests.Dash.StartAsync(dashManifest.Id);
-
-            ServiceTaskStatus serviceTaskStatus;
-            do
+            return new ManifestResource()
             {
-                await Task.Delay(1000);
-                serviceTaskStatus = await _bitmovinApi.Encoding.Manifests.Dash.StatusAsync(dashManifest.Id);
-            } while (serviceTaskStatus.Status != Status.FINISHED && serviceTaskStatus.Status != Status.ERROR);
-
-            if (serviceTaskStatus.Status == Status.ERROR)
-            {
-                LogTaskErrors(serviceTaskStatus);
-                throw new SystemException("DASH manifest creation failed");
-            }
-
-            Console.WriteLine("DASH manifest creation finished successfully");
-        }
-
-        /// <summary>
-        /// Starts the HLS manifest creation and periodically polls its status until it reaches a final state<para />
-        /// 
-        /// API endpoints:
-        /// https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
-        /// <br />
-        /// https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
-        /// </summary>
-        /// <param name="hlsManifest">The HLS manifest to be created</param>
-        /// <exception cref="SystemException"></exception>
-        private async Task ExecuteHlsManifestCreation(HlsManifest hlsManifest)
-        {
-            await _bitmovinApi.Encoding.Manifests.Hls.StartAsync(hlsManifest.Id);
-
-            ServiceTaskStatus serviceTaskStatus;
-            do
-            {
-                await Task.Delay(1000);
-                serviceTaskStatus = await _bitmovinApi.Encoding.Manifests.Hls.StatusAsync(hlsManifest.Id);
-            } while (serviceTaskStatus.Status != Status.FINISHED && serviceTaskStatus.Status != Status.ERROR);
-
-            if (serviceTaskStatus.Status == Status.ERROR)
-            {
-                LogTaskErrors(serviceTaskStatus);
-                throw new SystemException("HLS manifest creation failed");
-            }
-
-            Console.WriteLine("HLS manifest creation finished successfully");
+                ManifestId = manifest.Id
+            };
         }
 
         /// <summary>
@@ -363,7 +319,7 @@ namespace Bitmovin.Api.Sdk.Examples
 
             var stream = new Stream()
             {
-                InputStreams = new List<StreamInput>() {streamInput},
+                InputStreams = new List<StreamInput>() { streamInput },
                 CodecConfigId = configuration.Id,
                 Mode = streamMode
             };
@@ -432,8 +388,8 @@ namespace Bitmovin.Api.Sdk.Examples
             var muxing = new Fmp4Muxing()
             {
                 SegmentLength = 4,
-                Outputs = new List<EncodingOutput>() {BuildEncodingOutput(output, outputPath)},
-                Streams = new List<MuxingStream>() {muxingStream}
+                Outputs = new List<EncodingOutput>() { BuildEncodingOutput(output, outputPath) },
+                Streams = new List<MuxingStream>() { muxingStream }
             };
 
             return _bitmovinApi.Encoding.Encodings.Muxings.Fmp4.CreateAsync(encoding.Id, muxing);
@@ -457,7 +413,7 @@ namespace Bitmovin.Api.Sdk.Examples
             {
                 OutputPath = BuildAbsolutePath(outputPath),
                 OutputId = output.Id,
-                Acl = new List<AclEntry>() {aclEntry}
+                Acl = new List<AclEntry>() { aclEntry }
             };
 
             return encodingOutput;

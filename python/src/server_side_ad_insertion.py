@@ -1,13 +1,18 @@
 import time
+from os import path
 
-from bitmovin_api_sdk import AacAudioConfiguration, AclEntry, AclPermission, AudioMediaInfo, BitmovinApi, \
-    BitmovinApiLogger, CustomTag, Encoding, EncodingOutput, Fmp4Muxing, H264VideoConfiguration, HlsManifest, \
-    HttpInput, Keyframe, MessageType, MuxingStream, PositionMode, PresetConfiguration, S3Output, Status, Stream, \
+from bitmovin_api_sdk import AacAudioConfiguration, AclEntry, AclPermission, AudioMediaInfo, \
+    BitmovinApi, \
+    BitmovinApiLogger, CodecConfiguration, CustomTag, Encoding, EncodingOutput, Fmp4Muxing, \
+    H264VideoConfiguration, \
+    HlsManifest, \
+    HttpInput, Input, Keyframe, ManifestGenerator, ManifestResource, MessageType, Muxing, \
+    MuxingStream, \
+    Output, PositionMode, \
+    PresetConfiguration, S3Output, StartEncodingRequest, Status, Stream, \
     StreamInfo, StreamInput, StreamMode, StreamSelectionMode, Task
 
 from common.config_provider import ConfigProvider
-
-from os import path
 
 """
 This example demonstrates how to create multiple fMP4 renditions with Server Side Ad Insertion
@@ -50,7 +55,8 @@ bitmovin_api = BitmovinApi(api_key=config_provider.get_bitmovin_api_key(),
 
 
 def main():
-    encoding = _create_encoding(name=EXAMPLE_NAME, description="Encoding with SSAI conditioned HLS streams")
+    encoding = _create_encoding(name=EXAMPLE_NAME,
+                                description="Encoding with SSAI conditioned HLS streams")
 
     http_input = _create_http_input(host=config_provider.get_http_input_host())
     input_file_path = config_provider.get_http_input_file_path()
@@ -102,77 +108,59 @@ def main():
     keyframes = _create_keyframes(encoding=encoding,
                                   break_placements=ad_break_placements)
 
-    _execute_encoding(encoding=encoding)
-
-    manifest_hls = _create_hls_master_manifest(name="master.m3u8",
-                                               output=output,
-                                               output_path="")
+    manifest = _create_hls_master_manifest(name="master.m3u8",
+                                           output=output,
+                                           output_path="")
 
     audio_media_info = _create_audio_media_playlist(encoding=encoding,
-                                                    manifest=manifest_hls,
+                                                    manifest=manifest,
                                                     audio_muxing=aac_audio_muxing,
                                                     segment_path="audio/")
 
-    _place_audio_advertisment_tags(manifest=manifest_hls, audio_media_info=audio_media_info, keyframes=keyframes)
+    _place_audio_advertisment_tags(manifest=manifest, audio_media_info=audio_media_info,
+                                   keyframes=keyframes)
 
     for i in range(0, len(video_muxings)):
+        height = video_configurations[i].height
         stream_info = _create_video_stream_playlist(encoding=encoding,
-                                                    manifest=manifest_hls,
-                                                    bitrate=video_configurations[i].bitrate,
+                                                    manifest=manifest,
+                                                    file_name="video_{0}.m3u8".format(height),
                                                     muxing=video_muxings[i],
-                                                    segment_path="video/{0}".format(video_configurations[i].height),
+                                                    segment_path="video/{0}".format(height),
                                                     audio_media_info=audio_media_info)
-        _place_video_advertisment_tags(manifest=manifest_hls, stream_info=stream_info, keyframes=keyframes)
+        _place_video_advertisment_tags(manifest=manifest, stream_info=stream_info,
+                                       keyframes=keyframes)
 
-    _execute_hls_manifest_creation(manifest=manifest_hls)
+    start_encoding_request = StartEncodingRequest(
+        manifest_generator=ManifestGenerator.V2,
+        vod_hls_manifests=[ManifestResource(manifest_id=manifest.id)]
+    )
 
-
-def _execute_hls_manifest_creation(manifest):
-    # type: (HlsManifest) -> None
-    """
-    Starts the HLS manifest creation and periodically polls its status until it reaches a final
-    state
-
-    <p>API endpoints:
-    https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
-    https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
-
-    :param manifest: The HLS manifest to be created
-    """
-    bitmovin_api.encoding.manifests.hls.start(manifest_id=manifest.id)
-
-    task = Task(status=Status.CREATED)
-    while task.status is not Status.FINISHED and task.status is not Status.ERROR:
-        time.sleep(1)
-        task = bitmovin_api.encoding.manifests.hls.status(manifest_id=manifest.id)
-
-    if task.status is Status.ERROR:
-        _log_task_errors(task=task)
-        raise RuntimeError("HLS manifest creation failed")
-
-    print("HLS manifest creation finished successfully")
+    _execute_encoding(encoding=encoding, start_encoding_request=start_encoding_request)
 
 
-def _create_video_stream_playlist(encoding, manifest, bitrate, muxing, segment_path, audio_media_info):
-    # type: (Encoding, HlsManifest, int, Muxing, str, AudioMediaInfo) -> StreamInfo
+def _create_video_stream_playlist(encoding, manifest, file_name, muxing, segment_path,
+    audio_media_info):
+    # type: (Encoding, HlsManifest, str, Muxing, str, AudioMediaInfo) -> StreamInfo
     """
     Creates an HLS video playlist
 
     :param encoding: The encoding to which the manifest belongs to
     :param manifest: The manifest to which the playlist should be added
-    :param bitrate: The bitrate of the video configuration
+    :param file_name: The file name of the playlist file
     :param muxing: The video muxing for which the playlist should be generated
     :param segment_path: The path containing the video segments to be referenced
     :param audio_media_info: The audio media playlist containing the associated audio group id
     """
-    stream_info = StreamInfo(uri="video_{0}kbps.m3u8".format(bitrate / 1000),
+    stream_info = StreamInfo(uri=file_name,
                              encoding_id=encoding.id,
                              stream_id=muxing.streams[0].stream_id,
                              muxing_id=muxing.id,
                              audio=audio_media_info.group_id,
                              segment_path=segment_path)
 
-    return bitmovin_api.encoding.manifests.hls.streams.create(manifest_id=manifest.id, stream_info=stream_info)
+    return bitmovin_api.encoding.manifests.hls.streams.create(manifest_id=manifest.id,
+                                                              stream_info=stream_info)
 
 
 def _place_audio_advertisment_tags(manifest, audio_media_info, keyframes):
@@ -248,14 +236,14 @@ def _create_hls_master_manifest(name, output, output_path):
     :param output: The output resource to which the manifest will be written to
     :param output_path: The path where the manifest will be written to
     """
-    hls_manifest = HlsManifest(name=name,
-                               outputs=[_build_encoding_output(output=output, output_path=output_path)])
+    manifest = HlsManifest(name=name,
+                           outputs=[_build_encoding_output(output=output, output_path=output_path)])
 
-    return bitmovin_api.encoding.manifests.hls.create(hls_manifest=hls_manifest)
+    return bitmovin_api.encoding.manifests.hls.create(hls_manifest=manifest)
 
 
-def _execute_encoding(encoding):
-    # type: (Encoding) -> None
+def _execute_encoding(encoding, start_encoding_request):
+    # type: (Encoding, StartEncodingRequest) -> None
     """
     Starts the actual encoding process and periodically polls its status until it reaches a final state
 
@@ -268,19 +256,36 @@ def _execute_encoding(encoding):
     https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
 
     :param encoding: The encoding to be started
+    :param start_encoding_request: The request object to be sent with the start call
     """
-    bitmovin_api.encoding.encodings.start(encoding_id=encoding.id)
-    task = Task(status=Status.CREATED)
+
+    bitmovin_api.encoding.encodings.start(encoding_id=encoding.id,
+                                          start_encoding_request=start_encoding_request)
+
+    task = _wait_for_enoding_to_finish(encoding_id=encoding.id)
+
     while task.status is not Status.FINISHED and task.status is not Status.ERROR:
-        time.sleep(5)
-        task = bitmovin_api.encoding.encodings.status(encoding_id=encoding.id)
-        print("Encoding status is {0} (progress: {1}%)".format(task.status, task.progress))
+        task = _wait_for_enoding_to_finish(encoding_id=encoding.id)
 
     if task.status is Status.ERROR:
         _log_task_errors(task=task)
-        raise RuntimeError("Encoding failed")
+        raise Exception("Encoding failed")
 
     print("Encoding finished successfully")
+
+
+def _wait_for_enoding_to_finish(encoding_id):
+    # type: (str) -> Task
+    """
+    Waits five second and retrieves afterwards the status of the given encoding id
+
+    :param encoding_id The encoding which should be checked
+    """
+
+    time.sleep(5)
+    task = bitmovin_api.encoding.encodings.status(encoding_id=encoding_id)
+    print("Encoding status is {} (progress: {} %)".format(task.status, task.progress))
+    return task
 
 
 def _create_keyframes(encoding, break_placements):
@@ -432,7 +437,8 @@ def _create_fmp4_muxing(encoding, output, output_path, stream):
         segment_length=4.0
     )
 
-    return bitmovin_api.encoding.encodings.muxings.fmp4.create(encoding_id=encoding.id, fmp4_muxing=muxing)
+    return bitmovin_api.encoding.encodings.muxings.fmp4.create(encoding_id=encoding.id,
+                                                               fmp4_muxing=muxing)
 
 
 def _create_h264_video_configuration(height, bitrate):

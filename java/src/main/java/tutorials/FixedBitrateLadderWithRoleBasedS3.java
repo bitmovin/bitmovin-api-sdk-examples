@@ -372,14 +372,16 @@ public class FixedBitrateLadderWithRoleBasedS3 {
     do {
       Thread.sleep(5000);
       task = bitmovinApi.encoding.encodings.status(encoding.getId());
-      logger.info("encoding status is {} (progress: {} %)", task.getStatus(), task.getProgress());
-    } while (task.getStatus() != Status.FINISHED && task.getStatus() != Status.ERROR);
+      logger.info("Encoding status is {} (progress: {} %)", task.getStatus(), task.getProgress());
+    } while (task.getStatus() != Status.FINISHED
+        && task.getStatus() != Status.ERROR
+        && task.getStatus() != Status.CANCELED);
 
     if (task.getStatus() == Status.ERROR) {
       logTaskErrors(task);
       throw new RuntimeException("Encoding failed");
     }
-    logger.info("encoding finished successfully");
+    logger.info("Encoding finished successfully");
   }
 
   private static void logTaskErrors(Task task) {

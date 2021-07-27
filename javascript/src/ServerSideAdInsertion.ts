@@ -16,12 +16,16 @@ import BitmovinApi, {
   HttpInput,
   Input,
   Keyframe,
+  Manifest,
+  ManifestGenerator,
+  ManifestResource,
   MessageType,
   MuxingStream,
   Output,
   PositionMode,
   PresetConfiguration,
   S3Output,
+  StartEncodingRequest,
   Status,
   Stream,
   StreamInfo,
@@ -80,9 +84,9 @@ async function main() {
   const inputFilePath = configProvider.getHttpInputFilePath();
 
   const output = await createS3Output(
-    configProvider.getS3OutputBucketName(),
-    configProvider.getS3OutputAccessKey(),
-    configProvider.getS3OutputSecretKey()
+      configProvider.getS3OutputBucketName(),
+      configProvider.getS3OutputAccessKey(),
+      configProvider.getS3OutputSecretKey()
   );
 
   const videoConfigurations = [
@@ -109,29 +113,31 @@ async function main() {
   // define keyframes that are used to insert advertisement tags into the manifest
   const keyframes = await Promise.all(createKeyframes(encoding, [5, 15]));
 
-  await executeEncoding(encoding);
-
   // create the master manifest that references audio and video playlists
-  const manifestHls = await createHlsMasterManifest(output, '/');
+  const manifest = await createHlsMasterManifest(output, '/');
 
   // create an audio playlist and provide it with custom tags for ad-placement
-  const audioMediaInfo = await createAudioMediaPlaylist(encoding, manifestHls, audioMuxing, 'audio/');
-  await placeAudioAdvertisementTags(manifestHls, audioMediaInfo, keyframes);
+  const audioMediaInfo = await createAudioMediaPlaylist(encoding, manifest, audioMuxing, 'audio/');
+  await placeAudioAdvertisementTags(manifest, audioMediaInfo, keyframes);
 
   // create a video playlist for each video muxing and provide it with custom tags for ad-placement
   for (const key of Array.from(videoMuxings.keys())) {
     const streamInfo = await createVideoStreamPlaylist(
-      encoding,
-      manifestHls,
-      `video_${key.height}.m3u8`,
-      videoMuxings.get(key)!,
-      `video/${key.height}`,
-      audioMediaInfo
+        encoding,
+        manifest,
+        `video_${key.height}.m3u8`,
+        videoMuxings.get(key)!,
+        `video/${key.height}`,
+        audioMediaInfo
     );
-    await placeVideoAdvertisementTags(manifestHls, streamInfo, keyframes);
+    await placeVideoAdvertisementTags(manifest, streamInfo, keyframes);
   }
+  const startEncodingRequest = new StartEncodingRequest({
+    manifestGenerator: ManifestGenerator.V2,
+    vodHlsManifests: [buildManifestResource(manifest)]
+  });
 
-  await executeHlsManifestCreation(manifestHls);
+  await executeEncoding(encoding, startEncodingRequest);
 }
 
 /**
@@ -164,10 +170,10 @@ function createEncoding(name: string, description: string): Promise<Encoding> {
  * @param codecConfiguration The codec configuration to be applied to the stream
  */
 function createStream(
-  encoding: Encoding,
-  input: Input,
-  inputPath: string,
-  codecConfiguration: CodecConfiguration
+    encoding: Encoding,
+    input: Input,
+    inputPath: string,
+    codecConfiguration: CodecConfiguration
 ): Promise<Stream> {
   const streamInput = new StreamInput({
     inputId: input.id,
@@ -321,13 +327,13 @@ function createKeyframes(encoding: Encoding, breakPlacements: number[]): Promise
  * @param outputPath The path where the manifest will be written to
  */
 function createHlsMasterManifest(output: Output, outputPath: string): Promise<HlsManifest> {
-  const hlsManifest = new HlsManifest({
+  const manifest = new HlsManifest({
     name: 'master.m3u8',
     manifestName: 'master.m3u8',
     outputs: [buildEncodingOutput(output, outputPath)]
   });
 
-  return bitmovinApi.encoding.manifests.hls.create(hlsManifest);
+  return bitmovinApi.encoding.manifests.hls.create(manifest);
 }
 
 /**
@@ -339,10 +345,10 @@ function createHlsMasterManifest(output: Output, outputPath: string): Promise<Hl
  * @param segmentPath The path containing the audio segments to be referenced by the playlist
  */
 function createAudioMediaPlaylist(
-  encoding: Encoding,
-  manifest: HlsManifest,
-  audioMuxing: Fmp4Muxing,
-  segmentPath: string
+    encoding: Encoding,
+    manifest: HlsManifest,
+    audioMuxing: Fmp4Muxing,
+    segmentPath: string
 ): Promise<AudioMediaInfo> {
   const audioMediaInfo = new AudioMediaInfo({
     name: 'audio.m3u8',
@@ -373,12 +379,12 @@ function createAudioMediaPlaylist(
  * @param audioMediaInfo The audio media playlist containing the associated audio group id
  */
 function createVideoStreamPlaylist(
-  encoding: Encoding,
-  manifest: HlsManifest,
-  filename: string,
-  muxing: Fmp4Muxing,
-  segmentPath: string,
-  audioMediaInfo: AudioMediaInfo
+    encoding: Encoding,
+    manifest: HlsManifest,
+    filename: string,
+    muxing: Fmp4Muxing,
+    segmentPath: string,
+    audioMediaInfo: AudioMediaInfo
 ): Promise<StreamInfo> {
   const streamInfo = new StreamInfo({
     uri: filename,
@@ -400,20 +406,20 @@ function createVideoStreamPlaylist(
  * @param keyframes A list of keyframes specifying the positions where tags will be inserted
  */
 function placeAudioAdvertisementTags(
-  manifest: HlsManifest,
-  audioMediaInfo: AudioMediaInfo,
-  keyframes: Keyframe[]
+    manifest: HlsManifest,
+    audioMediaInfo: AudioMediaInfo,
+    keyframes: Keyframe[]
 ): Promise<CustomTag[]> {
   return Promise.all(
-    keyframes.map(keyframe => {
-      const customTag = new CustomTag({
-        keyframeId: keyframe.id,
-        positionMode: PositionMode.KEYFRAME,
-        data: '#AD-PLACEMENT-OPPORTUNITY'
-      });
+      keyframes.map(keyframe => {
+        const customTag = new CustomTag({
+          keyframeId: keyframe.id,
+          positionMode: PositionMode.KEYFRAME,
+          data: '#AD-PLACEMENT-OPPORTUNITY'
+        });
 
-      return bitmovinApi.encoding.manifests.hls.media.customTags.create(manifest.id!, audioMediaInfo.id!, customTag);
-    })
+        return bitmovinApi.encoding.manifests.hls.media.customTags.create(manifest.id!, audioMediaInfo.id!, customTag);
+      })
   );
 }
 
@@ -425,20 +431,20 @@ function placeAudioAdvertisementTags(
  * @param keyframes A list of keyframes specifying the positions where tags will be inserted
  */
 function placeVideoAdvertisementTags(
-  manifest: HlsManifest,
-  streamInfo: StreamInfo,
-  keyframes: Keyframe[]
+    manifest: HlsManifest,
+    streamInfo: StreamInfo,
+    keyframes: Keyframe[]
 ): Promise<CustomTag[]> {
   return Promise.all(
-    keyframes.map(keyframe => {
-      const customTag = new CustomTag({
-        keyframeId: keyframe.id,
-        positionMode: PositionMode.KEYFRAME,
-        data: '#AD-PLACEMENT-OPPORTUNITY'
-      });
+      keyframes.map(keyframe => {
+        const customTag = new CustomTag({
+          keyframeId: keyframe.id,
+          positionMode: PositionMode.KEYFRAME,
+          data: '#AD-PLACEMENT-OPPORTUNITY'
+        });
 
-      return bitmovinApi.encoding.manifests.hls.streams.customTags.create(manifest.id!, streamInfo.id!, customTag);
-    })
+        return bitmovinApi.encoding.manifests.hls.streams.customTags.create(manifest.id!, streamInfo.id!, customTag);
+      })
   );
 }
 
@@ -498,9 +504,10 @@ function createAacAudioConfig(): Promise<AacAudioConfiguration> {
  * https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
  *
  * @param encoding The encoding to be started
+ * @param startEncodingRequest The request object to be sent with the start call
  */
-async function executeEncoding(encoding: Encoding): Promise<void> {
-  await bitmovinApi.encoding.encodings.start(encoding.id!);
+async function executeEncoding(encoding: Encoding, startEncodingRequest: StartEncodingRequest): Promise<void> {
+  await bitmovinApi.encoding.encodings.start(encoding.id!, startEncodingRequest);
 
   let task: Task;
   do {
@@ -518,30 +525,15 @@ async function executeEncoding(encoding: Encoding): Promise<void> {
 }
 
 /**
- * Starts the HLS manifest creation and periodically polls its status until it reaches a final
- * state
+ * Wraps a manifest ID into a ManifestResource object, so it can be referenced in one of the
+ * StartEncodingRequest manifest lists.
  *
- * <p>API endpoints:
- * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
- * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
- *
- * @param hlsManifest The HLS manifest to be created
+ * @param manifest The manifest to be generated at the end of the encoding process
  */
-async function executeHlsManifestCreation(hlsManifest: HlsManifest): Promise<void> {
-  await bitmovinApi.encoding.manifests.hls.start(hlsManifest.id!);
-
-  let task: Task;
-  do {
-    await timeout(1000);
-    task = await bitmovinApi.encoding.manifests.hls.status(hlsManifest.id!);
-  } while (task.status != Status.FINISHED && task.status != Status.ERROR);
-
-  if (task.status == Status.ERROR) {
-    logTaskErrors(task);
-    throw new Error('HLS manifest creation failed');
-  }
-
-  console.log('HLS manifest creation finished successfully');
+function buildManifestResource(manifest: Manifest) {
+  return new ManifestResource({
+    manifestId: manifest.id
+  });
 }
 
 function logTaskErrors(task: Task): void {

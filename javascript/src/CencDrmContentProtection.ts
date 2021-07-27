@@ -21,12 +21,16 @@ import BitmovinApi, {
   HlsManifestDefaultVersion,
   HttpInput,
   Input,
+  Manifest,
+  ManifestGenerator,
+  ManifestResource,
   MessageType,
   Muxing,
   MuxingStream,
   Output,
   PresetConfiguration,
   S3Output,
+  StartEncodingRequest,
   Status,
   Stream,
   StreamInput,
@@ -93,9 +97,9 @@ async function main() {
   const inputFilePath = configProvider.getHttpInputFilePath();
 
   const output = await createS3Output(
-    configProvider.getS3OutputBucketName(),
-    configProvider.getS3OutputAccessKey(),
-    configProvider.getS3OutputSecretKey()
+      configProvider.getS3OutputBucketName(),
+      configProvider.getS3OutputAccessKey(),
+      configProvider.getS3OutputSecretKey()
   );
 
   const h264VideoConfiguration = await createH264VideoConfig();
@@ -110,10 +114,16 @@ async function main() {
   await createDrmConfig(encoding, videoMuxing, output, 'video');
   await createDrmConfig(encoding, audioMuxing, output, 'audio');
 
-  await executeEncoding(encoding);
+  const dashManifest = await createDefaultDashManifest(encoding, output, '/');
+  const hlsManifest = await createDefaultHlsManifest(encoding, output, '/');
 
-  await generateDashManifest(encoding, output, '/');
-  await generateHlsManifest(encoding, output, '/');
+  const startEncodingRequest = new StartEncodingRequest({
+    manifestGenerator: ManifestGenerator.V2,
+    vodDashManifests: [buildManifestResource(dashManifest)],
+    vodHlsManifests: [buildManifestResource(hlsManifest)]
+  });
+
+  await executeEncoding(encoding, startEncodingRequest);
 }
 
 /**
@@ -146,10 +156,10 @@ function createEncoding(name: string, description: string): Promise<Encoding> {
  * @param codecConfiguration The codec configuration to be applied to the stream
  */
 function createStream(
-  encoding: Encoding,
-  input: Input,
-  inputPath: string,
-  codecConfiguration: CodecConfiguration
+    encoding: Encoding,
+    input: Input,
+    inputPath: string,
+    codecConfiguration: CodecConfiguration
 ): Promise<Stream> {
   const streamInput = new StreamInput({
     inputId: input.id,
@@ -366,9 +376,10 @@ function createAacAudioConfig(): Promise<AacAudioConfiguration> {
  * https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
  *
  * @param encoding The encoding to be started
+ * @param startEncodingRequest The request object to be sent with the start call
  */
-async function executeEncoding(encoding: Encoding): Promise<void> {
-  await bitmovinApi.encoding.encodings.start(encoding.id!);
+async function executeEncoding(encoding: Encoding, startEncodingRequest: StartEncodingRequest): Promise<void> {
+  await bitmovinApi.encoding.encodings.start(encoding.id!, startEncodingRequest);
 
   let task: Task;
   do {
@@ -386,30 +397,6 @@ async function executeEncoding(encoding: Encoding): Promise<void> {
 }
 
 /**
- * Creates an HLS default manifest that automatically includes all representations configured in
- * the encoding.
- *
- * <p>API endpoint:
- * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsDefault
- *
- * @param encoding The encoding for which the manifest should be generated
- * @param output The output to which the manifest should be written
- * @param outputPath The path to which the manifest should be written
- */
-async function generateHlsManifest(encoding: Encoding, output: Output, outputPath: string): Promise<void> {
-  let hlsManifestDefault = new HlsManifestDefault({
-    encodingId: encoding.id,
-    outputs: [buildEncodingOutput(output, outputPath)],
-    name: 'master.m3u8',
-    manifestName: 'master.m3u8',
-    version: HlsManifestDefaultVersion.V1
-  });
-
-  hlsManifestDefault = await bitmovinApi.encoding.manifests.hls.default.create(hlsManifestDefault);
-  await executeHlsManifestCreation(hlsManifestDefault);
-}
-
-/**
  * Creates a DASH default manifest that automatically includes all representations configured in
  * the encoding.
  *
@@ -420,7 +407,7 @@ async function generateHlsManifest(encoding: Encoding, output: Output, outputPat
  * @param output The output to which the manifest should be written
  * @param outputPath The path to which the manifest should be written
  */
-async function generateDashManifest(encoding: Encoding, output: Output, outputPath: string): Promise<void> {
+async function createDefaultDashManifest(encoding: Encoding, output: Output, outputPath: string): Promise<DashManifest> {
   let dashManifestDefault = new DashManifestDefault({
     encodingId: encoding.id,
     manifestName: 'stream.mpd',
@@ -428,63 +415,42 @@ async function generateDashManifest(encoding: Encoding, output: Output, outputPa
     outputs: [buildEncodingOutput(output, outputPath)]
   });
 
-  dashManifestDefault = await bitmovinApi.encoding.manifests.dash.default.create(dashManifestDefault);
-
-  await executeDashManifestCreation(dashManifestDefault);
+  return await bitmovinApi.encoding.manifests.dash.default.create(dashManifestDefault);
 }
 
 /**
- * Starts the DASH manifest creation and periodically polls its status until it reaches a final
- * state
+ * Creates an HLS default manifest that automatically includes all representations configured in
+ * the encoding.
  *
- * <p>API endpoints:
- * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDashStartByManifestId
- * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsDashStatusByManifestId
+ * <p>API endpoint:
+ * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsDefault
  *
- * @param dashManifest The DASH manifest to be created
+ * @param encoding The encoding for which the manifest should be generated
+ * @param output The output to which the manifest should be written
+ * @param outputPath The path to which the manifest should be written
  */
-async function executeDashManifestCreation(dashManifest: DashManifest): Promise<void> {
-  await bitmovinApi.encoding.manifests.dash.start(dashManifest.id!);
+async function createDefaultHlsManifest(encoding: Encoding, output: Output, outputPath: string): Promise<HlsManifest> {
+  let hlsManifestDefault = new HlsManifestDefault({
+    encodingId: encoding.id,
+    outputs: [buildEncodingOutput(output, outputPath)],
+    name: 'master.m3u8',
+    manifestName: 'master.m3u8',
+    version: HlsManifestDefaultVersion.V1
+  });
 
-  let task: Task;
-  do {
-    await timeout(1000);
-    task = await bitmovinApi.encoding.manifests.dash.status(dashManifest.id!);
-  } while (task.status !== Status.FINISHED && task.status !== Status.ERROR);
-
-  if (task.status === Status.ERROR) {
-    logTaskErrors(task);
-    throw new Error('DASH manifest creation failed');
-  }
-
-  console.log('DASH manifest creation finished successfully');
+  return await bitmovinApi.encoding.manifests.hls.default.create(hlsManifestDefault);
 }
 
 /**
- * Starts the HLS manifest creation and periodically polls its status until it reaches a final
- * state
+ * Wraps a manifest ID into a ManifestResource object, so it can be referenced in one of the
+ * StartEncodingRequest manifest lists.
  *
- * <p>API endpoints:
- * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
- * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
- *
- * @param hlsManifest The HLS manifest to be created
+ * @param manifest The manifest to be generated at the end of the encoding process
  */
-async function executeHlsManifestCreation(hlsManifest: HlsManifest): Promise<void> {
-  await bitmovinApi.encoding.manifests.hls.start(hlsManifest.id!);
-
-  let task: Task;
-  do {
-    await timeout(1000);
-    task = await bitmovinApi.encoding.manifests.hls.status(hlsManifest.id!);
-  } while (task.status != Status.FINISHED && task.status != Status.ERROR);
-
-  if (task.status == Status.ERROR) {
-    logTaskErrors(task);
-    throw new Error('HLS manifest creation failed');
-  }
-
-  console.log('HLS manifest creation finished successfully');
+function buildManifestResource(manifest: Manifest) {
+  return new ManifestResource({
+    manifestId: manifest.id
+  });
 }
 
 function logTaskErrors(task: Task): void {

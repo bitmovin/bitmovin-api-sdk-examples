@@ -12,21 +12,27 @@ use BitmovinApiSdk\Models\AacAudioConfiguration;
 use BitmovinApiSdk\Models\AclEntry;
 use BitmovinApiSdk\Models\AclPermission;
 use BitmovinApiSdk\Models\CodecConfiguration;
+use BitmovinApiSdk\Models\DashManifest;
 use BitmovinApiSdk\Models\DashManifestDefault;
 use BitmovinApiSdk\Models\DashManifestDefaultVersion;
 use BitmovinApiSdk\Models\Encoding;
 use BitmovinApiSdk\Models\EncodingOutput;
 use BitmovinApiSdk\Models\Fmp4Muxing;
 use BitmovinApiSdk\Models\H264VideoConfiguration;
+use BitmovinApiSdk\Models\HlsManifest;
 use BitmovinApiSdk\Models\HlsManifestDefault;
 use BitmovinApiSdk\Models\HlsManifestDefaultVersion;
 use BitmovinApiSdk\Models\HttpInput;
 use BitmovinApiSdk\Models\Input;
+use BitmovinApiSdk\Models\Manifest;
+use BitmovinApiSdk\Models\ManifestGenerator;
+use BitmovinApiSdk\Models\ManifestResource;
 use BitmovinApiSdk\Models\MessageType;
 use BitmovinApiSdk\Models\MuxingStream;
 use BitmovinApiSdk\Models\Output;
 use BitmovinApiSdk\Models\PresetConfiguration;
 use BitmovinApiSdk\Models\S3Output;
+use BitmovinApiSdk\Models\StartEncodingRequest;
 use BitmovinApiSdk\Models\Status;
 use BitmovinApiSdk\Models\Stream;
 use BitmovinApiSdk\Models\StreamInput;
@@ -96,10 +102,15 @@ try {
     $aacStream = createStream($encoding, $input, $inputFilePath, $aacConfig);
     createFmp4Muxing($encoding, $output, 'audio', $aacStream);
 
-    executeEncoding($encoding);
+    $dashManifest = createDefaultDashManifest($encoding, $output, "");
+    $hlsManifest = createDefaultHlsManifest($encoding, $output, "");
 
-    generateDashManifest($encoding, $output, '/');
-    generateHlsManifest($encoding, $output, '/');
+    $startEncodingRequest = new StartEncodingRequest();
+    $startEncodingRequest->manifestGenerator(ManifestGenerator::V2());
+    $startEncodingRequest->vodDashManifests([buildManifestResource($dashManifest)]);
+    $startEncodingRequest->vodHlsManifests([buildManifestResource($hlsManifest)]);
+
+    executeEncoding($encoding, $startEncodingRequest);
 } catch (Exception $exception) {
     echo $exception;
 }
@@ -117,14 +128,15 @@ try {
  * https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
  *
  * @param Encoding $encoding The encoding to be started
+ * @param StartEncodingRequest $startEncodingRequest The request object to be sent with the start call
  * @throws BitmovinApiException
  * @throws Exception
  */
-function executeEncoding(Encoding $encoding)
+function executeEncoding(Encoding $encoding, StartEncodingRequest $startEncodingRequest)
 {
     global $bitmovinApi;
 
-    $bitmovinApi->encoding->encodings->start($encoding->id);
+    $bitmovinApi->encoding->encodings->start($encoding->id, $startEncodingRequest);
 
     do {
         sleep(5);
@@ -155,7 +167,7 @@ function executeEncoding(Encoding $encoding)
  * @throws BitmovinApiException
  * @throws Exception
  */
-function createFmp4Muxing(Encoding $encoding, Output $output, string $outputPath, Stream $stream)
+function createFmp4Muxing(Encoding $encoding, Output $output, string $outputPath, Stream $stream): Fmp4Muxing
 {
     global $bitmovinApi;
 
@@ -187,7 +199,7 @@ function createFmp4Muxing(Encoding $encoding, Output $output, string $outputPath
  * @return H264VideoConfiguration
  * @throws BitmovinApiException
  */
-function createH264Config()
+function createH264Config(): H264VideoConfiguration
 {
     global $bitmovinApi;
 
@@ -208,7 +220,7 @@ function createH264Config()
  * @return AacAudioConfiguration
  * @throws BitmovinApiException
  */
-function createAacConfig()
+function createAacConfig(): AacAudioConfiguration
 {
     global $bitmovinApi;
 
@@ -232,7 +244,7 @@ function createAacConfig()
  * @return Stream
  * @throws BitmovinApiException
  */
-function createStream(Encoding $encoding, Input $input, string $inputPath, CodecConfiguration $codecConfiguration)
+function createStream(Encoding $encoding, Input $input, string $inputPath, CodecConfiguration $codecConfiguration): Stream
 {
     global $bitmovinApi;
 
@@ -272,7 +284,7 @@ function createStream(Encoding $encoding, Input $input, string $inputPath, Codec
  * @return S3Output
  * @throws BitmovinApiException
  */
-function createS3Output(string $bucketName, string $accessKey, string $secretKey)
+function createS3Output(string $bucketName, string $accessKey, string $secretKey): S3Output
 {
     global $bitmovinApi;
 
@@ -302,7 +314,7 @@ function createS3Output(string $bucketName, string $accessKey, string $secretKey
  * @return HttpInput
  * @throws BitmovinApiException
  */
-function createHttpInput(string $host)
+function createHttpInput(string $host): HttpInput
 {
     global $bitmovinApi;
 
@@ -323,7 +335,7 @@ function createHttpInput(string $host)
  * @return Encoding
  * @throws BitmovinApiException
  */
-function createEncoding(string $name, string $description)
+function createEncoding(string $name, string $description): Encoding
 {
     global $bitmovinApi;
 
@@ -344,7 +356,7 @@ function createEncoding(string $name, string $description)
  * @return EncodingOutput
  * @throws Exception
  */
-function buildEncodingOutput(Output $output, string $outputPath)
+function buildEncodingOutput(Output $output, string $outputPath): EncodingOutput
 {
     $aclEntry = new AclEntry();
     $aclEntry->permission(AclPermission::PUBLIC_READ());
@@ -367,7 +379,7 @@ function buildEncodingOutput(Output $output, string $outputPath)
  * @return string
  * @throws Exception
  */
-function buildAbsolutePath(string $relativePath)
+function buildAbsolutePath(string $relativePath): string
 {
     global $exampleName, $configProvider;
 
@@ -384,20 +396,21 @@ function buildAbsolutePath(string $relativePath)
  * @param Encoding $encoding The encoding for which the manifest should be generated
  * @param Output $output The output to which the manifest should be written
  * @param string $outputPath The path to which the manifest should be written
+ * @return DashManifest
+ * @throws BitmovinApiException
  * @throws Exception
  */
-function generateDashManifest(Encoding $encoding, Output $output, string $outputPath)
+function createDefaultDashManifest(Encoding $encoding, Output $output, string $outputPath): DashManifest
 {
     global $bitmovinApi;
 
     $dashManifestDefault = new DashManifestDefault();
     $dashManifestDefault->encodingId($encoding->id);
-    $dashManifestDefault->outputs([buildEncodingOutput($output, $outputPath)]);
-    $dashManifestDefault->manifestName('stream.mpd');
+    $dashManifestDefault->manifestName("stream.mpd");
     $dashManifestDefault->version(DashManifestDefaultVersion::V1());
+    $dashManifestDefault->outputs([buildEncodingOutput($output, $outputPath)]);
 
-    $dashManifestDefault = $bitmovinApi->encoding->manifests->dash->default->create($dashManifestDefault);
-    executeDashManifestCreation($dashManifestDefault);
+    return $bitmovinApi->encoding->manifests->dash->default->create($dashManifestDefault);
 }
 
 /**
@@ -410,83 +423,35 @@ function generateDashManifest(Encoding $encoding, Output $output, string $output
  * @param Encoding $encoding The encoding for which the manifest should be generated
  * @param Output $output The output to which the manifest should be written
  * @param string $outputPath The path to which the manifest should be written
+ * @return HlsManifest
+ * @throws BitmovinApiException
  * @throws Exception
  */
-function generateHlsManifest(Encoding $encoding, Output $output, string $outputPath)
+function createDefaultHlsManifest(Encoding $encoding, Output $output, string $outputPath): HlsManifest
 {
     global $bitmovinApi;
 
     $hlsManifestDefault = new HlsManifestDefault();
     $hlsManifestDefault->encodingId($encoding->id);
-    $hlsManifestDefault->outputs([buildEncodingOutput($output, $outputPath)]);
-    $hlsManifestDefault->name('master.m3u8');
-    $hlsManifestDefault->manifestName('master.m3u8');
+    $hlsManifestDefault->name("master.m3u8");
+    $hlsManifestDefault->manifestName("master.m3u8");
     $hlsManifestDefault->version(HlsManifestDefaultVersion::V1());
+    $hlsManifestDefault->outputs([buildEncodingOutput($output, $outputPath)]);
 
-    $hlsManifestDefault = $bitmovinApi->encoding->manifests->hls->default->create($hlsManifestDefault);
-    executeHlsManifestCreation($hlsManifestDefault);
+    return $bitmovinApi->encoding->manifests->hls->default->create($hlsManifestDefault);
 }
 
 /**
- * Starts the DASH manifest creation and periodically polls its status until it reaches a final
- * state
- *
- * <p>API endpoints:
- * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDashStartByManifestId
- * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsDashStatusByManifestId
- *
- * @param DashManifestDefault $dashManifest The DASH manifest to be created
- * @throws BitmovinApiException
- * @throws Exception
+ * Wraps a manifest ID into a ManifestResource object, so it can be referenced in one of the
+ * StartEncodingRequest manifest lists.
+ * @param Manifest $manifest The manifest to be generated at the end of the encoding process
+ * @return ManifestResource
  */
-function executeDashManifestCreation(DashManifestDefault $dashManifest)
+function buildManifestResource(Manifest $manifest): ManifestResource
 {
-    global $bitmovinApi;
-
-    $bitmovinApi->encoding->manifests->dash->start($dashManifest->id);
-
-    do {
-        sleep(1);
-        $task = $bitmovinApi->encoding->manifests->dash->status($dashManifest->id);
-    } while ($task->status != Status::FINISHED() && $task->status != Status::ERROR());
-
-    if ($task->status == Status::ERROR()) {
-        logTaskErrors($task);
-        throw new Exception("DASH manifest creation failed");
-    }
-
-    echo 'DASH manifest creation finished successfully' . PHP_EOL;
-}
-
-/**
- * Starts the HLS manifest creation and periodically polls its status until it reaches a final
- * state
- *
- * <p>API endpoints:
- * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
- * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
- *
- * @param HlsManifestDefault $hlsManifest The HLS manifest to be created
- * @throws BitmovinApiException
- * @throws Exception
- */
-function executeHlsManifestCreation(HlsManifestDefault $hlsManifest)
-{
-    global $bitmovinApi;
-
-    $bitmovinApi->encoding->manifests->hls->start($hlsManifest->id);
-
-    do {
-        sleep(1);
-        $task = $bitmovinApi->encoding->manifests->hls->status($hlsManifest->id);
-    } while ($task->status != Status::FINISHED() && $task->status != Status::ERROR());
-
-    if ($task->status == Status::ERROR()) {
-        logTaskErrors($task);
-        throw new Exception("HLS manifest creation failed");
-    }
-
-    echo 'HLS manifest creation finished successfully' . PHP_EOL;
+    $manifestResource = new ManifestResource();
+    $manifestResource->manifestId($manifest->id);
+    return $manifestResource;
 }
 
 function logTaskErrors(Task $task)

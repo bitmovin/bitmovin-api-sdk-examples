@@ -120,35 +120,39 @@ namespace Bitmovin.Api.Sdk.Examples
 
             // seconds in which to add a custom HLS tag for ad placement, as well as when to insert a
             // keyframe/split a segment
-            var adBreakPlacements = new List<double>() {5.0, 15.0};
+            var adBreakPlacements = new List<double>() { 5.0, 15.0 };
 
             // define keyframes that are used to insert advertisement tags into the manifest
             var keyframes = await CreateKeyframes(encoding, adBreakPlacements);
 
-            await ExecuteEncoding(encoding);
-
             // create the master manifest that references audio and video playlists
-            var manifestHls = await CreateHlsMasterManifest(output, "/");
+            var manifest = await CreateHlsMasterManifest(output, "/");
 
             // create an audio playlist and provide it with custom tags for ad-placement
-            var audioMediaInfo = await CreateAudioMediaPlaylist(encoding, manifestHls, aacAudioMuxing, "audio/");
-            await PlaceAudioAdvertisementTags(manifestHls, audioMediaInfo, keyframes);
+            var audioMediaInfo = await CreateAudioMediaPlaylist(encoding, manifest, aacAudioMuxing, "audio/");
+            await PlaceAudioAdvertisementTags(manifest, audioMediaInfo, keyframes);
 
             // create a video playlist for each video muxing and provide it with custom tags for ad-placement
             foreach (var key in videoMuxings.Keys)
             {
                 var streamInfo = await CreateVideoStreamPlaylist(
                     encoding,
-                    manifestHls,
-                    $"video_${key.Height}.m3u8",
+                    manifest,
+                    $"video_{key.Height}.m3u8",
                     videoMuxings[key],
-                    $"video/${key.Height}",
+                    $"video/{key.Height}",
                     audioMediaInfo
                 );
-                await PlaceVideoAdvertisementTags(manifestHls, streamInfo, keyframes);
+                await PlaceVideoAdvertisementTags(manifest, streamInfo, keyframes);
             }
 
-            await ExecuteHlsManifestCreation(manifestHls);
+            var startEncodingRequest = new StartEncodingRequest()
+            {
+                ManifestGenerator = ManifestGenerator.V2,
+                VodHlsManifests = new List<ManifestResource>() { BuildManifestResource(manifest) }
+            };
+
+            await ExecuteEncoding(encoding, startEncodingRequest);
         }
 
         /// <summary>
@@ -159,23 +163,24 @@ namespace Bitmovin.Api.Sdk.Examples
         /// <br />
         /// https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/GetEncodingEncodingsStatusByEncodingId
         /// <para />
+        ///
         /// Please note that you can also use our webhooks API instead of polling the status. For more
         /// information consult the API spec:
         /// https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
         /// </summary>
         /// <param name="encoding">The encoding to be started</param>
+        /// <param name="startEncodingRequest">The request object to be sent with the start call</param>
         /// <exception cref="System.SystemException"></exception>
-        private async Task ExecuteEncoding(Models.Encoding encoding)
+        private async Task ExecuteEncoding(Models.Encoding encoding, StartEncodingRequest startEncodingRequest)
         {
-            await _bitmovinApi.Encoding.Encodings.StartAsync(encoding.Id);
+            await _bitmovinApi.Encoding.Encodings.StartAsync(encoding.Id, startEncodingRequest);
 
             ServiceTaskStatus serviceTaskStatus;
             do
             {
                 await Task.Delay(5000);
                 serviceTaskStatus = await _bitmovinApi.Encoding.Encodings.StatusAsync(encoding.Id);
-                Console.WriteLine(
-                    $"Encoding status is {serviceTaskStatus.Status} (progress: {serviceTaskStatus.Progress} %)");
+                Console.WriteLine($"Encoding status is {serviceTaskStatus.Status} (progress: {serviceTaskStatus.Progress} %)");
             } while (serviceTaskStatus.Status != Status.FINISHED && serviceTaskStatus.Status != Status.ERROR);
 
             if (serviceTaskStatus.Status == Status.ERROR)
@@ -185,35 +190,6 @@ namespace Bitmovin.Api.Sdk.Examples
             }
 
             Console.WriteLine("Encoding finished successfully");
-        }
-
-        /// <summary>
-        /// Starts the HLS manifest creation and periodically polls its status until it reaches a final state<para />
-        ///
-        /// API endpoints:
-        /// https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
-        /// <br />
-        /// https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
-        /// </summary>
-        /// <param name="hlsManifest">The HLS manifest to be created</param>
-        private async Task ExecuteHlsManifestCreation(HlsManifest hlsManifest)
-        {
-            await _bitmovinApi.Encoding.Manifests.Hls.StartAsync(hlsManifest.Id);
-
-            ServiceTaskStatus serviceTaskStatus;
-            do
-            {
-                await Task.Delay(1000);
-                serviceTaskStatus = await _bitmovinApi.Encoding.Manifests.Hls.StatusAsync(hlsManifest.Id);
-            } while (serviceTaskStatus.Status != Status.FINISHED && serviceTaskStatus.Status != Status.ERROR);
-
-            if (serviceTaskStatus.Status == Status.ERROR)
-            {
-                LogTaskErrors(serviceTaskStatus);
-                throw new SystemException("HLS manifest creation failed");
-            }
-
-            Console.WriteLine("HLS manifest creation finished successfully");
         }
 
         /// <summary>
@@ -312,7 +288,7 @@ namespace Bitmovin.Api.Sdk.Examples
 
             var stream = new Stream()
             {
-                InputStreams = new List<StreamInput>() {streamInput},
+                InputStreams = new List<StreamInput>() { streamInput },
                 CodecConfigId = configuration.Id
             };
             return _bitmovinApi.Encoding.Encodings.Streams.CreateAsync(encoding.Id, stream);
@@ -382,8 +358,8 @@ namespace Bitmovin.Api.Sdk.Examples
             var muxing = new Fmp4Muxing()
             {
                 SegmentLength = 4,
-                Outputs = new List<EncodingOutput>() {BuildEncodingOutput(output, outputPath)},
-                Streams = new List<MuxingStream>() {muxingStream}
+                Outputs = new List<EncodingOutput>() { BuildEncodingOutput(output, outputPath) },
+                Streams = new List<MuxingStream>() { muxingStream }
             };
             return _bitmovinApi.Encoding.Encodings.Muxings.Fmp4.CreateAsync(encoding.Id, muxing);
         }
@@ -427,13 +403,13 @@ namespace Bitmovin.Api.Sdk.Examples
         /// <param name="outputPath">The path where the manifest will be written to</param>
         private Task<HlsManifest> CreateHlsMasterManifest(Output output, string outputPath)
         {
-            var hlsManifest = new HlsManifest()
+            var manifest = new HlsManifest()
             {
                 Name = "master.m3u8",
-                Outputs = new List<EncodingOutput>() {BuildEncodingOutput(output, outputPath)}
+                Outputs = new List<EncodingOutput>() { BuildEncodingOutput(output, outputPath) }
             };
 
-            return _bitmovinApi.Encoding.Manifests.Hls.CreateAsync(hlsManifest);
+            return _bitmovinApi.Encoding.Manifests.Hls.CreateAsync(manifest);
         }
 
         /// <summary>
@@ -443,10 +419,10 @@ namespace Bitmovin.Api.Sdk.Examples
         /// https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsMediaAudioByManifestId
         /// </summary>
         /// <param name="encoding">The encoding to which the manifest belongs to</param>
-        /// <param name="hlsManifest">The manifest to which the playlist should be added</param>
+        /// <param name="manifest">The manifest to which the playlist should be added</param>
         /// <param name="audioMuxing">The audio muxing for which the playlist should be generated</param>
         /// <param name="segmentPath">The path containing the audio segments to be referenced by the playlist</param>
-        private Task<AudioMediaInfo> CreateAudioMediaPlaylist(Models.Encoding encoding, HlsManifest hlsManifest,
+        private Task<AudioMediaInfo> CreateAudioMediaPlaylist(Models.Encoding encoding, HlsManifest manifest,
             Fmp4Muxing audioMuxing, string segmentPath)
         {
             var audioMediaInfo = new AudioMediaInfo()
@@ -465,7 +441,7 @@ namespace Bitmovin.Api.Sdk.Examples
                 SegmentPath = segmentPath
             };
 
-            return _bitmovinApi.Encoding.Manifests.Hls.Media.Audio.CreateAsync(hlsManifest.Id, audioMediaInfo);
+            return _bitmovinApi.Encoding.Manifests.Hls.Media.Audio.CreateAsync(manifest.Id, audioMediaInfo);
         }
 
         /// <summary>
@@ -500,10 +476,10 @@ namespace Bitmovin.Api.Sdk.Examples
         /// API endpoint:
         /// https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStreamsCustomTagByManifestIdAndStreamId
         /// </summary>
-        /// <param name="hlsManifest">The master manifest to which the playlist belongs to</param>
+        /// <param name="manifest">The master manifest to which the playlist belongs to</param>
         /// <param name="streamInfo">The video stream playlist to which the tags should be added</param>
         /// <param name="keyframes">A list of keyframes specifying the positions where tags will be inserted</param>
-        private async Task PlaceVideoAdvertisementTags(HlsManifest hlsManifest, StreamInfo streamInfo,
+        private async Task PlaceVideoAdvertisementTags(HlsManifest manifest, StreamInfo streamInfo,
             List<Keyframe> keyframes)
         {
             foreach (var keyframe in keyframes)
@@ -515,7 +491,7 @@ namespace Bitmovin.Api.Sdk.Examples
                     Data = "#AD-PLACEMENT-OPPORTUNITY"
                 };
 
-                await _bitmovinApi.Encoding.Manifests.Hls.Streams.CustomTags.CreateAsync(hlsManifest.Id, streamInfo.Id,
+                await _bitmovinApi.Encoding.Manifests.Hls.Streams.CustomTags.CreateAsync(manifest.Id, streamInfo.Id,
                     customTag);
             }
         }
@@ -527,12 +503,12 @@ namespace Bitmovin.Api.Sdk.Examples
         /// https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStreamsByManifestId
         /// </summary>
         /// <param name="encoding">The encoding to which the manifest belongs to</param>
-        /// <param name="hlsManifest">The manifest to which the playlist should be added</param>
+        /// <param name="manifest">The manifest to which the playlist should be added</param>
         /// <param name="filename">The filename to be used for the playlist file</param>
         /// <param name="videoMuxing">The video muxing for which the playlist should be generated</param>
         /// <param name="segmentPath">The path containing the video segments to be referenced</param>
         /// <param name="audioMediaInfo">The audio media playlist containing the associated audio group id</param>
-        private Task<StreamInfo> CreateVideoStreamPlaylist(Models.Encoding encoding, HlsManifest hlsManifest,
+        private Task<StreamInfo> CreateVideoStreamPlaylist(Models.Encoding encoding, HlsManifest manifest,
             string filename, Fmp4Muxing videoMuxing, string segmentPath, AudioMediaInfo audioMediaInfo)
         {
             var streamInfo = new StreamInfo()
@@ -545,7 +521,7 @@ namespace Bitmovin.Api.Sdk.Examples
                 SegmentPath = segmentPath
             };
 
-            return _bitmovinApi.Encoding.Manifests.Hls.Streams.CreateAsync(hlsManifest.Id, streamInfo);
+            return _bitmovinApi.Encoding.Manifests.Hls.Streams.CreateAsync(manifest.Id, streamInfo);
         }
 
         /// <summary>
@@ -566,7 +542,7 @@ namespace Bitmovin.Api.Sdk.Examples
             {
                 OutputPath = BuildAbsolutePath(outputPath),
                 OutputId = output.Id,
-                Acl = new List<AclEntry>() {aclEntry}
+                Acl = new List<AclEntry>() { aclEntry }
             };
             return encodingOutput;
         }
@@ -581,6 +557,19 @@ namespace Bitmovin.Api.Sdk.Examples
         private string BuildAbsolutePath(string relativePath)
         {
             return Path.Join(_configProvider.GetS3OutputBasePath(), nameof(ServerSideAdInsertion), relativePath);
+        }
+
+        /// <summary>
+        /// Wraps a manifest ID into a ManifestResource object, so it can be referenced in one of the
+        /// StartEncodingRequest manifest lists.
+        /// </summary>
+        /// <param name="manifest">The manifest to be generated at the end of the encoding process</param>
+        private ManifestResource BuildManifestResource(Manifest manifest)
+        {
+            return new ManifestResource()
+            {
+                ManifestId = manifest.Id
+            };
         }
 
         /// <summary>

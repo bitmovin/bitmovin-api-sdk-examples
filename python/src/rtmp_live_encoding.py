@@ -89,7 +89,7 @@ def main():
                         stream=h264_video_stream)
     _create_fmp4_muxing(encoding=encoding,
                         output=output,
-                        output_path="audio/{0}kbs".format(aac_audio_configuration.bitrate / 1000),
+                        output_path="audio/{0}kbps".format(aac_audio_configuration.bitrate / 1000),
                         stream=aac_audio_stream)
 
     dash_manifest = _generate_dash_manifest(

@@ -55,12 +55,15 @@ use BitmovinApiSdk\Models\HttpInput;
 use BitmovinApiSdk\Models\Input;
 use BitmovinApiSdk\Models\Keyframe;
 use BitmovinApiSdk\Models\Manifest;
+use BitmovinApiSdk\Models\ManifestGenerator;
+use BitmovinApiSdk\Models\ManifestResource;
 use BitmovinApiSdk\Models\MessageType;
 use BitmovinApiSdk\Models\MuxingStream;
 use BitmovinApiSdk\Models\Output;
 use BitmovinApiSdk\Models\PositionMode;
 use BitmovinApiSdk\Models\PresetConfiguration;
 use BitmovinApiSdk\Models\S3Output;
+use BitmovinApiSdk\Models\StartEncodingRequest;
 use BitmovinApiSdk\Models\Status;
 use BitmovinApiSdk\Models\Stream;
 use BitmovinApiSdk\Models\StreamInfo;
@@ -117,27 +120,29 @@ try {
     $adBreakPlacements = [5.0, 15.0];
     $keyframes = createKeyframes($encoding, $adBreakPlacements);
 
-    executeEncoding($encoding);
+    $manifest = createHlsMasterManifest($output, '');
 
-    $manifestHls = createHlsMasterManifest($output, '');
-
-    $audioMediaInfo = createAudioMediaPlaylist($encoding, $manifestHls, $audioMuxing, 'audio');
-    placeAudioAdvertisementTags($manifestHls, $audioMediaInfo, $keyframes);
+    $audioMediaInfo = createAudioMediaPlaylist($encoding, $manifest, $audioMuxing, 'audio');
+    placeAudioAdvertisementTags($manifest, $audioMediaInfo, $keyframes);
 
     for ($i = 0; $i < sizeof($videoConfigurations); $i++) {
         $streamInfo = createVideoStreamPlaylist(
             $encoding,
-            $manifestHls,
+            $manifest,
             "video_" . $videoConfigurations[$i]->height . ".m3u8",
             $videoMuxings[$i],
             "video/" . $videoConfigurations[$i]->height,
             $audioMediaInfo
         );
 
-        placeVideoAdvertisementTags($manifestHls, $streamInfo, $keyframes);
+        placeVideoAdvertisementTags($manifest, $streamInfo, $keyframes);
     }
 
-    executeHlsManifestCreation($manifestHls);
+    $startEncodingRequest = new StartEncodingRequest();
+    $startEncodingRequest->manifestGenerator(ManifestGenerator::V2());
+    $startEncodingRequest->vodHlsManifests([buildManifestResource($manifest)]);
+
+    executeEncoding($encoding, $startEncodingRequest);
 
 } catch (Exception $exception) {
     echo $exception;
@@ -151,52 +156,51 @@ try {
  * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
  * https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
  *
- * @param HlsManifest $manifestHls The HLS manifest to be created
+ * @param HlsManifest $manifest The HLS manifest to be created
  * @throws BitmovinApiException
  * @throws Exception
  */
-function executeHlsManifestCreation(HlsManifest $manifestHls)
+function executeHlsManifestCreation(HlsManifest $manifest)
 {
     global $bitmovinApi;
 
-    $bitmovinApi->encoding->manifests->hls->start($manifestHls->id);
+    $bitmovinApi->encoding->manifests->hls->start($manifest->id);
 
-    do
-    {
+    do {
         sleep(1);
-        $task = $bitmovinApi->encoding->manifests->hls->status($manifestHls->id);
-    } while($task->status != Status::FINISHED() && $task->status != Status::ERROR());
+        $task = $bitmovinApi->encoding->manifests->hls->status($manifest->id);
+    } while ($task->status != Status::FINISHED() && $task->status != Status::ERROR());
 
-    if ($task->status == Status::ERROR())
-    {
+    if ($task->status == Status::ERROR()) {
         logTaskErrors($task);
         throw new Exception("HLS manifest creation failed");
     }
 
-    echo "HLS manifest creation finished successfully". PHP_EOL;
+    echo "HLS manifest creation finished successfully" . PHP_EOL;
 }
 
 /**
  * Adds custom tags for ad-placement to an HLS video stream playlist at given keyframe positions
  *
- * @param HlsManifest $manifestHls The master manifest to which the playlist belongs to
+ * @param HlsManifest $manifest The master manifest to which the playlist belongs to
  * @param StreamInfo $streamInfo The video stream playlist to which the tags should be added
  * @param Keyframe[] keyframes A list of keyframes specifying the positions where tags will be inserted
  * @throws BitmovinApiException
  */
-function placeVideoAdvertisementTags(HlsManifest $manifestHls, StreamInfo $streamInfo, array $keyframes)
+function placeVideoAdvertisementTags(HlsManifest $manifest, StreamInfo $streamInfo, array $keyframes)
 {
     global $bitmovinApi;
 
     foreach ($keyframes as $keyframe) {
         $customTag = createAdvertisementTag($keyframe);
         $bitmovinApi->encoding->manifests->hls->streams->customTags->create(
-            $manifestHls->id,
+            $manifest->id,
             $streamInfo->id,
             $customTag
         );
     }
 }
+
 /**
  * Creates an HLS video playlist
  *
@@ -204,13 +208,13 @@ function placeVideoAdvertisementTags(HlsManifest $manifestHls, StreamInfo $strea
  * @param HlsManifest $manifestHls The manifest to which the playlist should be added
  * @param string $filename The filename to be used for the playlist file
  * @param Fmp4Muxing $muxing The audio muxing for which the playlist should be generated
- * @param string $segmentPath  The path containing the audio segments to be referenced by the pla
+ * @param string $segmentPath The path containing the audio segments to be referenced by the playlist
  * @param AudioMediaInfo $audioMediaInfo The audio media playlist containing the associated audio group id
  * @return StreamInfo
  * @throws BitmovinApiException
  */
 function createVideoStreamPlaylist(Encoding $encoding, HlsManifest $manifestHls, string $filename, Fmp4Muxing $muxing,
-                                   string $segmentPath, AudioMediaInfo $audioMediaInfo)
+                                   string $segmentPath, AudioMediaInfo $audioMediaInfo): StreamInfo
 {
     global $bitmovinApi;
 
@@ -250,7 +254,7 @@ function placeAudioAdvertisementTags(HlsManifest $manifestHls, AudioMediaInfo $a
  * @param Keyframe $keyframe
  * @return CustomTag
  */
-function createAdvertisementTag(Keyframe $keyframe)
+function createAdvertisementTag(Keyframe $keyframe): CustomTag
 {
     $customTag = new CustomTag();
     $customTag->keyframeId($keyframe->id);
@@ -270,7 +274,7 @@ function createAdvertisementTag(Keyframe $keyframe)
  * @return AudioMediaInfo
  * @throws BitmovinApiException
  */
-function createAudioMediaPlaylist(Encoding $encoding, Manifest $manifestHls, Fmp4Muxing $audioMuxing, string $segmentPath)
+function createAudioMediaPlaylist(Encoding $encoding, Manifest $manifestHls, Fmp4Muxing $audioMuxing, string $segmentPath): AudioMediaInfo
 {
     global $bitmovinApi;
 
@@ -300,16 +304,16 @@ function createAudioMediaPlaylist(Encoding $encoding, Manifest $manifestHls, Fmp
  * @throws BitmovinApiException
  * @throws Exception
  */
-function createHlsMasterManifest(Output $output, string $outputPath)
+function createHlsMasterManifest(Output $output, string $outputPath): HlsManifest
 {
     global $bitmovinApi;
 
-    $hlsManifest = new HlsManifest();
-    $hlsManifest->name("master.m3u8");
-    $hlsManifest->manifestName("master.m3u8");
-    $hlsManifest->outputs([buildEncodingOutput($output, $outputPath)]);
+    $manifest = new HlsManifest();
+    $manifest->name("master.m3u8");
+    $manifest->manifestName("master.m3u8");
+    $manifest->outputs([buildEncodingOutput($output, $outputPath)]);
 
-    return $bitmovinApi->encoding->manifests->hls->create($hlsManifest);
+    return $bitmovinApi->encoding->manifests->hls->create($manifest);
 }
 
 /**
@@ -325,14 +329,15 @@ function createHlsMasterManifest(Output $output, string $outputPath)
  * https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
  *
  * @param Encoding $encoding The encoding to be started
+ * @param StartEncodingRequest $startEncodingRequest The request object to be sent with the start call
  * @throws BitmovinApiException
  * @throws Exception
  */
-function executeEncoding(Encoding $encoding)
+function executeEncoding(Encoding $encoding, StartEncodingRequest $startEncodingRequest)
 {
     global $bitmovinApi;
 
-    $bitmovinApi->encoding->encodings->start($encoding->id);
+    $bitmovinApi->encoding->encodings->start($encoding->id, $startEncodingRequest);
 
     do {
         sleep(5);
@@ -358,7 +363,7 @@ function executeEncoding(Encoding $encoding)
  * @return Keyframe[]
  * @throws BitmovinApiException
  */
-function createKeyframes(Encoding $encoding, array $adBreakPlacements)
+function createKeyframes(Encoding $encoding, array $adBreakPlacements): array
 {
     global $bitmovinApi;
     $keyframes = [];
@@ -389,7 +394,7 @@ function createKeyframes(Encoding $encoding, array $adBreakPlacements)
  * @throws BitmovinApiException
  * @throws Exception
  */
-function createFmp4Muxing(Encoding $encoding, Output $output, string $outputPath, Stream $stream)
+function createFmp4Muxing(Encoding $encoding, Output $output, string $outputPath, Stream $stream): Fmp4Muxing
 {
     global $bitmovinApi;
 
@@ -423,7 +428,7 @@ function createFmp4Muxing(Encoding $encoding, Output $output, string $outputPath
  * @return H264VideoConfiguration
  * @throws BitmovinApiException
  */
-function createH264Config(int $height, int $bitrate)
+function createH264Config(int $height, int $bitrate): H264VideoConfiguration
 {
     global $bitmovinApi;
 
@@ -444,7 +449,7 @@ function createH264Config(int $height, int $bitrate)
  * @return AacAudioConfiguration
  * @throws BitmovinApiException
  */
-function createAacConfig()
+function createAacConfig(): AacAudioConfiguration
 {
     global $bitmovinApi;
 
@@ -469,7 +474,7 @@ function createAacConfig()
  * @return Stream
  * @throws BitmovinApiException
  */
-function createStream(Encoding $encoding, Input $input, string $inputPath, CodecConfiguration $codecConfiguration, StreamMode $streamMode)
+function createStream(Encoding $encoding, Input $input, string $inputPath, CodecConfiguration $codecConfiguration, StreamMode $streamMode): Stream
 {
     global $bitmovinApi;
 
@@ -511,7 +516,7 @@ function createStream(Encoding $encoding, Input $input, string $inputPath, Codec
  * @return S3Output
  * @throws BitmovinApiException
  */
-function createS3Output(string $bucketName, string $accessKey, string $secretKey)
+function createS3Output(string $bucketName, string $accessKey, string $secretKey): S3Output
 {
     global $bitmovinApi;
 
@@ -541,7 +546,7 @@ function createS3Output(string $bucketName, string $accessKey, string $secretKey
  * @return HttpInput
  * @throws BitmovinApiException
  */
-function createHttpInput(string $host)
+function createHttpInput(string $host): HttpInput
 {
     global $bitmovinApi;
 
@@ -562,7 +567,7 @@ function createHttpInput(string $host)
  * @return Encoding
  * @throws BitmovinApiException
  */
-function createEncoding(string $name, string $description)
+function createEncoding(string $name, string $description): Encoding
 {
     global $bitmovinApi;
 
@@ -583,7 +588,7 @@ function createEncoding(string $name, string $description)
  * @return EncodingOutput
  * @throws Exception
  */
-function buildEncodingOutput(Output $output, string $outputPath)
+function buildEncodingOutput(Output $output, string $outputPath): EncodingOutput
 {
     $aclEntry = new AclEntry();
     $aclEntry->permission(AclPermission::PUBLIC_READ());
@@ -606,11 +611,24 @@ function buildEncodingOutput(Output $output, string $outputPath)
  * @return string
  * @throws Exception
  */
-function buildAbsolutePath(string $relativePath)
+function buildAbsolutePath(string $relativePath): string
 {
     global $exampleName, $configProvider;
 
     return $configProvider->getS3OutputBasePath() . $exampleName . DIRECTORY_SEPARATOR . trim($relativePath, DIRECTORY_SEPARATOR);
+}
+
+/**
+ * Wraps a manifest ID into a ManifestResource object, so it can be referenced in one of the
+ * StartEncodingRequest manifest lists.
+ * @param Manifest $manifest The manifest to be generated at the end of the encoding process
+ * @return ManifestResource
+ */
+function buildManifestResource(Manifest $manifest): ManifestResource
+{
+    $manifestResource = new ManifestResource();
+    $manifestResource->manifestId($manifest->id);
+    return $manifestResource;
 }
 
 function logTaskErrors(Task $task)
