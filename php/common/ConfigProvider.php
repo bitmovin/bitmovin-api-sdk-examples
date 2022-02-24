@@ -86,6 +86,78 @@ class ConfigProvider
      * @return string
      * @throws Exception
      */
+    public function getHttpInputFilePathWithMultipleMonoAudioTracks(): string
+    {
+        return $this->getOrThrowException(
+            'HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS',
+            'The path to a file containing a video with multiple mono audio tracks. Example: videos/1080p_Sintel_8_Mono_Audio_Tracks.mp4'
+        );
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function getHttpInputFilePathWithStereoSound(): string
+    {
+        return $this->getOrThrowException(
+            'HTTP_INPUT_FILE_PATH_STEREO_SOUND',
+            'The path and filename for a file containing a video with a single audio stereo stream. Example: videos/1080p_Sintel_Stereo.mp4'
+        );
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function getHttpInputFilePathWithSurroundSound(): string
+    {
+        return $this->getOrThrowException(
+            'HTTP_INPUT_FILE_PATH_SURROUND_SOUND',
+            'The path and filename for a file containing a video with a 5.1 audio stream. Example: videos/1080p_Sintel_Surround.mp4'
+        );
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function getHttpInputBumperFilePath(): string
+    {
+        return $this->getOrThrowException(
+            'HTTP_INPUT_BUMPER_FILE_PATH',
+            'The path to your Http bumper input file. Example: videos/bumper.mp4'
+        );
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function getHttpInputPromoFilePath(): string
+    {
+        return $this->getOrThrowException(
+            'HTTP_INPUT_PROMO_FILE_PATH',
+            'The path to your Http promo input file. Example: videos/promo.mp4'
+        );
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function getHttpInputFilePathWithTwoStereoTracks(): string
+    {
+        return $this->getOrThrowException(
+            'HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS',
+            'The path to a file containing a video with 2 stereo tracks. Example: videos/1080p_Sintel_Two_Stereos.mp4'
+        );
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
     public function getS3OutputBucketName(): string
     {
         return $this->getOrThrowException(

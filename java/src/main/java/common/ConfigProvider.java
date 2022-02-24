@@ -73,6 +73,42 @@ public class ConfigProvider {
         "The path to your Http input file. Example: videos/1080p_Sintel.mp4");
   }
 
+  public String getHttpInputFilePathWithStereoSound() {
+    return getOrThrowException(
+        "HTTP_INPUT_FILE_PATH_STEREO_SOUND",
+        "The path to a file containing a video with a single audio stereo stream. Example: videos/1080p_Sintel_Stereo.mp4");
+  }
+
+  public String getHttpInputFilePathWithSurroundSound() {
+    return getOrThrowException(
+        "HTTP_INPUT_FILE_PATH_SURROUND_SOUND",
+        "The path and filename for a file containing a video with a 5.1 audio stream. Example: videos/1080p_Sintel_Surround.mp4");
+  }
+
+  public String getHttpInputFilePathWithMultipleMonoAudioTracks() {
+    return getOrThrowException(
+        "HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS",
+        "The path to a file containing a video with multiple mono audio tracks. Example: videos/1080p_Sintel_8_Mono_Audio_Tracks.mp4");
+  }
+
+  public String getHttpInputFilePathWithTwoStereoTracks() {
+    return getOrThrowException(
+        "HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS",
+        "The path to a file containing a video with 2 stereo tracks. Example: videos/1080p_Sintel_Two_Stereos.mp4");
+  }
+
+  public String getHttpInputBumperFilePath() {
+    return getOrThrowException(
+            "HTTP_INPUT_BUMPER_FILE_PATH",
+            "The path to your Http input file. Example: videos/bumper.mp4");
+  }
+
+  public String getHttpInputPromoFilePath() {
+    return getOrThrowException(
+            "HTTP_INPUT_PROMO_FILE_PATH",
+            "The path to your Http input file. Example: videos/promo.mp4");
+  }
+
   public String getS3InputBucketName() {
     return getOrThrowException(
         "S3_INPUT_BUCKET_NAME", "The name of your S3 input bucket. Example: my-bucket-name");
