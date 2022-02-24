@@ -38,7 +38,10 @@ export default class ConfigProvider {
   }
 
   public getBitmovinTenantOrgId(): string {
-    return this.getOrThrowException('BITMOVIN_TENANT_ORG_ID', 'The ID of the Organisation in which you want to perform the encoding.');
+    return this.getOrThrowException(
+      'BITMOVIN_TENANT_ORG_ID',
+      'The ID of the Organisation in which you want to perform the encoding.'
+    );
   }
 
   public getHttpInputHost(): string {
@@ -52,6 +55,48 @@ export default class ConfigProvider {
     return this.getOrThrowException(
       'HTTP_INPUT_FILE_PATH',
       'The path to your Http input file. Example: videos/1080p_Sintel.mp4'
+    );
+  }
+
+  public getHttpInputFilePathWithStereoSound() {
+    return this.getOrThrowException(
+      'HTTP_INPUT_FILE_PATH_STEREO_SOUND',
+      'The path to a file containing a video with a single audio stereo stream. Example: videos/1080p_Sintel_Stereo.mp4'
+    );
+  }
+
+  public getHttpInputFilePathWithSurroundSound(): string {
+    return this.getOrThrowException(
+      'HTTP_INPUT_FILE_PATH_SURROUND_SOUND',
+      'The path and filename for a file containing a video with a 5.1 audio stream. Example: videos/1080p_Sintel_Surround.mp4'
+    );
+  }
+
+  public getHttpInputFilePathWithMultipleMonoAudioTracks() {
+    return this.getOrThrowException(
+      'HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS',
+      'The path to a file containing a video with multiple mono audio tracks. Example: videos/1080p_Sintel_8_Mono_Audio_Tracks.mp4'
+    );
+  }
+
+  public getHttpInputFilePathWithTwoStereoTracks() {
+    return this.getOrThrowException(
+      'HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS',
+      'The path to a file containing a video with 2 stereo tracks. Example: videos/1080p_Sintel_Two_Stereos.mp4'
+    );
+  }
+
+  public getHttpInputBumperFilePath() {
+    return this.getOrThrowException(
+      'HTTP_INPUT_BUMPER_FILE_PATH',
+      'The path to your Http input file. Example: videos/bumper.mp4'
+    );
+  }
+
+  public getHttpInputPromoFilePath() {
+    return this.getOrThrowException(
+      'HTTP_INPUT_PROMO_FILE_PATH',
+      'The path to your Http input file. Example: videos/promo.mp4'
     );
   }
 

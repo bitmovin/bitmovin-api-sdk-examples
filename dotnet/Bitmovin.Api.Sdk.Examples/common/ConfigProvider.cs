@@ -23,7 +23,8 @@ namespace Bitmovin.Api.Sdk.Examples.common
             _configuration.Add("Environment variables", ParseEnvironmentVariables());
 
             _configuration.Add("System-wide properties file",
-                ParsePropertiesFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".bitmovin")));
+                ParsePropertiesFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    ".bitmovin")));
         }
 
         public string GetBitmovinApiKey()
@@ -37,7 +38,7 @@ namespace Bitmovin.Api.Sdk.Examples.common
             return GetOrThrowException("BITMOVIN_TENANT_ORG_ID",
                 "The ID of the Organisation in which you want to perform the encoding.");
         }
-        
+
         public string GetHttpInputHost()
         {
             return GetOrThrowException("HTTP_INPUT_HOST",
@@ -48,6 +49,32 @@ namespace Bitmovin.Api.Sdk.Examples.common
         {
             return GetOrThrowException("HTTP_INPUT_FILE_PATH",
                 "The path to your Http input file. Example: videos/1080p_Sintel.mp4");
+        }
+
+        public string GetHttpInputFilePathWithStereoSound()
+        {
+            return GetOrThrowException("HTTP_INPUT_FILE_PATH_STEREO_SOUND",
+            "The path and filename for a file containing a video with a single audio stereo stream. Example: videos/1080p_Sintel_Stereo.mp4");
+        }
+        
+        public string GetHttpInputFilePathWithSurroundSound()
+        {
+            return GetOrThrowException("HTTP_INPUT_FILE_PATH_SURROUND_SOUND",
+                "The path and filename for a file containing a video with a 5.1 audio stream. Example: videos/1080p_Sintel_Surround.mp4");
+        }
+
+        public string GetHttpInputFilePathWithTwoStereoTracks()
+        {
+            return GetOrThrowException("HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS",
+                "The path to a file containing a video with 2 stereo tracks. " +
+                "Example: videos/1080p_Sintel_Two_Stereos.mp4");
+        }
+
+        public string GetHttpInputFilePathWithMultipleMonoAudioTracks()
+        {
+            return GetOrThrowException("HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS",
+                "The path to a file containing a video with multiple mono audio tracks. " +
+                "Example: videos/1080p_Sintel_8_Mono_Audio_Tracks.mp4");
         }
 
         public string GetS3InputBucketName()
@@ -84,6 +111,17 @@ namespace Bitmovin.Api.Sdk.Examples.common
         {
             return GetOrThrowException("S3_OUTPUT_ACCESS_KEY",
                 "The access key of your S3 output bucket.");
+        }
+        public string GetHttpInputBumperFilePath()
+        {
+            return GetOrThrowException("HTTP_INPUT_BUMPER_FILE_PATH",
+                "The path to your Http bumper input file. Example: videos/bumper.mp4");
+        }
+
+        public string GetHttpInputPromoFilePath()
+        {
+            return GetOrThrowException("HTTP_INPUT_PROMO_FILE_PATH",
+                "The path to your Http promo input file. Example: videos/promo.mp4");
         }
 
         public string GetS3OutputSecretKey()

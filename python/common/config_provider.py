@@ -14,9 +14,30 @@ class ConfigProvider(object):
         "BITMOVIN_TENANT_ORG_ID":
             BitmovinArgument("The ID of the Organisation in which you want to perform the encoding.", True),
         "HTTP_INPUT_HOST":
-            BitmovinArgument("Hostname or IP address of the HTTP server hosting your input files, e.g.: my-storage.biz"),
+            BitmovinArgument(
+                "Hostname or IP address of the HTTP server hosting your input files, e.g.: my-storage.biz"),
         "HTTP_INPUT_FILE_PATH":
             BitmovinArgument("The path to your Http input file. Example: videos/1080p_Sintel.mp4"),
+        "HTTP_INPUT_FILE_PATH_STEREO_SOUND":
+            BitmovinArgument("The path to a file containing a video with a single audio stereo stream. "
+                             "Example: videos/1080p_Sintel_Stereo.mp4"),
+        "HTTP_INPUT_FILE_PATH_SURROUND_SOUND":
+            BitmovinArgument("The path and filename for a file containing a video with a 5.1 audio stream. "
+                             "Example: videos/1080p_Sintel_Surround.mp4"),
+        "HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS":
+            BitmovinArgument(
+                "The path to a file containing a video with multiple mono audio tracks. "
+                "Example: videos/1080p_Sintel_8_Mono_Audio_Tracks.mp4"),
+        "HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS":
+            BitmovinArgument("The path to a file containing a video with 2 stereo tracks. "
+                             "Example: videos/1080p_Sintel_Two_Stereos.mp4"),
+        "HTTP_INPUT_BUMPER_FILE_PATH":
+            BitmovinArgument(
+                "The path to your input file on the provided HTTP server to be concatenated before "
+                "`HTTP_INPUT_FILE_PATH`. Example: videos/bumper.mp4"),
+        "HTTP_INPUT_PROMO_FILE_PATH":
+            BitmovinArgument("The path to your input file on the provided HTTP server to be concatenated after "
+                             "HTTP_INPUT_FILE_PATH. Example: videos/promo.mp4"),
         "S3_OUTPUT_BUCKET_NAME":
             BitmovinArgument("The name of your S3 output bucket. Example: my-bucket-name"),
         "S3_OUTPUT_ACCESS_KEY":
@@ -63,6 +84,24 @@ class ConfigProvider(object):
 
     def get_http_input_file_path(self):
         return self._get_or_throw_exception("HTTP_INPUT_FILE_PATH")
+
+    def get_http_input_file_path_with_stereo_sound(self):
+        return self._get_or_throw_exception("HTTP_INPUT_FILE_PATH_STEREO_SOUND")
+
+    def get_http_input_file_path_with_surround_sound(self):
+        return self._get_or_throw_exception("HTTP_INPUT_FILE_PATH_SURROUND_SOUND")
+
+    def get_http_input_file_path_with_multiple_mono_audio_tracks(self):
+        return self._get_or_throw_exception("HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS")
+
+    def get_http_input_file_path_with_two_stereo_tracks(self):
+        return self._get_or_throw_exception("HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS")
+
+    def get_http_input_bumper_file_path(self):
+        return self._get_or_throw_exception("HTTP_INPUT_BUMPER_FILE_PATH")
+
+    def get_http_input_promo_file_path(self):
+        return self._get_or_throw_exception("HTTP_INPUT_PROMO_FILE_PATH")
 
     def get_s3_output_bucket_name(self):
         return self._get_or_throw_exception("S3_OUTPUT_BUCKET_NAME")
