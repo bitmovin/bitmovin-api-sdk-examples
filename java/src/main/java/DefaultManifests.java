@@ -3,6 +3,7 @@ import com.bitmovin.api.sdk.common.BitmovinException;
 import com.bitmovin.api.sdk.model.AacAudioConfiguration;
 import com.bitmovin.api.sdk.model.AclEntry;
 import com.bitmovin.api.sdk.model.AclPermission;
+import com.bitmovin.api.sdk.model.AudioConfiguration;
 import com.bitmovin.api.sdk.model.CodecConfiguration;
 import com.bitmovin.api.sdk.model.DashManifest;
 import com.bitmovin.api.sdk.model.DashManifestDefault;
@@ -31,10 +32,13 @@ import com.bitmovin.api.sdk.model.StreamInput;
 import com.bitmovin.api.sdk.model.StreamMode;
 import com.bitmovin.api.sdk.model.StreamSelectionMode;
 import com.bitmovin.api.sdk.model.Task;
+import com.bitmovin.api.sdk.model.VideoConfiguration;
 import common.ConfigProvider;
 import feign.Logger.Level;
 import feign.slf4j.Slf4jLogger;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +93,8 @@ public class DefaultManifests {
 
     Encoding encoding =
         createEncoding(
-            "Encoding with default manifests", "Encoding with HLS and DASH default manifests");
+            "Encoding with default manifests",
+            "Encoding with HLS and DASH default manifests with multiple representations");
 
     Input input = createHttpInput(configProvider.getHttpInputHost());
     Output output =
@@ -98,17 +103,33 @@ public class DefaultManifests {
             configProvider.getS3OutputAccessKey(),
             configProvider.getS3OutputSecretKey());
 
-    // Add a template video stream to the encoding
-    H264VideoConfiguration h264Config = createH264VideoConfig();
-    Stream videoStream =
-        createStream(encoding, input, configProvider.getHttpInputFilePath(), h264Config);
-    createFmp4Muxing(encoding, output, "video", videoStream);
+    // ABR Ladder - H264
+    List<H264VideoConfiguration> videoConfigurations =
+        Arrays.asList(
+            createH264VideoConfig(1280, 720, 3_000_000),
+            createH264VideoConfig(1280, 720, 4_608_000),
+            createH264VideoConfig(1920, 1080, 6_144_000),
+            createH264VideoConfig(1920, 1080, 7_987_200));
 
-    // Add audio stream to the encoding
-    AacAudioConfiguration aacConfig = createAacAudioConfig();
-    Stream audioStream =
-        createStream(encoding, input, configProvider.getHttpInputFilePath(), aacConfig);
-    createFmp4Muxing(encoding, output, "audio", audioStream);
+    // Create video streams and muxings
+    for (VideoConfiguration videoConfig : videoConfigurations) {
+      Stream videoStream =
+          createStream(encoding, input, configProvider.getHttpInputFilePath(), videoConfig);
+
+      createFmp4Muxing(encoding, output, "video/" + videoConfig.getBitrate(), videoStream);
+    }
+
+    // Audio - AAC
+    List<AacAudioConfiguration> audioConfigurations =
+        Arrays.asList(createAacAudioConfig(192_000), createAacAudioConfig(64_000));
+
+    // create audio streams and muxings
+    for (AudioConfiguration audioConfig : audioConfigurations) {
+      Stream audioStream =
+          createStream(encoding, input, configProvider.getHttpInputFilePath(), audioConfig);
+
+      createFmp4Muxing(encoding, output, "audio" + audioConfig.getBitrate(), audioStream);
+    }
 
     DashManifest dashManifest = createDefaultDashManifest(encoding, output, "/");
     HlsManifest hlsManifest = createDefaultHlsManifest(encoding, output, "/");
@@ -236,13 +257,19 @@ public class DefaultManifests {
    *
    * <p>API endpoint:
    * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsVideoH264
+   *
+   * @param width The width of the output video
+   * @param height The height of the output video
+   * @param bitrate The target bitrate of the output video
    */
-  private static H264VideoConfiguration createH264VideoConfig() throws BitmovinException {
+  private static H264VideoConfiguration createH264VideoConfig(int width, int height, long bitrate)
+      throws BitmovinException {
     H264VideoConfiguration config = new H264VideoConfiguration();
-    config.setName("H.264 1080p 1.5 Mbit/s");
+    config.setName(String.format("H.264 %d %d Kbit/s", height, Math.round(bitrate / 1000d)));
     config.setPresetConfiguration(PresetConfiguration.VOD_STANDARD);
-    config.setHeight(1080);
-    config.setBitrate(1_500_000L);
+    config.setHeight(height);
+    config.setWidth(width);
+    config.setBitrate(bitrate);
 
     return bitmovinApi.encoding.configurations.video.h264.create(config);
   }
@@ -252,11 +279,13 @@ public class DefaultManifests {
    *
    * <p>API endpoint:
    * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAac
+   *
+   * @param bitrate The target bitrate for the encoded audio
    */
-  private static AacAudioConfiguration createAacAudioConfig() throws BitmovinException {
+  private static AacAudioConfiguration createAacAudioConfig(long bitrate) throws BitmovinException {
     AacAudioConfiguration config = new AacAudioConfiguration();
-    config.setName("AAC 128 kbit/s");
-    config.setBitrate(128_000L);
+    config.setName(String.format("AAC Audio @ %d Kbps", Math.round(bitrate / 1000d)));
+    config.setBitrate(bitrate);
 
     return bitmovinApi.encoding.configurations.audio.aac.create(config);
   }

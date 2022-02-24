@@ -39,7 +39,8 @@ use BitmovinApiSdk\Models\StreamInput;
 use BitmovinApiSdk\Models\Task;
 
 /**
- * This example demonstrates how to create default DASH and HLS manifests for an encoding.
+ * This example demonstrates how to create default DASH and HLS manifests for an encoding,
+ * with multiple video and audio representations.
  *
  * <p>The following configuration parameters are expected:
  *
@@ -81,7 +82,9 @@ try {
         ->logger(new ConsoleLogger())
     );
 
-    $encoding = createEncoding($exampleName, "Encoding with HLS and DASH default manifests");
+    $encoding = createEncoding(
+        "Encoding with default manifests",
+        "Encoding with HLS and DASH default manifests with multiple representations");
 
     $input = createHttpInput($configProvider->getHttpInputHost());
     $inputFilePath = $configProvider->getHttpInputFilePath();
@@ -92,18 +95,30 @@ try {
         $configProvider->getS3OutputSecretKey()
     );
 
-    // Add an H.264 video stream to the encoding
-    $h264Config = createH264Config();
-    $h264Stream = createStream($encoding, $input, $inputFilePath, $h264Config);
-    createFmp4Muxing($encoding, $output, 'video', $h264Stream);
+    $audioConfigurations = array(
+        createAacAudioConfig(192000),
+        createAacAudioConfig(64000)
+    );
 
-    // Add an AAC audio stream to the encoding
-    $aacConfig = createAacConfig();
-    $aacStream = createStream($encoding, $input, $inputFilePath, $aacConfig);
-    createFmp4Muxing($encoding, $output, 'audio', $aacStream);
+    $videoConfigurations = array(
+        createH264Config(1280, 720, 3000000),
+        createH264Config(1280, 720, 4608000),
+        createH264Config(1920, 1080, 6144000),
+        createH264Config(1920, 1080, 7987200),
+    );
 
-    $dashManifest = createDefaultDashManifest($encoding, $output, "");
-    $hlsManifest = createDefaultHlsManifest($encoding, $output, "");
+    foreach($videoConfigurations as $h264Config) {
+        $h264Stream = createStream($encoding, $input, $inputFilePath, $h264Config);
+        createFmp4Muxing($encoding, $output, 'video/' . $h264Config->bitrate, $h264Stream);
+    }
+
+    foreach($videoConfigurations as $aacConfig) {
+        $aacStream = createStream($encoding, $input, $inputFilePath, $aacConfig);
+        createFmp4Muxing($encoding, $output, 'audio/' . $aacConfig->bitrate, $aacStream);
+    }
+
+    $dashManifest = createDefaultDashManifest($encoding, $output, "/");
+    $hlsManifest = createDefaultHlsManifest($encoding, $output, "/");
 
     $startEncodingRequest = new StartEncodingRequest();
     $startEncodingRequest->manifestGenerator(ManifestGenerator::V2());
@@ -196,18 +211,22 @@ function createFmp4Muxing(Encoding $encoding, Output $output, string $outputPath
  * <p>API endpoint:
  * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsVideoH264
  *
+ * @param int $width The width of the output video
+ * @param int $height The height of the output video
+ * @param int $bitrate The target bitrate of the output video
  * @return H264VideoConfiguration
  * @throws BitmovinApiException
  */
-function createH264Config(): H264VideoConfiguration
+function createH264Config(int $width, int $height, int $bitrate): H264VideoConfiguration
 {
     global $bitmovinApi;
 
     $h264Config = new H264VideoConfiguration();
-    $h264Config->name("H.264 1080p 1.5 Mbit/s");
+    $h264Config->name("H.264 " . ($width) . "x" . $height . "p " . ($bitrate / 1000) . " Mbit/s");
     $h264Config->presetConfiguration(PresetConfiguration::VOD_STANDARD());
-    $h264Config->height(1080);
-    $h264Config->bitrate(1500000);
+    $h264Config->height($height);
+    $h264Config->width($width);
+    $h264Config->bitrate($bitrate);
 
     return $bitmovinApi->encoding->configurations->video->h264->create($h264Config);
 }
@@ -217,16 +236,18 @@ function createH264Config(): H264VideoConfiguration
  *
  * <p>API endpoint:
  * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAac
+ *
+ * @param int $bitrate The target bitrate for the encoded audio
  * @return AacAudioConfiguration
  * @throws BitmovinApiException
  */
-function createAacConfig(): AacAudioConfiguration
+function createAacAudioConfig(int $bitrate): AacAudioConfiguration
 {
     global $bitmovinApi;
 
     $aacConfig = new AacAudioConfiguration();
-    $aacConfig->name("AAC 128 kbit/s");
-    $aacConfig->bitrate(128000);
+    $aacConfig->name("AAC " . ($bitrate / 1000) . " kbit/s");
+    $aacConfig->bitrate($bitrate);
 
     return $bitmovinApi->encoding->configurations->audio->aac->create($aacConfig);
 }

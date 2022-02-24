@@ -1,5 +1,4 @@
 import time
-from os import path
 
 from bitmovin_api_sdk import AacAudioConfiguration, AclEntry, AclPermission, BitmovinApi, \
     BitmovinApiLogger, CodecConfiguration, DashManifest, DashManifestDefault, \
@@ -8,10 +7,13 @@ from bitmovin_api_sdk import AacAudioConfiguration, AclEntry, AclPermission, Bit
     ManifestResource, MessageType, MuxingStream, Output, PresetConfiguration, S3Output, \
     StartEncodingRequest, Status, Stream, StreamInput, Task
 
+from os import path
+
 from common.config_provider import ConfigProvider
 
 """
-This example demonstrates how to create default DASH and HLS manifests for an encoding.
+This example demonstrates how to create default DASH and HLS manifests for an encoding, 
+with multiple video and audio representations.
 
 <p>The following configuration parameters are expected:
   <ul>
@@ -51,53 +53,63 @@ bitmovin_api = BitmovinApi(api_key=config_provider.get_bitmovin_api_key(),
 def main():
     encoding = _create_encoding(
         name=EXAMPLE_NAME,
-        description="Encoding with HLS and DASH default manifests"
+        description="Encoding with HLS and DASH default manifests with multiple representations"
     )
 
     http_input = _create_http_input(
         host=config_provider.get_http_input_host()
     )
+
     input_file_path = config_provider.get_http_input_file_path()
 
     output = _create_s3_output(
         bucket_name=config_provider.get_s3_output_bucket_name(),
         access_key=config_provider.get_s3_output_access_key(),
-        secret_key=config_provider.get_s3_output_secret_key()
-    )
+        secret_key=config_provider.get_s3_output_secret_key())
 
-    # Add an H.264 video stream to the encoding
-    h264_video_configuration = _create_h264_video_configuration()
-    h264_video_stream = _create_stream(
-        encoding=encoding,
-        encoding_input=http_input,
-        input_path=input_file_path,
-        codec_configuration=h264_video_configuration
-    )
+    # ABR Ladder - H264
+    video_configurations = [
+        _create_h264_video_configuration(width=1280, height=720, bitrate=3000000),
+        _create_h264_video_configuration(width=1280, height=720, bitrate=4608000),
+        _create_h264_video_configuration(width=1920, height=1080, bitrate=6144000),
+        _create_h264_video_configuration(width=1920, height=1080, bitrate=7987200)
+    ]
 
-    # Create a fragmented MP4 muxing with the H.264 stream
-    _create_fmp4_muxing(
-        encoding=encoding,
-        output=output,
-        output_path="video",
-        stream=h264_video_stream
-    )
+    # create video streams and muxings
+    for config in video_configurations:
+        h264_video_stream = _create_stream(
+            encoding=encoding,
+            encoding_input=http_input,
+            input_path=input_file_path,
+            codec_configuration=config.id
+        )
+        _create_fmp4_muxing(
+            encoding=encoding,
+            output=output,
+            output_path="video/{0}".format(config.bitrate),
+            stream=h264_video_stream
+        )
 
-    # Add an AAC audio stream to the encoding
-    aac_audio_configuration = _create_aac_audio_configuration()
-    aac_audio_stream = _create_stream(
-        encoding=encoding,
-        encoding_input=http_input,
-        input_path=input_file_path,
-        codec_configuration=aac_audio_configuration
-    )
+    # Audio - ACC
+    audio_configurations = [
+        _create_aac_audio_configuration(bitrate=192000),
+        _create_aac_audio_configuration(bitrate=64000)
+    ]
 
-    # Create a fragmented MP4 muxing with the AAC stream
-    _create_fmp4_muxing(
-        encoding=encoding,
-        output=output,
-        output_path="audio",
-        stream=aac_audio_stream
-    )
+    # create audio streams and muxings
+    for audio_config in audio_configurations:
+        audio_stream = _create_stream(
+            encoding=encoding,
+            encoding_input=http_input,
+            input_path=input_file_path,
+            codec_configuration=audio_config.id
+        )
+        _create_fmp4_muxing(
+            encoding=encoding,
+            output=output,
+            output_path="audio/{0}".format(audio_config.bitrate),
+            stream=audio_stream
+        )
 
     dash_manifest = _create_default_dash_manifest(
         encoding=encoding,
@@ -182,7 +194,6 @@ def _create_encoding(name, description):
         name=name,
         description=description
     )
-
     return bitmovin_api.encoding.encodings.create(encoding=encoding)
 
 
@@ -243,8 +254,8 @@ def _create_s3_output(bucket_name, access_key, secret_key):
     return bitmovin_api.encoding.outputs.s3.create(s3_output=s3_output)
 
 
-def _create_h264_video_configuration():
-    # type: () -> H264VideoConfiguration
+def _create_h264_video_configuration(width, height, bitrate):
+    # type: (int, int, int) -> H264VideoConfiguration
     """
     Creates a configuration for the H.264 video codec to be applied to video streams.
 
@@ -261,10 +272,11 @@ def _create_h264_video_configuration():
     """
 
     config = H264VideoConfiguration(
-        name="H.264 1080p 1.5 Mbit/s",
-        preset_configuration=PresetConfiguration.VOD_STANDARD,
-        height=1080,
-        bitrate=1500000
+        name="H.264 {0}p @ {1} Kbit/S".format(height, round(bitrate / 1000)),
+        width=width,
+        height=height,
+        bitrate=bitrate,
+        preset_configuration=PresetConfiguration.VOD_STANDARD
     )
 
     return bitmovin_api.encoding.configurations.video.h264.create(h264_video_configuration=config)
@@ -291,14 +303,14 @@ def _create_stream(encoding, encoding_input, input_path, codec_configuration):
 
     stream = Stream(
         input_streams=[stream_input],
-        codec_config_id=codec_configuration.id
+        codec_config_id=codec_configuration
     )
 
     return bitmovin_api.encoding.encodings.streams.create(encoding_id=encoding.id, stream=stream)
 
 
-def _create_aac_audio_configuration():
-    # type: () -> AacAudioConfiguration
+def _create_aac_audio_configuration(bitrate):
+    # type: (int) -> AacAudioConfiguration
     """
     Creates a configuration for the AAC audio codec to be applied to audio streams.
 
@@ -307,8 +319,8 @@ def _create_aac_audio_configuration():
     """
 
     config = AacAudioConfiguration(
-        name="AAC 128 kbit/s",
-        bitrate=128000
+        name="AAC Audio @ {0} Kbps".format(round(bitrate / 1000)),
+        bitrate=bitrate
     )
 
     return bitmovin_api.encoding.configurations.audio.aac.create(aac_audio_configuration=config)

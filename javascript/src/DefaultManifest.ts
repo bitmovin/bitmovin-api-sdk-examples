@@ -76,23 +76,39 @@ const bitmovinApi: BitmovinApi = new BitmovinApi({
 });
 
 async function main() {
-  const encoding = await createEncoding(exampleName, 'Encoding with HLS and DASH default manifests');
+  const encoding = await createEncoding(
+    'Encoding with default manifests',
+    'Encoding with HLS and DASH default manifests with multiple representations'
+  );
 
   const input = await createHttpInput(configProvider.getHttpInputHost());
 
   const output = await createS3Output(
-      configProvider.getS3OutputBucketName(),
-      configProvider.getS3OutputAccessKey(),
-      configProvider.getS3OutputSecretKey()
+    configProvider.getS3OutputBucketName(),
+    configProvider.getS3OutputAccessKey(),
+    configProvider.getS3OutputSecretKey()
   );
 
-  const h264Config = await createH264VideoConfig();
-  const videoStream = await createStream(encoding, input, configProvider.getHttpInputFilePath(), h264Config);
-  await createFmp4Muxing(encoding, output, 'video', videoStream);
+  // ABR Ladder - H264
+  const videoConfigurations = [
+    await createH264VideoConfig(1280, 720, 3000000),
+    await createH264VideoConfig(1280, 720, 4608000),
+    await createH264VideoConfig(1920, 1080, 6144000),
+    await createH264VideoConfig(1920, 1080, 7987200),
+  ];
 
-  const aacConfig = await createAacAudioConfig();
-  const audioStream = await createStream(encoding, input, configProvider.getHttpInputFilePath(), aacConfig);
-  await createFmp4Muxing(encoding, output, 'audio', audioStream);
+  for (const videoConfig of videoConfigurations) {
+    const videoStream = await createStream(encoding, input, configProvider.getHttpInputFilePath(), videoConfig);
+    await createFmp4Muxing(encoding, output, `video/${videoConfig.bitrate}`, videoStream);
+  }
+
+  // Audio - AAC
+  const audioConfigurations = [await createAacAudioConfig(192000), await createAacAudioConfig(64000)];
+
+  for (const audioConfig of audioConfigurations) {
+    const audioStream = await createStream(encoding, input, configProvider.getHttpInputFilePath(), audioConfig);
+    await createFmp4Muxing(encoding, output, `audio/${audioConfig.bitrate}`, audioStream);
+  }
 
   const dashManifest = await createDefaultDashManifest(encoding, output, '/');
   const hlsManifest = await createDefaultHlsManifest(encoding, output, '/');
@@ -136,10 +152,10 @@ function createEncoding(name: string, description: string): Promise<Encoding> {
  * @param codecConfiguration The codec configuration to be applied to the stream
  */
 function createStream(
-    encoding: Encoding,
-    input: Input,
-    inputPath: string,
-    codecConfiguration: CodecConfiguration
+  encoding: Encoding,
+  input: Input,
+  inputPath: string,
+  codecConfiguration: CodecConfiguration
 ): Promise<Stream> {
   const streamInput = new StreamInput({
     inputId: input.id,
@@ -224,13 +240,18 @@ function createHttpInput(host: string): Promise<HttpInput> {
  *
  * <p>API endpoint:
  * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsVideoH264
+ *
+ * @param width The width of the output video
+ * @param height The height of the output video
+ * @param bitrate The target bitrate of the output video
  */
-function createH264VideoConfig(): Promise<H264VideoConfiguration> {
+function createH264VideoConfig(width: number, height: number, bitrate: number): Promise<H264VideoConfiguration> {
   const config = new H264VideoConfiguration({
-    name: 'H.264 1080p 1.5 Mbit/s',
+    name: `H.264 ${height}p ${Math.round(bitrate / 1000)} Kbit/s`,
     presetConfiguration: PresetConfiguration.VOD_STANDARD,
-    height: 1080,
-    bitrate: 1500000
+    height: height,
+    width: width,
+    bitrate: bitrate
   });
 
   return bitmovinApi.encoding.configurations.video.h264.create(config);
@@ -241,11 +262,13 @@ function createH264VideoConfig(): Promise<H264VideoConfiguration> {
  *
  * <p>API endpoint:
  * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAac
+ *
+ * @param bitrate The target bitrate for the encoded audio
  */
-function createAacAudioConfig(): Promise<AacAudioConfiguration> {
+function createAacAudioConfig(bitrate: number): Promise<AacAudioConfiguration> {
   const config = new AacAudioConfiguration({
-    name: 'AAC 128 kbit/s',
-    bitrate: 128000
+    name: `AAC ${Math.round(bitrate / 1000)} kbit/s`,
+    bitrate: bitrate
   });
 
   return bitmovinApi.encoding.configurations.audio.aac.create(config);
@@ -350,7 +373,11 @@ async function executeEncoding(encoding: Encoding, startEncodingRequest: StartEn
  * @param output The output to which the manifest should be written
  * @param outputPath The path to which the manifest should be written
  */
-async function createDefaultDashManifest(encoding: Encoding, output: Output, outputPath: string): Promise<DashManifest> {
+async function createDefaultDashManifest(
+  encoding: Encoding,
+  output: Output,
+  outputPath: string
+): Promise<DashManifest> {
   let dashManifestDefault = new DashManifestDefault({
     encodingId: encoding.id,
     manifestName: 'stream.mpd',
