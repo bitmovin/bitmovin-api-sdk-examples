@@ -58,9 +58,6 @@ use BitmovinApiSdk\Models\TimeBasedTrimmingInputStream;
  *   <li>S3_OUTPUT_SECRET_KEY - The secret key of your S3 output bucket
  *   <li>S3_OUTPUT_BASE_PATH - The base path on your S3 output bucket where content will be written.
  *       Example: /outputs
- *   <li>WATERMARK_IMAGE_PATH - The path to the watermark image. Example:
- *       http://my-storage.biz/logo.png
- *   <li>TEXT_FILTER_TEXT - The text to be displayed by the text filter
  * </ul>
  *
  * <p>Configuration parameters will be retrieved from these sources in the listed order:

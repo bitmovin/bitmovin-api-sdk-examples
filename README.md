@@ -43,6 +43,19 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
    Start a live encoding using an RTMP stream as input
 + [Batch Encoding](#batch-encoding)  
    Efficiently start and track a large number of encodings
++ [Multiple Inputs Concatenation](#multiple-inputs-concatenation)  
+   Combine multiple input files into a single output using concatenation and trimming
+
++ **Audio Manipulations**
+  
+  Map, mix and merge audio streams and channels from one or multiple sources
+   + [Simple Handling - Implicit Mapping](#simple-handling---implicit-mapping)  
+   + [Simple Handling - Distinct Input Files](#simple-handling---distinct-input-files)
+   + [Channel Mixing - Swapping Channels](#channel-mixing---swapping-channels)
+   + [Channel Mixing - Downmixing](#channel-mixing---downmixing)
+   + [Stream Mapping - Mono Input Tracks](#stream-mapping---mono-input-tracks)
+   + [Stream Merging - Multiple Streams](#stream-merging---background-audio)
+
 
 ---
 ### Fixed Bitrate Ladder Encoding
@@ -74,7 +87,7 @@ Required configuration parameters:
 <a href="php/src/DefaultManifest.php">PHP</a> -
 <a href="python/src/default_manifest.py">Python</a>   
 
-This example demonstrates how to create basic DASH and HLS manifests based on a previously configured encoding. Default manifests will try include all the encoding's features that are supported by the respective manifest type.
+This example demonstrates how to create basic DASH and HLS manifests for an encoding. Default manifests will try include all the encoding's features that are supported by the respective manifest type.
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
@@ -266,6 +279,166 @@ Required configuration parameters:
 + `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+### Multiple Inputs Concatenation
+
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/ConcatenationMultipleInputs.cs">C#</a> -
+<a href="java/src/main/java/ConcatenationMultipleInputs.java">Java</a> -
+<a href="javascript/src/ConcatenationMultipleInputs.ts">TS/JS</a> -
+<a href="php/src/ConcatenationMultipleInputs.php">PHP</a> -
+<a href="python/src/concatenation_multiple_inputs.py">Python</a>
+
+This example demonstrates how to use concatenation and trimming to combine multiple input files into a single output.
+This script is the full version of the script documented in the tutorial on concatenation and trimming https://bitmovin.com/docs/encoding/tutorials/stitching-and-trimming-part-1-the-basics
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
++ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
++ `HTTP_INPUT_BUMPER_FILE_PATH` ([?](#HTTP_INPUT_BUMPER_FILE_PATH))
++ `HTTP_INPUT_PROMO_FILE_PATH` ([?](#HTTP_INPUT_PROMO_FILE_PATH))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+---
+### Audio Manipulations
+A set of examples that demonstrate how to perform audio stream and channel manipulations.
+They are provided as illustrations of the [tutorial on audio manipulations]
+(https://bitmovin.com/docs/encoding/tutorials/separating-and-combining-audio-streams)
+
+#### Simple Handling - Implicit Mapping
+
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/AudioManipulations/SimpleHandlingImplicitMapping.cs">C#</a> -
+<a href="java/src/main/java/AudioManipulations/SimpleHandling_ImplicitMapping.java">Java</a> -
+<a href="javascript/src/AudioManipulations/SimpleHandlingImplicitMapping.ts">TS/JS</a> -
+<a href="php/src/AudioManipulations/SimpleHandling_ImplicitMapping.php">PHP</a> -
+<a href="python/src/audio_manipulations/simple_handling_implicit_mapping.py">Python</a>
+
+This example demonstrates the simplest mechanism to include a stereo audio stream in an output
+MP4, from an input file containing a stereo audio stream (and a video stream), with the use of a 
+single IngestInputStream.
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
++ `HTTP_INPUT_FILE_PATH_STEREO_SOUND` ([?](#HTTP_INPUT_FILE_PATH_STEREO_SOUND))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+#### Simple Handling - Distinct Input Files
+
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/AudioManipulations/SimpleHandlingDistinctInputFiles.cs">C#</a> -
+<a href="java/src/main/java/AudioManipulations/SimpleHandling_DistinctInputFiles.java">Java</a> -
+<a href="javascript/src/AudioManipulations/SimpleHandlingDistinctInputFiles.ts">TS/JS</a> -
+<a href="php/src/AudioManipulations/SimpleHandling_DistinctInputFiles.php">PHP</a> -
+<a href="python/src/audio_manipulations/simple_handling_distinct_input_files.py">Python</a>
+
+This example demonstrates how to combine and map audio streams from multiple input files into a
+single output MP4 file with multiple audio streams/tracks, with multiple IngestInputStreams.
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
++ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
++ `HTTP_INPUT_FILE_PATH_STEREO_SOUND` ([?](#HTTP_INPUT_FILE_PATH_STEREO_SOUND))
++ `HTTP_INPUT_FILE_PATH_SURROUND_SOUND` ([?](#HTTP_INPUT_FILE_PATH_SURROUND_SOUND))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+#### Channel Mixing - Swapping Channels
+
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/AudioManipulations/ChannelMixingSwappingChannels.cs">C#</a> -
+<a href="java/src/main/java/AudioManipulations/ChannelMixing_SwappingChannels.java">Java</a> -
+<a href="javascript/src/AudioManipulations/ChannelMixingSwappingChannels.ts">TS/JS</a> -
+<a href="php/src/AudioManipulations/ChannelMixing_SwappingChannels.php">PHP</a> -
+<a href="python/src/audio_manipulations/channel_mixing_swapping_channels.py">Python</a>
+
+This example demonstrates how to swap 2 audio channels from a stereo input, using a simple 
+AudioMixInputStream configuration.
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
++ `HTTP_INPUT_FILE_PATH_STEREO_SOUND` ([?](#HTTP_INPUT_FILE_PATH_STEREO_SOUND))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+#### Channel Mixing - Downmixing
+
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/AudioManipulations/ChannelMixingDownmixing.cs">C#</a> -
+<a href="java/src/main/java/AudioManipulations/ChannelMixing_Downmixing.java">Java</a> -
+<a href="javascript/src/AudioManipulations/ChannelMixingDownmixing.ts">TS/JS</a> -
+<a href="php/src/AudioManipulations/ChannelMixing_Downmixing.php">PHP</a> -
+<a href="python/src/audio_manipulations/channel_mixing_downmixing.py">Python</a>
+
+This example demonstrates one mechanism to downmix a 5.1 stream down to 2.0.
+It uses an advanced AudioMixInputStream configuration with gain adjusted on each input channel.
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
++ `HTTP_INPUT_FILE_PATH_SURROUND_SOUND` ([?](#HTTP_INPUT_FILE_PATH_SURROUND_SOUND))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+#### Stream Mapping - Mono Input Tracks
+
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/AudioManipulations/StreamMappingMonoInputTracks.cs">C#</a> -
+<a href="java/src/main/java/AudioManipulations/StreamMapping_MonoInputTracks.java">Java</a> -
+<a href="javascript/src/AudioManipulations/StreamMappingMonoInputTracks.ts">TS/JS</a> -
+<a href="php/src/AudioManipulations/StreamMapping_MonoInputTracks.php">PHP</a> -
+<a href="python/src/audio_manipulations/stream_mapping_mono_input_tracks.py">Python</a>
+
+This example demonstrates one mechanism to create single output tracks from multiple mono input
+tracks, using multiple IngestInputStreams (by position in the source),
+and mapping them to output channels (by type).
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
++ `HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS` ([?](#HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+#### Stream Merging - Background Audio
+
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/AudioManipulations/StreamMergingBackgroundAudio.cs">C#</a> -
+<a href="java/src/main/java/AudioManipulations/StreamMerging_BackgroundAudio.java">Java</a> -
+<a href="javascript/src/AudioManipulations/StreamMergingBackgroundAudio.ts">TS/JS</a> -
+<a href="php/src/AudioManipulations/StreamMerging_BackgroundAudio.php">PHP</a> -
+<a href="python/src/audio_manipulations/stream_merging_background_audio.py">Python</a>
+
+This example demonstrates how to merge multiple stereo streams (from a single file, but this can
+easily be extended to select them from separate input files), adjusting gain on the second stream
+to turn it into a background effect.
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
++ `HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS` ([?](#HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
 ## Configuration Parameters
 
 These are the parameters that need to be supplied for the examples to work. 
@@ -282,6 +455,24 @@ Example: `my-storage.biz`
 
 <a name="HTTP_INPUT_FILE_PATH">**`HTTP_INPUT_FILE_PATH`**</a> - The path to your input file on the HTTP host  
 Example: `videos/1080p_Sintel.mp4`
+
+<a name="HTTP_INPUT_BUMPER_FILE_PATH">**`HTTP_INPUT_BUMPER_FILE_PATH`**</a> - The path to your input file on the provided HTTP server to be concatenated before HTTP_INPUT_FILE_PATH  
+Example: `videos/bumper.mp4`
+
+<a name="HTTP_INPUT_PROMO_FILE_PATH">**`HTTP_INPUT_PROMO_FILE_PATH`**</a> - The path to your input file on the provided HTTP server to be concatenated after HTTP_INPUT_FILE_PATH  
+Example: `videos/promo.mp4`
+
+<a name="HTTP_INPUT_FILE_PATH_STEREO_SOUND">**`HTTP_INPUT_FILE_PATH_STEREO_SOUND`**</a> - the path to a file containing a video with a single audio stereo stream
+Example: `videos/1080p_Sintel_Stereo.mp4`
+
+<a name="HTTP_INPUT_FILE_PATH_SURROUND_SOUND">**`HTTP_INPUT_FILE_PATH_SURROUND_SOUND`**</a> - the path and filename for a file containing a video with a 5.1 audio stream
+Example: `videos/1080p_Sintel_Surround.mp4`
+
+<a name="HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS">**`HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS`**</a> - the path to a file containing a video with multiple mono audio tracks
+Example: `videos/1080p_Sintel_8_Mono_Audio_Tracks.mp4`
+
+<a name="HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS">**`HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS`**</a> - the path to a file containing a video with 2 stereo tracks
+Example: `videos/1080p_Sintel_Two_Stereos.mp4`
 
 <a name="S3_OUTPUT_BUCKET_NAME">**`S3_OUTPUT_BUCKET_NAME`**</a> - The name of your S3 output bucket  
 Example: `my-s3-bucket-name`
