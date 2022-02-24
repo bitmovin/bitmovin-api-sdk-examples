@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Bitmovin.Api.Sdk" Version="1.81.0" />
+      <PackageReference Include="Bitmovin.Api.Sdk" Version="1.103.0" />
     </ItemGroup>
 
     <ItemGroup>

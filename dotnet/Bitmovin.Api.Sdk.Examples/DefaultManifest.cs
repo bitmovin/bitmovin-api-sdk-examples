@@ -96,16 +96,33 @@ namespace Bitmovin.Api.Sdk.Examples
 
             var inputFilePath = _configProvider.GetHttpInputFilePath();
 
-            // Add an H.264 video stream to the encoding
-            var h264VideoConfig = await CreateH264VideoConfiguration();
-            var h264VideoStream = await CreateStream(encoding, input, inputFilePath, h264VideoConfig);
+            // ABR Ladder - H264
+            var h264VideoConfig_720_3000000 = await CreateH264VideoConfiguration(1280, 720, 3000000L);
+            var h264VideoConfig_720_4608000 = await CreateH264VideoConfiguration(1280, 720, 4608000L);
+            var h264VideoConfig_1080_6144000 = await CreateH264VideoConfiguration(1920, 1080, 6144000L);
+            var h264VideoConfig_1080_7987200 = await CreateH264VideoConfiguration(1920, 1080, 7987200L);
 
-            // Add an AAC audio stream to the encoding
-            var aacConfig = await CreateAacAudioConfiguration();
-            var aacAudioStream = await CreateStream(encoding, input, inputFilePath, aacConfig);
+            var videoConfigs = new List<H264VideoConfiguration>(){h264VideoConfig_720_3000000, h264VideoConfig_720_4608000, h264VideoConfig_1080_6144000, h264VideoConfig_1080_7987200};
 
-            await CreateFmp4Muxing(encoding, output, "video", h264VideoStream);
-            await CreateFmp4Muxing(encoding, output, "audio", aacAudioStream);
+            // create video streams and muxings
+            foreach(H264VideoConfiguration config in videoConfigs)
+            {
+                var h264VideoStream = await CreateStream(encoding, input, inputFilePath, config);
+                await CreateFmp4Muxing(encoding, output, String.Format("/video/{0}", config.Bitrate), h264VideoStream);
+            }
+
+            // Audio - ACC
+            var aacConfig_192000 = await CreateAacAudioConfiguration(192000L);
+            var aacConfig_64000 = await CreateAacAudioConfiguration(64000L);
+
+            var audioConfigs = new List<AacAudioConfiguration>() {aacConfig_192000, aacConfig_64000};
+
+            // create video streams and muxings
+            foreach(AacAudioConfiguration config in audioConfigs)
+            {
+                var aacAudioStream = await CreateStream(encoding, input, inputFilePath, config);
+                await CreateFmp4Muxing(encoding, output, String.Format("/audio/{0}", config.Bitrate), aacAudioStream);
+            }
 
             var dashManifest = await CreateDefaultDashManifest(encoding, output, "/");
             var hlsManifest = await CreateDefaultHlsManifest(encoding, output, "/");
@@ -277,14 +294,18 @@ namespace Bitmovin.Api.Sdk.Examples
         /// API endpoint:
         /// https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsVideoH264
         /// </summary>
-        private Task<H264VideoConfiguration> CreateH264VideoConfiguration()
+        /// <param name="width">The width of the video file</param>
+        /// <param name="height">The height of the video file</param>
+        /// <param name="bitrate">The bitrate to be used</param>
+        private Task<H264VideoConfiguration> CreateH264VideoConfiguration(int width, int height, long bitrate)
         {
             var config = new H264VideoConfiguration()
             {
-                Name = "H.264 1080p 1.5 Mbit/s",
+                Name = $"H.264 {height}p {Math.Round((double) bitrate)/1000} Kbit/s",
                 PresetConfiguration = PresetConfiguration.VOD_STANDARD,
-                Height = 1080,
-                Bitrate = 1500000
+                Width = width
+                Height = height,
+                Bitrate = bitrate
             };
 
             return _bitmovinApi.Encoding.Configurations.Video.H264.CreateAsync(config);
@@ -296,12 +317,13 @@ namespace Bitmovin.Api.Sdk.Examples
         /// API endpoint:
         /// https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAac
         /// </summary>
-        private Task<AacAudioConfiguration> CreateAacAudioConfiguration()
+        /// <param name="bitrate">The bitrate to be used</param>
+        private Task<AacAudioConfiguration> CreateAacAudioConfiguration(long bitrate)
         {
             var config = new AacAudioConfiguration()
             {
-                Name = "AAC 128 kbit/s",
-                Bitrate = 128_000L
+                Name = $"AAC {Math.Round((double) bitrate)/1000} Mbit/s",
+                Bitrate = bitrate
             };
 
             return _bitmovinApi.Encoding.Configurations.Audio.Aac.CreateAsync(config);
