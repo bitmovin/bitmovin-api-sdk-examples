@@ -45,7 +45,8 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
    Efficiently start and track a large number of encodings
 + [Multiple Inputs Concatenation](#multiple-inputs-concatenation)  
    Combine multiple input files into a single output using concatenation and trimming
-
++  [HDR SDR Conversion](#hdr-sdr-conversion)  
+  Convert dynamic range format between DolbyVision, HDR10, HLG and SDR.
 + **Audio Manipulations**
   
   Map, mix and merge audio streams and channels from one or multiple sources
@@ -301,6 +302,47 @@ Required configuration parameters:
 + `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
 + `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
 + `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+---
+### HDR SDR Conversion
+<a href="python/src/hdr_conversions.py">Python</a>
+
+This example demonstrates how to convert dynamic range format between DolbyVision, HDR10, HLG and SDR.
+
+The supported HDR/SDR conversions are as follows. If the target output format is either DolbyVision, HDR10 or HLG, this example adds SDR renditions automatically. This example works only with Bitmovin Encoder version 2.98.0 or later.
+
+- Input: DolbyVision
+    - Output:
+        - DolbyVision and SDR
+        - HDR10 and SDR
+- Input: HDR10
+    - Output:
+        - HDR10 and SDR
+        - HLG and SDR
+- Input: HLG
+    - Output:
+        - HLG and SDR
+        - HDR10 and SDR
+- Input: SDR
+    - Output:
+        - HDR10 and SDR
+        - HLG and SDR
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
++ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
++ `HTTP_INPUT_AUDIO_FILE_PATH` ([?](#HTTP_INPUT_AUDIO_FILE_PATH))
++ `HDR_CONVERSION_INPUT_FORMAT` ([?](#HDR_CONVERSION_INPUT_FORMAT))
++ `HDR_CONVERSION_OUTPUT_FORMAT` ([?](#HDR_CONVERSION_OUTPUT_FORMAT))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+If you want to load a DolbyVision metadata as a sidecar XML file, the following parameter also needs to be specified. If that parameter is not provided for a DolbyVision encoding, the example assumes the corresponding metadata is embedded into the DolbyVision input mezzanine file itself.
++ `HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH` ([?](#HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH))
 
 ---
 ### Audio Manipulations
