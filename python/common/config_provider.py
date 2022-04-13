@@ -103,6 +103,18 @@ class ConfigProvider(object):
     def get_http_input_promo_file_path(self):
         return self._get_or_throw_exception("HTTP_INPUT_PROMO_FILE_PATH")
 
+    def get_http_audio_file_path(self):
+        return self._get_or_throw_exception("HTTP_INPUT_AUDIO_FILE_PATH")
+
+    def get_http_dolby_vision_metadata_file_path(self):
+        return self._get_or_throw_exception("HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH")
+
+    def get_hdr_conversion_input_format(self):
+        return self._get_or_throw_exception("HDR_CONVERSION_INPUT_FORMAT")
+
+    def get_hdr_conversion_output_format(self):
+        return self._get_or_throw_exception("HDR_CONVERSION_OUTPUT_FORMAT")
+
     def get_s3_output_bucket_name(self):
         return self._get_or_throw_exception("S3_OUTPUT_BUCKET_NAME")
 

@@ -100,6 +100,34 @@ export default class ConfigProvider {
     );
   }
 
+  public getHttpAudioFilePath(): string {
+    return this.getOrThrowException(
+        'HTTP_INPUT_AUDIO_FILE_PATH',
+        'The path to your Audio  Http input file. Example: audio/1080p_Sintel.mp4'
+    );
+  }
+
+  public getHttpDolbyVisionMetadataFilePath() {
+    return this.getOrThrowException(
+        'HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH',
+        'The Dolby Vision Metatdata file. Example: metadata.xml'
+    );
+  }
+
+  public getHdrConversionInputFormat() {
+    return this.getOrThrowException(
+        'HDR_CONVERSION_INPUT_FORMAT',
+        'The input format type'
+    );
+  }
+
+  public getHdrConversionOutputFormat() {
+    return this.getOrThrowException(
+        'HDR_CONVERSION_OUTPUT_FORMAT',
+        'The conversion output format'
+    );
+  }
+
   public getS3OutputBucketName(): string {
     return this.getOrThrowException(
       'S3_OUTPUT_BUCKET_NAME',
