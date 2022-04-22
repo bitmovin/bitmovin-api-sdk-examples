@@ -45,12 +45,15 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
    Efficiently start and track a large number of encodings
 + [Multiple Inputs Concatenation](#multiple-inputs-concatenation)  
    Combine multiple input files into a single output using concatenation and trimming
-+  [HDR SDR Conversion](#hdr-sdr-conversion)  
-  Convert dynamic range format between DolbyVision, HDR10, HLG and SDR.
++ [HDR SDR Conversion](#hdr-sdr-conversion)
+   Convert dynamic range format between DolbyVision, HDR10, HLG and SDR.
++ [CDN](#cdn)
+   Use the Bitmovin CDN Streaming storage to distribute your assets.
+
 + **Audio Manipulations**
-  
+
   Map, mix and merge audio streams and channels from one or multiple sources
-   + [Simple Handling - Implicit Mapping](#simple-handling---implicit-mapping)  
+   + [Simple Handling - Implicit Mapping](#simple-handling---implicit-mapping)
    + [Simple Handling - Distinct Input Files](#simple-handling---distinct-input-files)
    + [Channel Mixing - Swapping Channels](#channel-mixing---swapping-channels)
    + [Channel Mixing - Downmixing](#channel-mixing---downmixing)
@@ -86,7 +89,7 @@ Required configuration parameters:
 <a href="java/src/main/java/DefaultManifests.java">Java</a> -
 <a href="javascript/src/DefaultManifest.ts">TS/JS</a> -
 <a href="php/src/DefaultManifest.php">PHP</a> -
-<a href="python/src/default_manifest.py">Python</a>   
+<a href="python/src/default_manifest.py">Python</a>
 
 This example demonstrates how to create basic DASH and HLS manifests for an encoding. Default manifests will try include all the encoding's features that are supported by the respective manifest type.
 
@@ -109,7 +112,7 @@ Required configuration parameters:
 <a href="php/src/PerTitleEncoding.php">PHP</a> -
 <a href="python/src/per_title_encoding.py">Python</a>
 
-This example shows how to do a Per-Title encoding with default manifests. 
+This example shows how to do a Per-Title encoding with default manifests.
 A Per-Title encoding automatically detects the optimal codec settings for your video assets.
 
 Visit https://bitmovin.com/per-title-encoding/ to get an insight what Per-Title encoding is and how it works.
@@ -176,7 +179,7 @@ Required configuration parameters:
 <a href="python/src/filters.py">Python</a>
 
 This example demonstrates how to apply filters to a video stream. Filters will manipulate the content of a stream, e.g. remove noise or add a watermark image. See the [Encoding Filters API Reference](https://bitmovin.com/docs/encoding/api-reference/sections/filters) for a complete list of available filters.
- 
+
  Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
 + `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
@@ -198,7 +201,7 @@ This example demonstrates how to apply filters to a video stream. Filters will m
 <a href="php/src/CencDrmContentProtection.php">PHP</a> -
 <a href="python/src/cenc_drm_content_protection.py">Python</a>
 
-This example shows how DRM content protection can be applied to a fragmented MP4 muxing. DRM is used to prevent playback on unauthorized devices (piracy) and requires integration with a key server.  
+This example shows how DRM content protection can be applied to a fragmented MP4 muxing. DRM is used to prevent playback on unauthorized devices (piracy) and requires integration with a key server.
 The encryption is configured to be compatible with both FairPlay and Widevine, using the [MPEG Common Encryption](https://en.wikipedia.org/wiki/MPEG_Common_Encryption) standard.
 
 Required configuration parameters:
@@ -245,7 +248,7 @@ Required configuration parameters:
 <a href="php/src/RtmpLiveEncoding.php">PHP</a> -
 <a href="python/src/rtmp_live_encoding.py">Python</a>
 
-This example shows how to configure and start a live encoding using default DASH and HLS manifests. 
+This example shows how to configure and start a live encoding using default DASH and HLS manifests.
 For more information see: https://bitmovin.com/live-encoding-live-streaming
 
 Required configuration parameters:
@@ -265,7 +268,7 @@ Required configuration parameters:
 <a href="php/src/BatchEncoding.php">PHP</a> -
 <a href="python/src/batch_encoding.py">Python</a>
 
-This example demonstrates how to efficiently execute a large batch of encodings in parallel. In 
+This example demonstrates how to efficiently execute a large batch of encodings in parallel. In
 order to keep the startup time for each encoding to a minimum, it is advisable to constantly have
 some encodings queued. Encodings will therefore be started in a way to maintain a constant queue
 size.
@@ -278,6 +281,21 @@ Required configuration parameters:
 + `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
 + `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
 + `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+
+---
+### CDN
+
+<a href="java/src/main/java/EncodingWithCdnOutput.java">Java</a> -
+<a href="javascript/src/EncodingWithCdnOutput.ts">TS/JS</a> -
+<a href="python/src/encoding_with_cdn_output.py">Python</a>
+
+This example demonstrates how to use the Bitmovin CDN Streaming storage to distribute your assets to end users.
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
 
 ---
 ### Multiple Inputs Concatenation
@@ -306,29 +324,29 @@ Required configuration parameters:
 ---
 ### HDR SDR Conversion
 <a href="python/src/hdr_conversions.py">Python</a> -
-<a href="java/src/HdrConversions.java">Java</a> - 
+<a href="java/src/HdrConversions.java">Java</a> -
 <a href="javascript/src/HdrConversions.ts">TS/JS</a>
 
 This example demonstrates how to convert dynamic range format between DolbyVision, HDR10, HLG and SDR.
 
 The supported HDR/SDR conversions are as follows. If the target output format is either DolbyVision, HDR10 or HLG, this example adds SDR renditions automatically. This example works only with Bitmovin Encoder version 2.98.0 or later.
 
-- Input: DolbyVision
+  - Input: DolbyVision
     - Output:
-        - DolbyVision and SDR
-        - HDR10 and SDR
-- Input: HDR10
+      - DolbyVision and SDR
+      - HDR10 and SDR
+  - Input: HDR10
     - Output:
-        - HDR10 and SDR
-        - HLG and SDR
-- Input: HLG
+      - HDR10 and SDR
+      - HLG and SDR
+  - Input: HLG
     - Output:
-        - HLG and SDR
-        - HDR10 and SDR
-- Input: SDR
+      - HLG and SDR
+      - HDR10 and SDR
+  - Input: SDR
     - Output:
-        - HDR10 and SDR
-        - HLG and SDR
+      - HDR10 and SDR
+      - HLG and SDR
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
@@ -361,7 +379,7 @@ They are provided as illustrations of the [tutorial on audio manipulations]
 <a href="python/src/audio_manipulations/simple_handling_implicit_mapping.py">Python</a>
 
 This example demonstrates the simplest mechanism to include a stereo audio stream in an output
-MP4, from an input file containing a stereo audio stream (and a video stream), with the use of a 
+MP4, from an input file containing a stereo audio stream (and a video stream), with the use of a
 single IngestInputStream.
 
 Required configuration parameters:
@@ -405,7 +423,7 @@ Required configuration parameters:
 <a href="php/src/AudioManipulations/ChannelMixing_SwappingChannels.php">PHP</a> -
 <a href="python/src/audio_manipulations/channel_mixing_swapping_channels.py">Python</a>
 
-This example demonstrates how to swap 2 audio channels from a stereo input, using a simple 
+This example demonstrates how to swap 2 audio channels from a stereo input, using a simple
 AudioMixInputStream configuration.
 
 Required configuration parameters:
@@ -485,7 +503,7 @@ Required configuration parameters:
 
 ## Configuration Parameters
 
-These are the parameters that need to be supplied for the examples to work. 
+These are the parameters that need to be supplied for the examples to work.
 They can be defined in a file, set as environment variables or passed directly to the `run-example` script.
 
 **Note!** See the `README.md` of the API SDK examples in your preferred programming language on how to configure parameters.
@@ -494,17 +512,32 @@ They can be defined in a file, set as environment variables or passed directly t
 
 <a name="BITMOVIN_TENANT_ORG_ID">**`BITMOVIN_TENANT_ORG_ID`**</a> - The ID of the Organisation in which you want to perform the encoding. Only required if working with a multi-tenant account.
 
-<a name="HTTP_INPUT_HOST">**`HTTP_INPUT_HOST`**</a> - The Hostname or IP address of the HTTP server hosting your input files  
+<a name="HTTP_INPUT_HOST">**`HTTP_INPUT_HOST`**</a> - The Hostname or IP address of the HTTP server hosting your input files
 Example: `my-storage.biz`
 
-<a name="HTTP_INPUT_FILE_PATH">**`HTTP_INPUT_FILE_PATH`**</a> - The path to your input file on the HTTP host  
+<a name="HTTP_INPUT_FILE_PATH">**`HTTP_INPUT_FILE_PATH`**</a> - The path to your input file on the HTTP host
 Example: `videos/1080p_Sintel.mp4`
 
-<a name="HTTP_INPUT_BUMPER_FILE_PATH">**`HTTP_INPUT_BUMPER_FILE_PATH`**</a> - The path to your input file on the provided HTTP server to be concatenated before HTTP_INPUT_FILE_PATH  
+<a name="HTTP_INPUT_BUMPER_FILE_PATH">**`HTTP_INPUT_BUMPER_FILE_PATH`**</a> - The path to your input file on the provided HTTP server to be concatenated before HTTP_INPUT_FILE_PATH
 Example: `videos/bumper.mp4`
 
-<a name="HTTP_INPUT_PROMO_FILE_PATH">**`HTTP_INPUT_PROMO_FILE_PATH`**</a> - The path to your input file on the provided HTTP server to be concatenated after HTTP_INPUT_FILE_PATH  
+<a name="HTTP_INPUT_PROMO_FILE_PATH">**`HTTP_INPUT_PROMO_FILE_PATH`**</a> - The path to your input file on the provided HTTP server to be concatenated after HTTP_INPUT_FILE_PATH
 Example: `videos/promo.mp4`
+
+<a name="HTTP_INPUT_AUDIO_FILE_PATH">**`HTTP_INPUT_AUDIO_FILE_PATH`**</a> - The path to your audio input file on the provided HTTP server. It's used when you want to load audio stream from a separated input file.
+Example: `audio/aac.mp4`
+
+<a name="HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH">**`HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH`**</a> - The path to your DolbyVision metadata file. This parameter is required only when using a DolbyVision input file with a separated sidecar XML metadata file.
+
+<a name="HDR_CONVERSION_INPUT_FORMAT">**`HDR_CONVERSION_INPUT_FORMAT`**</a> - The input dynamic range format. Either DolbyVision, HDR10, HLG, or SDR can be specified. This parameter needs to be matched with the actual dynamic range format of the input file.
+Example: `DolbyVision`, `HDR10`, `HLG`, `SDR`.
+
+<a name="HDR_CONVERSION_OUTPUT_FORMAT">**`HDR_CONVERSION_OUTPUT_FORMAT`**</a> - The output dynamic range format to be converted from the input file.
+If the input dynamic range is `DolbyVision`, the supported output dynamic range format is either `DolbyVision`, `HDR10` or `SDR`.
+If the input dynamic range is `HDR10`, the supported output dynamic range format is either `HDR10`, `HLG` or `SDR`.
+If the input dynamic range is `HLG`, the supported output dynamic range format is either `HDR10`, `HLG` or `SDR`.
+If the input dynamic range is `SDR`, the supported output dynamic range format is either `HDR10`, `HLG` or `SDR`.
+Example: `DolbyVision`, `HDR10`, `HLG`, `SDR`.
 
 <a name="HTTP_INPUT_FILE_PATH_STEREO_SOUND">**`HTTP_INPUT_FILE_PATH_STEREO_SOUND`**</a> - the path to a file containing a video with a single audio stereo stream
 Example: `videos/1080p_Sintel_Stereo.mp4`
