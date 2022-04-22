@@ -1,1 +1,1 @@
-bitmovin-api-sdk == 1.103.0
+bitmovin-api-sdk == 1.112.0
