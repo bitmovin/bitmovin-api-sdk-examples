@@ -35,8 +35,6 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
    Add multiple audio streams to a Broadcast TS muxing
 + [Applying Filters](#applying-filters)  
    Enhance and manipulate content by applying pre-defined video or audio filters
-+ [Applying CENC DRM Content Protection](#applying-cenc-drm-content-protection)  
-   Encrypt output to prevent unauthorized playback
 + [Server-Side Ad Insertion (SSAI)](#server-side-ad-insertion-ssai)  
    Prevent blocking of ads by delivering a continuous content stream
 + [RTMP Live Encoding](#rtmp-live-encoding)  
@@ -49,6 +47,14 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
    Convert dynamic range format between DolbyVision, HDR10, HLG and SDR.
 + [CDN](#cdn)
    Use the Bitmovin CDN Streaming storage to distribute your assets.
+
+
++ **Content Protection**
+    + [Applying CENC DRM Content Protection](#applying-cenc-drm-content-protection)  
+      Encrypt output to prevent unauthorized playback
+    + [Applying Content Protection with SPEKE](#applying-drm-content-protection-with-speke)  
+      Obtain DRM keys from a SPEKE server
+
 
 + **Audio Manipulations**
 
@@ -191,32 +197,6 @@ This example demonstrates how to apply filters to a video stream. Filters will m
 + `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
  + `WATERMARK_IMAGE_PATH` ([?](#WATERMARK_IMAGE_PATH))
  + `TEXT_FILTER_TEXT` ([?](#TEXT_FILTER_TEXT))
-
----
-### Applying CENC DRM Content Protection
-
-<a href="dotnet/Bitmovin.Api.Sdk.Examples/CencDrmContentProtection.cs">C#</a> -
-<a href="java/src/main/java/CencDrmContentProtection.java">Java</a> -
-<a href="javascript/src/CencDrmContentProtection.ts">TS/JS</a> -
-<a href="php/src/CencDrmContentProtection.php">PHP</a> -
-<a href="python/src/cenc_drm_content_protection.py">Python</a>
-
-This example shows how DRM content protection can be applied to a fragmented MP4 muxing. DRM is used to prevent playback on unauthorized devices (piracy) and requires integration with a key server.
-The encryption is configured to be compatible with both FairPlay and Widevine, using the [MPEG Common Encryption](https://en.wikipedia.org/wiki/MPEG_Common_Encryption) standard.
-
-Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
-+ `DRM_KEY` ([?](#DRM_KEY))
-+ `DRM_FAIRPLAY_IV` ([?](#DRM_FAIRPLAY_IV))
-+ `DRM_FAIRPLAY_URI` ([?](#DRM_FAIRPLAY_URI))
-+ `DRM_WIDEVINE_KID` ([?](#DRM_WIDEVINE_KID))
-+ `DRM_WIDEVINE_PSSH` ([?](#DRM_WIDEVINE_PSSH))
 
 ---
 ### Server-Side Ad Insertion (SSAI)
@@ -363,6 +343,65 @@ Required configuration parameters:
 
 If you want to load a DolbyVision metadata as a sidecar XML file, the following parameter also needs to be specified. If that parameter is not provided for a DolbyVision encoding, the example assumes the corresponding metadata is embedded into the DolbyVision input mezzanine file itself.
 + `HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH` ([?](#HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH))
+
+---
+### Content Protection
+### Applying CENC DRM Content Protection
+
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/CencDrmContentProtection.cs">C#</a> -
+<a href="java/src/main/java/CencDrmContentProtection.java">Java</a> -
+<a href="javascript/src/CencDrmContentProtection.ts">TS/JS</a> -
+<a href="php/src/CencDrmContentProtection.php">PHP</a> -
+<a href="python/src/cenc_drm_content_protection.py">Python</a>
+
+This example shows how DRM content protection can be applied to a fragmented MP4 muxing. DRM is used to prevent playback on unauthorized devices (piracy) and requires integration with a key server.
+The encryption is configured to be compatible with both FairPlay and Widevine, using the [MPEG Common Encryption](https://en.wikipedia.org/wiki/MPEG_Common_Encryption) standard.
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
++ `DRM_KEY` ([?](#DRM_KEY))
++ `DRM_FAIRPLAY_IV` ([?](#DRM_FAIRPLAY_IV))
++ `DRM_FAIRPLAY_URI` ([?](#DRM_FAIRPLAY_URI))
++ `DRM_WIDEVINE_KID` ([?](#DRM_WIDEVINE_KID))
++ `DRM_WIDEVINE_PSSH` ([?](#DRM_WIDEVINE_PSSH))
+
+---
+#### Applying DRM Content Protection with SPEKE
+
+<a href="java/src/main/java/DrmContentProtectionWithSpeke.java">Java</a> -
+<a href="javascript/src/DrmContentProtectionWithSpeke.ts">TS/JS</a> -
+<a href="python/src/drm_content_protection_with_speke.py">Python</a>
+
+This example builds on the previous one, but shows how keys for DRM content protection
+can be obtained from a SPEKE server, and adds FairPlay DRM. Manifests are built
+from scratch, with DASH for CENC protected outputs, and HLS for FairPlay
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
++ `SPEKE_URL` ([?](#SPEKE_URL))
++ and for AWS IAM authentication
+    + `SPEKE_ARN` ([?](#SPEKE_ARN))
+    + `SPEKE_GATEWAY_REGION` ([?](#SPEKE_GATEWAY_REGION))
++ or for simple credentials
+    + `SPEKE_USERNAME` ([?](#SPEKE_USERNAME))
+    + `SPEKE_PASSWORD` ([?](#SPEKE_PASSWORD))
+
+Optional Parameters
++ `DRM_FAIRPLAY_IV` ([?](#DRM_FAIRPLAY_IV))
++ `DRM_CONTENT_ID` ([?](#DRM_CONTENT_ID))
++ `DRM_KEY_ID` ([?](#DRM_KEY_ID))
 
 ---
 ### Audio Manipulations
@@ -582,5 +621,18 @@ Example: `08eecef4b026deec395234d94218273d`
 
 <a name="DRM_WIDEVINE_PSSH">**`DRM_WIDEVINE_PSSH`**</a> - Base64 encoded PSSH payload  
 Example: `QWRvYmVhc2Rmc2FkZmFzZg==`
+
+<a name="SPEKE_URL">**`SPEKE_URL`**</a> - The URL of the SPEKE server  
+Example: `https://my-speke-server.com/v1.0/vod`
+
+<a name="SPEKE_ARN">**`SPEKE_ARN`**</a> - For AWS IAM authentication, the role ARN for the user providing access to the SPEKE server  
+Example: `arn:aws:iam::1234567890:role/speke_role_assumption`
+
+<a name="SPEKE_GATEWAY_REGION">**`SPEKE_GATEWAY_REGION`**</a> - For AWS IAM authentication, the AWS Gateway region hosting the SPEKE server   
+Example: `eu-west-1`
+
+<a name="SPEKE_USERNAME">**`SPEKE_USERNAME`**</a> - For basic authentication with the SPEKE server
+
+<a name="SPEKE_PASSWORD">**`SPEKE_PASSWORD`**</a> - For basic authentication with the SPEKE server
 
 You may also add your own parameters in your configuration. The ConfigProvider class in each example offers a generic function to get the value of the parameter by its name.
