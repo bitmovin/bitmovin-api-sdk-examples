@@ -160,11 +160,14 @@ def _create_fmp4_muxing(encoding: Encoding, output: Output, output_path: str, st
     @param output_path The output path where the fragmented segments will be written to
     @param stream The stream to be muxed
     """
-    muxing_stream = MuxingStream(stream_id=stream.id)
+    muxing_stream = MuxingStream(
+        stream_id=stream.id
+    )
     muxing = Fmp4Muxing(
         outputs=[_build_encoding_output(output, output_path)],
         streams=[muxing_stream],
-        segment_length=4.0)
+        segment_length=4.0
+    )
 
     return bitmovin_api.encoding.encodings.muxings.fmp4.create(encoding.id, muxing)
 
@@ -183,11 +186,16 @@ def _create_stream(encoding: Encoding, input: Input, input_path: str,
     @param input_path The path to the input file
     @param codec_configuration The codec configuration to be applied to the stream
     """
-    stream_input = StreamInput(input_id=input.id,
-                               input_path=input_path,
-                               selection_mode=StreamSelectionMode.AUTO)
+    stream_input = StreamInput(
+        input_id=input.id,
+        input_path=input_path,
+        selection_mode=StreamSelectionMode.AUTO
+    )
 
-    stream = Stream(input_streams=[stream_input], codec_config_id=codec_configuration.id)
+    stream = Stream(
+        input_streams=[stream_input],
+        codec_config_id=codec_configuration.id
+    )
     return bitmovin_api.encoding.encodings.streams.create(encoding.id, stream)
 
 

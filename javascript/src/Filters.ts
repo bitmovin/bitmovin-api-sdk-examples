@@ -24,6 +24,7 @@ import BitmovinApi, {
   StreamFilter,
   StreamFilterList,
   StreamInput,
+  StreamSelectionMode,
   Task,
   TextFilter,
   WatermarkFilter
@@ -211,7 +212,8 @@ function createStream(
 ): Promise<Stream> {
   const streamInput = new StreamInput({
     inputId: input.id,
-    inputPath: inputPath
+    inputPath: inputPath,
+    selectionMode: StreamSelectionMode.AUTO,
   });
 
   const stream = new Stream({

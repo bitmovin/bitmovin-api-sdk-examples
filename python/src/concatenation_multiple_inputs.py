@@ -76,20 +76,17 @@ def main():
     main = _create_ingest_input_stream(
         encoding=encoding,
         input=https_input,
-        input_path=main_file_path,
-        stream_selection_mode=StreamSelectionMode.AUTO
+        input_path=main_file_path
     )
     bumper = _create_ingest_input_stream(
         encoding=encoding,
         input=https_input,
-        input_path=bumper_file_path,
-        stream_selection_mode=StreamSelectionMode.AUTO
+        input_path=bumper_file_path
     )
     promo = _create_ingest_input_stream(
         encoding=encoding,
         input=https_input,
-        input_path=promo_file_path,
-        stream_selection_mode=StreamSelectionMode.AUTO
+        input_path=promo_file_path
     )
 
     # In this example, we trim the main input file and create two separated streams as TimeBasedTrimmingInputStream
@@ -292,8 +289,8 @@ def _create_s3_output(bucket_name, access_key, secret_key):
     return bitmovin_api.encoding.outputs.s3.create(s3_output=s3_output)
 
 
-def _create_ingest_input_stream(encoding, input, input_path, stream_selection_mode):
-    # type: (Encoding, Input, str, StreamSelectionMode) -> IngestInputStream
+def _create_ingest_input_stream(encoding, input, input_path):
+    # type: (Encoding, Input, str) -> IngestInputStream
     """
     Creates an IngestInputStream and adds it to an encoding.
     The IngestInputStream is used to define where a file to read a stream from is located.
@@ -304,13 +301,12 @@ def _create_ingest_input_stream(encoding, input, input_path, stream_selection_mo
     :param encoding: The encoding to be started
     :param input: The input resource providing the input file
     :param input_path: The path to the input file
-    :param stream_selection_mode: The algorithm how the stream in the input file will be selected
     """
 
     ingest_input_stream = IngestInputStream(
         input_id=input.id,
         input_path=input_path,
-        selection_mode=stream_selection_mode
+        selection_mode=StreamSelectionMode.AUTO
     )
 
     return bitmovin_api.encoding.encodings.input_streams.ingest.create(

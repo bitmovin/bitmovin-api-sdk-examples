@@ -6,7 +6,7 @@ from bitmovin_api_sdk import AacAudioConfiguration, AclEntry, AclPermission, Bit
     DashManifestDefault, DashManifestDefaultVersion, Encoding, EncodingOutput, Fmp4Muxing, \
     H264VideoConfiguration, HlsManifest, HlsManifestDefault, HlsManifestDefaultVersion, HttpInput, \
     Input, ManifestGenerator, ManifestResource, MessageType, Muxing, MuxingStream, Output, \
-    PresetConfiguration, S3Output, StartEncodingRequest, Status, Stream, StreamInput, Task
+    PresetConfiguration, S3Output, StartEncodingRequest, Status, Stream, StreamInput, StreamSelectionMode, Task
 
 from common import ConfigProvider
 
@@ -300,7 +300,8 @@ def _create_stream(encoding, encoding_input, input_path, codec_configuration):
 
     stream_input = StreamInput(
         input_id=encoding_input.id,
-        input_path=input_path
+        input_path=input_path,
+        selection_mode=StreamSelectionMode.AUTO
     )
 
     stream = Stream(

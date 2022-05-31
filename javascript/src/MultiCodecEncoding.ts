@@ -36,6 +36,7 @@ import BitmovinApi, {
   Stream,
   StreamInfo,
   StreamInput,
+  StreamSelectionMode,
   Task,
   TsMuxing,
   VideoAdaptationSet,
@@ -819,7 +820,8 @@ function createStream(
 ): Promise<Stream> {
   const streamInput = new StreamInput({
     inputId: input.id,
-    inputPath: inputPath
+    inputPath: inputPath,
+    selectionMode: StreamSelectionMode.AUTO,
   });
 
   const stream = new Stream({

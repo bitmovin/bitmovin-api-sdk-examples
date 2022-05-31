@@ -177,17 +177,13 @@ def main():
         video_input_stream = _create_ingest_input_stream(
             encoding=encoding,
             input=https_input,
-            input_path=video_input_path,
-            stream_selection_mode=StreamSelectionMode.AUTO,
-            position=0
+            input_path=video_input_path
         )
 
     audio_input_stream = _create_ingest_input_stream(
         encoding=encoding,
         input=https_input,
-        input_path=audio_input_path,
-        stream_selection_mode=StreamSelectionMode.AUTO,
-        position=0
+        input_path=audio_input_path
     )
 
     _create_h265_and_aac_encoding(
@@ -309,8 +305,8 @@ def _create_dolby_vision_input_stream(encoding, input, dolby_vision_input_path, 
         dolby_vision_input_stream=dolby_vision_input_stream)
 
 
-def _create_ingest_input_stream(encoding, input, input_path, stream_selection_mode, position):
-    # type: (Encoding, Input, str, StreamSelectionMode, int) -> IngestInputStream
+def _create_ingest_input_stream(encoding, input, input_path):
+    # type: (Encoding, Input, str) -> IngestInputStream
     """
     Creates an IngestInputStream and adds it to an encoding.
     <p>The IngestInputStream is used to define where a file to read a stream from is located.
@@ -326,8 +322,7 @@ def _create_ingest_input_stream(encoding, input, input_path, stream_selection_mo
     ingest_input_stream = IngestInputStream(
         input_id=input.id,
         input_path=input_path,
-        selection_mode=stream_selection_mode,
-        position=position
+        selection_mode=StreamSelectionMode.AUTO
     )
 
     return bitmovin_api.encoding.encodings.input_streams.ingest.create(
@@ -479,6 +474,7 @@ def _create_fmp4_muxing(encoding, output, output_path, stream):
     adaptive streaming.
     <p>API endpoint:
     https://bitmovin.com/docs/encoding/api-reference/all#/Encoding/PostEncodingEncodingsMuxingsFmp4ByEncodingId
+
     @param encoding The encoding where to add the muxing to
     @param output The output that should be used for the muxing to write the segments to
     @param output_path The output path where the fragmented segments will be written to
@@ -505,6 +501,7 @@ def _execute_encoding(encoding):
     <p>Please note that you can also use our webhooks API instead of polling the status. For more
     information consult the API spec:
     https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
+
     :param encoding: The encoding to be started
     """
 
@@ -759,6 +756,7 @@ def _build_encoding_output(output, output_path):
     """
     Builds an EncodingOutput object which defines where the output content (e.g. of a muxing) will be written to.
     Public read permissions will be set for the files written, so they can be accessed easily via HTTP.
+
     :param output: The output resource to be used by the EncodingOutput
     :param output_path: The path where the content will be written to
     """

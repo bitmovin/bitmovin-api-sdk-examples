@@ -111,9 +111,9 @@ namespace Bitmovin.Api.Sdk.Examples
                 _configProvider.GetS3OutputSecretKey());
 
             // Define a video and audio stream as an IngestInputStream to represent each input file (main, bumper, and promo)
-            var main = await CreateIngestInputStream(encoding, httpInput, mainFilePath, StreamSelectionMode.AUTO);
-            var bumper = await CreateIngestInputStream(encoding, httpInput, bumperFilePath, StreamSelectionMode.AUTO);
-            var promo = await CreateIngestInputStream(encoding, httpInput, promoFilePath, StreamSelectionMode.AUTO);
+            var main = await CreateIngestInputStream(encoding, httpInput, mainFilePath);
+            var bumper = await CreateIngestInputStream(encoding, httpInput, bumperFilePath);
+            var promo = await CreateIngestInputStream(encoding, httpInput, promoFilePath);
 
             // In this example, we trim the main input file and create two separated streams as TimeBasedTrimmingInputStream
             var mainPart1 = await CreateTimeBasedTrimmingInputStream(encoding, main, 10.0, 90.0);
@@ -294,14 +294,13 @@ namespace Bitmovin.Api.Sdk.Examples
         /// <param name="input">The input resource providing the input file</param>
         /// <param name="inputPath">The path to the input file.</param>
         /// <param name="streamSelectionMode">The algorithm how the stream in the input file will be selected.</param>
-        private Task<IngestInputStream> CreateIngestInputStream(Models.Encoding encoding, Input input, String inputPath,
-                StreamSelectionMode streamSelectionMode)
+        private Task<IngestInputStream> CreateIngestInputStream(Models.Encoding encoding, Input input, String inputPath)
         {
             var ingestInputStream = new IngestInputStream()
             {
                 InputId = input.Id,
                 InputPath = inputPath,
-                SelectionMode = streamSelectionMode
+                SelectionMode = StreamSelectionMode.AUTO
             };
             return _bitmovinApi.Encoding.Encodings.InputStreams.Ingest.CreateAsync(encoding.Id, ingestInputStream);
         }

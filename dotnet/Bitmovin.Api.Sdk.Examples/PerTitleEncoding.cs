@@ -314,7 +314,8 @@ namespace Bitmovin.Api.Sdk.Examples
             var streamInput = new StreamInput()
             {
                 InputId = input.Id,
-                InputPath = inputPath
+                InputPath = inputPath,
+                SelectionMode = StreamSelectionMode.AUTO
             };
 
             var stream = new Stream()

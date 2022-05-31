@@ -42,6 +42,7 @@ use BitmovinApiSdk\Models\Status;
 use BitmovinApiSdk\Models\Stream;
 use BitmovinApiSdk\Models\StreamInfo;
 use BitmovinApiSdk\Models\StreamInput;
+use BitmovinApiSdk\Models\StreamSelectionMode;
 use BitmovinApiSdk\Models\Task;
 use BitmovinApiSdk\Models\TsMuxing;
 use BitmovinApiSdk\Models\VideoAdaptationSet;
@@ -1154,6 +1155,7 @@ function createStream(
     $streamInput = new StreamInput();
     $streamInput->inputId($input->id);
     $streamInput->inputPath($inputPath);
+    $streamInput->selectionMode(StreamSelectionMode::AUTO());
 
     $stream = new Stream();
     $stream->inputStreams([$streamInput]);

@@ -34,6 +34,7 @@ use BitmovinApiSdk\Models\StartLiveEncodingRequest;
 use BitmovinApiSdk\Models\Status;
 use BitmovinApiSdk\Models\Stream;
 use BitmovinApiSdk\Models\StreamInput;
+use BitmovinApiSdk\Models\StreamSelectionMode;
 use BitmovinApiSdk\Models\Task;
 
 /**
@@ -101,8 +102,8 @@ try {
     $h264Config = createH264Config();
     $aacConfig = createAacConfig();
 
-    $h264Stream = createStream($encoding, $input, 'live', $h264Config, 0);
-    $aacStream = createStream($encoding, $input, 'live', $aacConfig, 1);
+    $h264Stream = createStream($encoding, $input, 'live', $h264Config);
+    $aacStream = createStream($encoding, $input, 'live', $aacConfig);
 
     createFmp4Muxing($encoding, $output, 'video/' . $h264Config->height . 'p', $h264Stream);
     createFmp4Muxing($encoding, $output, 'audio/' . ($aacConfig->bitrate / 1000) . "kbps", $aacStream);
@@ -369,14 +370,14 @@ function createAacConfig()
  * @return Stream
  * @throws BitmovinApiException
  */
-function createStream(Encoding $encoding, Input $input, string $inputPath, CodecConfiguration $codecConfiguration, int $position)
+function createStream(Encoding $encoding, Input $input, string $inputPath, CodecConfiguration $codecConfiguration)
 {
     global $bitmovinApi;
 
     $streamInput = new StreamInput();
     $streamInput->inputId($input->id);
     $streamInput->inputPath($inputPath);
-    $streamInput->position($position);
+    $streamInput->selectionMode(StreamSelectionMode::AUTO());
 
     $stream = new Stream();
     $stream->inputStreams([$streamInput]);

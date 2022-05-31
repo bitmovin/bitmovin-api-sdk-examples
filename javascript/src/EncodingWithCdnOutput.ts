@@ -27,6 +27,7 @@ import BitmovinApi, {
   Status,
   Stream,
   StreamInput,
+  StreamSelectionMode,
   Task,
 } from '@bitmovin/api-sdk';
 
@@ -147,6 +148,7 @@ function createStream(
   const streamInput = new StreamInput({
     inputId: input.id,
     inputPath: inputPath,
+    selectionMode: StreamSelectionMode.AUTO,
   });
 
   const stream = new Stream({
