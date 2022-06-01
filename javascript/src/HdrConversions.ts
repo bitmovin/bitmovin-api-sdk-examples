@@ -1,43 +1,43 @@
 import ConfigProvider from '../common/ConfigProvider';
 import BitmovinApi from '@bitmovin/api-sdk';
 import {
-    AacAudioConfiguration,
-    AclEntry,
-    AclPermission,
-    AudioAdaptationSet,
-    AudioMediaInfo,
-    CodecConfigType,
-    CodecConfiguration,
-    ConsoleLogger,
-    DashFmp4Representation,
-    DashManifest,
-    DashRepresentationType,
-    DolbyVisionInputStream,
-    Encoding,
-    EncodingOutput,
-    Fmp4Muxing,
-    H265DynamicRangeFormat,
-    H265VideoConfiguration,
-    HlsManifest,
-    HlsVersion,
-    HttpInput,
-    IngestInputStream,
-    Input,
-    InputStream,
-    MessageType,
-    MuxingStream,
-    Output,
-    Period,
-    PresetConfiguration,
-    ProfileH265,
-    S3Output,
-    Status,
-    Stream,
-    StreamInfo,
-    StreamInput,
-    StreamSelectionMode,
-    Task,
-    VideoAdaptationSet,
+  AacAudioConfiguration,
+  AclEntry,
+  AclPermission,
+  AudioAdaptationSet,
+  AudioMediaInfo,
+  CodecConfigType,
+  CodecConfiguration,
+  ConsoleLogger,
+  DashFmp4Representation,
+  DashManifest,
+  DashRepresentationType,
+  DolbyVisionInputStream,
+  Encoding,
+  EncodingOutput,
+  Fmp4Muxing,
+  H265DynamicRangeFormat,
+  H265VideoConfiguration,
+  HlsManifest,
+  HlsVersion,
+  HttpInput,
+  IngestInputStream,
+  Input,
+  InputStream,
+  MessageType,
+  MuxingStream,
+  Output,
+  Period,
+  PresetConfiguration,
+  ProfileH265,
+  S3Output,
+  Status,
+  Stream,
+  StreamInfo,
+  StreamInput,
+  StreamSelectionMode,
+  Task,
+  VideoAdaptationSet,
 } from '@bitmovin/api-sdk';
 import {join} from 'path';
 
@@ -102,48 +102,48 @@ const outputFormat = configProvider.getHdrConversionOutputFormat();
 
 const exampleName = `${inputFormat}To${outputFormat}`;
 const bitmovinApi: BitmovinApi = new BitmovinApi({
-    apiKey: configProvider.getBitmovinApiKey(),
-    // uncomment the following line if you are working with a multi-tenant account
-    // tenantOrgId: configProvider.getBitmovinTenantOrgId(),
-    logger: new ConsoleLogger(),
+  apiKey: configProvider.getBitmovinApiKey(),
+  // uncomment the following line if you are working with a multi-tenant account
+  // tenantOrgId: configProvider.getBitmovinTenantOrgId(),
+  logger: new ConsoleLogger(),
 });
 
 async function main() {
-    const encoding: Encoding = await createEncoding(
-        exampleName,
-        `Encoding with HDR conversion from ${inputFormat} to ${outputFormat}`
-    );
+  const encoding: Encoding = await createEncoding(
+    exampleName,
+    `Encoding with HDR conversion from ${inputFormat} to ${outputFormat}`
+  );
 
-    const input = await createHttpInput(configProvider.getHttpInputHost());
+  const input = await createHttpInput(configProvider.getHttpInputHost());
 
-    const videoInputPath = configProvider.getHttpInputFilePath();
-    const audioInputPath = configProvider.getHttpAudioFilePath();
+  const videoInputPath = configProvider.getHttpInputFilePath();
+  const audioInputPath = configProvider.getHttpAudioFilePath();
 
-    const output = await createS3Output(
-        configProvider.getS3OutputBucketName(),
-        configProvider.getS3OutputAccessKey(),
-        configProvider.getS3OutputSecretKey()
-    );
+  const output = await createS3Output(
+    configProvider.getS3OutputBucketName(),
+    configProvider.getS3OutputAccessKey(),
+    configProvider.getS3OutputSecretKey()
+  );
 
-    let videoInputStream;
-    if (inputFormat == 'DolbyVision') {
-        let inputMetadataPath = configProvider.getHttpDolbyVisionMetadataFilePath();
-        videoInputStream = await createDolbyVisionInputStream(encoding, input, videoInputPath, inputMetadataPath);
-    } else {
-        videoInputStream = await createIngestInputStream(encoding, input, videoInputPath);
-    }
+  let videoInputStream;
+  if (inputFormat == 'DolbyVision') {
+    let inputMetadataPath = configProvider.getHttpDolbyVisionMetadataFilePath();
+    videoInputStream = await createDolbyVisionInputStream(encoding, input, videoInputPath, inputMetadataPath);
+  } else {
+    videoInputStream = await createIngestInputStream(encoding, input, videoInputPath);
+  }
 
-    let audioInputStream = await createIngestInputStream(encoding, input, audioInputPath);
+  let audioInputStream = await createIngestInputStream(encoding, input, audioInputPath);
 
-    await createH265AndAacEncoding(encoding, videoInputStream, audioInputStream, output);
+  await createH265AndAacEncoding(encoding, videoInputStream, audioInputStream, output);
 
-    await executeEncoding(encoding);
+  await executeEncoding(encoding);
 
-    const dashManifest = await createDashManifest(encoding, output, '/');
-    await executeDashManifest(dashManifest);
+  const dashManifest = await createDashManifest(encoding, output, '/');
+  await executeDashManifest(dashManifest);
 
-    const hlsManifest = await createHlsManifest(encoding, output, '/');
-    await executeHlsManifest(hlsManifest);
+  const hlsManifest = await createHlsManifest(encoding, output, '/');
+  await executeHlsManifest(hlsManifest);
 }
 
 /**
@@ -156,12 +156,12 @@ async function main() {
  * @param description A description of the encoding (optional)
  */
 function createEncoding(name: string, description: string): Promise<Encoding> {
-    const encoding = new Encoding({
-        name: name,
-        description: description,
-    });
+  const encoding = new Encoding({
+    name: name,
+    description: description,
+  });
 
-    return bitmovinApi.encoding.encodings.create(encoding);
+  return bitmovinApi.encoding.encodings.create(encoding);
 }
 
 /**
@@ -181,11 +181,11 @@ function createEncoding(name: string, description: string): Promise<Encoding> {
  * @param host The hostname or IP address of the HTTP server e.g.: my-storage.biz
  */
 function createHttpInput(host: string): Promise<HttpInput> {
-    const input = new HttpInput({
-        host: host,
-    });
+  const input = new HttpInput({
+    host: host,
+  });
 
-    return bitmovinApi.encoding.inputs.http.create(input);
+  return bitmovinApi.encoding.inputs.http.create(input);
 }
 
 /**
@@ -212,13 +212,13 @@ function createHttpInput(host: string): Promise<HttpInput> {
  * @param secretKey The secret key of your S3 account
  */
 function createS3Output(bucketName: string, accessKey: string, secretKey: string): Promise<S3Output> {
-    const s3Output = new S3Output({
-        bucketName: bucketName,
-        accessKey: accessKey,
-        secretKey: secretKey,
-    });
+  const s3Output = new S3Output({
+    bucketName: bucketName,
+    accessKey: accessKey,
+    secretKey: secretKey,
+  });
 
-    return bitmovinApi.encoding.outputs.s3.create(s3Output);
+  return bitmovinApi.encoding.outputs.s3.create(s3Output);
 }
 
 /**
@@ -234,13 +234,13 @@ function createS3Output(bucketName: string, accessKey: string, secretKey: string
  * @param inputPath The path to the input file
  */
 function createIngestInputStream(encoding: Encoding, input: Input, inputPath: string): Promise<IngestInputStream> {
-    const ingestInputStream = new IngestInputStream({
-        inputId: input.id,
-        inputPath: inputPath,
-        selectionMode: StreamSelectionMode.AUTO,
-    });
+  const ingestInputStream = new IngestInputStream({
+    inputId: input.id,
+    inputPath: inputPath,
+    selectionMode: StreamSelectionMode.AUTO,
+  });
 
-    return bitmovinApi.encoding.encodings.inputStreams.ingest.create(encoding.id!, ingestInputStream);
+  return bitmovinApi.encoding.encodings.inputStreams.ingest.create(encoding.id!, ingestInputStream);
 }
 
 /**
@@ -257,18 +257,18 @@ function createIngestInputStream(encoding: Encoding, input: Input, inputPath: st
  * @param dolbyVisionMetadataInputPath The path to the DolbyVision XML metadata file if a sidecar XML is used. For embedded metadata case, it should be None.
  */
 function createDolbyVisionInputStream(
-    encoding: Encoding,
-    input: Input,
-    dolbyVisionInputPath: string,
-    dolbyVisionMetadataInputPath: string
+  encoding: Encoding,
+  input: Input,
+  dolbyVisionInputPath: string,
+  dolbyVisionMetadataInputPath: string
 ): Promise<IngestInputStream> {
-    const ingestInputStream = new DolbyVisionInputStream({
-        inputId: input.id,
-        videoInputPath: dolbyVisionInputPath,
-        metadataInputPath: dolbyVisionMetadataInputPath,
-    });
+  const ingestInputStream = new DolbyVisionInputStream({
+    inputId: input.id,
+    videoInputPath: dolbyVisionInputPath,
+    metadataInputPath: dolbyVisionMetadataInputPath,
+  });
 
-    return bitmovinApi.encoding.encodings.inputStreams.dolbyVision.create(encoding.id!, ingestInputStream);
+  return bitmovinApi.encoding.encodings.inputStreams.dolbyVision.create(encoding.id!, ingestInputStream);
 }
 
 /**
@@ -280,106 +280,106 @@ function createDolbyVisionInputStream(
  * @param output the output that should be used
  */
 async function createH265AndAacEncoding(
-    encoding: Encoding,
-    videoInputStream: InputStream,
-    audioInputStream: InputStream,
-    output: Output
+  encoding: Encoding,
+  videoInputStream: InputStream,
+  audioInputStream: InputStream,
+  output: Output
 ) {
-    let renditions = createRenditions();
+  let renditions = createRenditions();
 
-    for (const {height, bitrate, dynamicRangeFormat, profile} of renditions) {
-        let streamName;
-        let outputPath;
+  for (const {height, bitrate, dynamicRangeFormat, profile} of renditions) {
+    let streamName;
+    let outputPath;
 
-        if (isDynamicRangeFormatOfDolbyVisionOrHdrOrHlg(dynamicRangeFormat)) {
-            outputPath = `video/hdr/${height}p_${bitrate / 1000}kbps/`;
-            streamName = `H265 HDR stream ${height}p`;
-        } else {
-            outputPath = `video/sdr/${height}p_${bitrate / 1000}kbps/`;
-            streamName = `H265 SDR stream ${height}p`;
-        }
-
-        let h265VideoConfiguration = await createH265VideoConfig(height, bitrate, profile, dynamicRangeFormat);
-        let stream = await createStream(streamName, encoding, videoInputStream, h265VideoConfiguration);
-        await createFmp4Muxing(encoding, output, outputPath, stream);
+    if (isDynamicRangeFormatOfDolbyVisionOrHdrOrHlg(dynamicRangeFormat)) {
+      outputPath = `video/hdr/${height}p_${bitrate / 1000}kbps/`;
+      streamName = `H265 HDR stream ${height}p`;
+    } else {
+      outputPath = `video/sdr/${height}p_${bitrate / 1000}kbps/`;
+      streamName = `H265 SDR stream ${height}p`;
     }
 
-    let aacConfig = await createAacAudioConfig();
+    let h265VideoConfiguration = await createH265VideoConfig(height, bitrate, profile, dynamicRangeFormat);
+    let stream = await createStream(streamName, encoding, videoInputStream, h265VideoConfiguration);
+    await createFmp4Muxing(encoding, output, outputPath, stream);
+  }
 
-    let aacAudioStream = await createStream(
-        `AAC stream ${aacConfig.bitrate! / 1000}kbps`,
-        encoding,
-        audioInputStream,
-        aacConfig
-    );
+  let aacConfig = await createAacAudioConfig();
 
-    await createFmp4Muxing(encoding, output, `"audio/${aacConfig.bitrate! / 1000}kbps/`, aacAudioStream);
+  let aacAudioStream = await createStream(
+    `AAC stream ${aacConfig.bitrate! / 1000}kbps`,
+    encoding,
+    audioInputStream,
+    aacConfig
+  );
+
+  await createFmp4Muxing(encoding, output, `"audio/${aacConfig.bitrate! / 1000}kbps/`, aacAudioStream);
 }
 
 function createRenditions() {
-    let profile: ProfileH265 = ProfileH265.MAIN10;
-    let dynamicRangeFormat: H265DynamicRangeFormat;
-    let needsSdrConversion = true;
+  let profile: ProfileH265 = ProfileH265.MAIN10;
+  let dynamicRangeFormat: H265DynamicRangeFormat;
+  let needsSdrConversion = true;
 
-    if (inputFormat == 'DolbyVision') {
-        if (outputFormat == 'DolbyVision') {
-            dynamicRangeFormat = H265DynamicRangeFormat.DOLBY_VISION;
-        } else if (outputFormat == 'HDR10') {
-            dynamicRangeFormat = H265DynamicRangeFormat.HDR10;
-        } else {
-            throw new Error('Not supported');
-        }
-    } else if (inputFormat == 'HDR10') {
-        if (outputFormat == 'HDR10') {
-            dynamicRangeFormat = H265DynamicRangeFormat.HDR10;
-        } else if (outputFormat == 'HLG') {
-            dynamicRangeFormat = H265DynamicRangeFormat.HLG;
-        } else {
-            throw new Error('Not supported');
-        }
-    } else if (inputFormat == 'HLG') {
-        if (outputFormat == 'HDR10') {
-            dynamicRangeFormat = H265DynamicRangeFormat.HDR10;
-        } else if (outputFormat == 'HLG') {
-            dynamicRangeFormat = H265DynamicRangeFormat.HLG;
-        } else {
-            throw new Error('Not supported');
-        }
-    } else if (inputFormat == 'SDR') {
-        if (outputFormat == 'HDR10') {
-            dynamicRangeFormat = H265DynamicRangeFormat.HDR10;
-        } else if (outputFormat == 'HLG') {
-            dynamicRangeFormat = H265DynamicRangeFormat.HLG;
-        } else if (outputFormat == 'SDR') {
-            profile = ProfileH265.MAIN;
-            dynamicRangeFormat = H265DynamicRangeFormat.SDR;
-            needsSdrConversion = false;
-        } else {
-            throw new Error(`The dynamic range format ${outputFormat} is not supported.`);
-        }
+  if (inputFormat == 'DolbyVision') {
+    if (outputFormat == 'DolbyVision') {
+      dynamicRangeFormat = H265DynamicRangeFormat.DOLBY_VISION;
+    } else if (outputFormat == 'HDR10') {
+      dynamicRangeFormat = H265DynamicRangeFormat.HDR10;
     } else {
-        throw new Error(`The input format ${inputFormat} is not supported.`);
+      throw new Error('Not supported');
     }
+  } else if (inputFormat == 'HDR10') {
+    if (outputFormat == 'HDR10') {
+      dynamicRangeFormat = H265DynamicRangeFormat.HDR10;
+    } else if (outputFormat == 'HLG') {
+      dynamicRangeFormat = H265DynamicRangeFormat.HLG;
+    } else {
+      throw new Error('Not supported');
+    }
+  } else if (inputFormat == 'HLG') {
+    if (outputFormat == 'HDR10') {
+      dynamicRangeFormat = H265DynamicRangeFormat.HDR10;
+    } else if (outputFormat == 'HLG') {
+      dynamicRangeFormat = H265DynamicRangeFormat.HLG;
+    } else {
+      throw new Error('Not supported');
+    }
+  } else if (inputFormat == 'SDR') {
+    if (outputFormat == 'HDR10') {
+      dynamicRangeFormat = H265DynamicRangeFormat.HDR10;
+    } else if (outputFormat == 'HLG') {
+      dynamicRangeFormat = H265DynamicRangeFormat.HLG;
+    } else if (outputFormat == 'SDR') {
+      profile = ProfileH265.MAIN;
+      dynamicRangeFormat = H265DynamicRangeFormat.SDR;
+      needsSdrConversion = false;
+    } else {
+      throw new Error(`The dynamic range format ${outputFormat} is not supported.`);
+    }
+  } else {
+    throw new Error(`The input format ${inputFormat} is not supported.`);
+  }
 
-    let renditions = [
-        {height: 360, bitrate: 160000, dynamicRangeFormat: dynamicRangeFormat, profile: profile},
-        {height: 540, bitrate: 730000, dynamicRangeFormat: dynamicRangeFormat, profile: profile},
-        {height: 720, bitrate: 2900000, dynamicRangeFormat: dynamicRangeFormat, profile: profile},
-        {height: 1080, bitrate: 5400000, dynamicRangeFormat: dynamicRangeFormat, profile: profile},
-        {height: 1440, bitrate: 9700000, dynamicRangeFormat: dynamicRangeFormat, profile: profile},
-        {height: 2160, bitrate: 13900000, dynamicRangeFormat: dynamicRangeFormat, profile: profile},
+  let renditions = [
+    {height: 360, bitrate: 160000, dynamicRangeFormat: dynamicRangeFormat, profile: profile},
+    {height: 540, bitrate: 730000, dynamicRangeFormat: dynamicRangeFormat, profile: profile},
+    {height: 720, bitrate: 2900000, dynamicRangeFormat: dynamicRangeFormat, profile: profile},
+    {height: 1080, bitrate: 5400000, dynamicRangeFormat: dynamicRangeFormat, profile: profile},
+    {height: 1440, bitrate: 9700000, dynamicRangeFormat: dynamicRangeFormat, profile: profile},
+    {height: 2160, bitrate: 13900000, dynamicRangeFormat: dynamicRangeFormat, profile: profile},
+  ];
+
+  if (needsSdrConversion) {
+    let sdrRenditions = [
+      {height: 360, bitrate: 145000, dynamicRangeFormat: H265DynamicRangeFormat.SDR, profile: ProfileH265.MAIN},
+      {height: 540, bitrate: 600000, dynamicRangeFormat: H265DynamicRangeFormat.SDR, profile: ProfileH265.MAIN},
+      {height: 720, bitrate: 2400000, dynamicRangeFormat: H265DynamicRangeFormat.SDR, profile: ProfileH265.MAIN},
+      {height: 1080, bitrate: 4500000, dynamicRangeFormat: H265DynamicRangeFormat.SDR, profile: ProfileH265.MAIN},
     ];
-
-    if (needsSdrConversion) {
-        let sdrRenditions = [
-            {height: 360, bitrate: 145000, dynamicRangeFormat: H265DynamicRangeFormat.SDR, profile: ProfileH265.MAIN},
-            {height: 540, bitrate: 600000, dynamicRangeFormat: H265DynamicRangeFormat.SDR, profile: ProfileH265.MAIN},
-            {height: 720, bitrate: 2400000, dynamicRangeFormat: H265DynamicRangeFormat.SDR, profile: ProfileH265.MAIN},
-            {height: 1080, bitrate: 4500000, dynamicRangeFormat: H265DynamicRangeFormat.SDR, profile: ProfileH265.MAIN},
-        ];
-        renditions.push(...sdrRenditions);
-    }
-    return renditions;
+    renditions.push(...sdrRenditions);
+  }
+  return renditions;
 }
 
 /**
@@ -402,17 +402,17 @@ function createRenditions() {
  * @param dynamicRangeFormat The target dynamic range format of the output video
  */
 function createH265VideoConfig(height, bitrate, profile, dynamicRangeFormat): Promise<H265VideoConfiguration> {
-    const config = new H265VideoConfiguration({
-        name: `H.265 ${height}p`,
-        presetConfiguration: PresetConfiguration.VOD_STANDARD,
-        profile: profile,
-        height: height,
-        bitrate: bitrate,
-        bufsize: bitrate * 2,
-        dynamicRangeFormat: dynamicRangeFormat,
-    });
+  const config = new H265VideoConfiguration({
+    name: `H.265 ${height}p`,
+    presetConfiguration: PresetConfiguration.VOD_STANDARD,
+    profile: profile,
+    height: height,
+    bitrate: bitrate,
+    bufsize: bitrate * 2,
+    dynamicRangeFormat: dynamicRangeFormat,
+  });
 
-    return bitmovinApi.encoding.configurations.video.h265.create(config);
+  return bitmovinApi.encoding.configurations.video.h265.create(config);
 }
 
 /**
@@ -422,12 +422,12 @@ function createH265VideoConfig(height, bitrate, profile, dynamicRangeFormat): Pr
  * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAac
  */
 function createAacAudioConfig(): Promise<AacAudioConfiguration> {
-    const config = new AacAudioConfiguration({
-        name: `AAC 128 kbit/s`,
-        bitrate: 128000,
-    });
+  const config = new AacAudioConfiguration({
+    name: `AAC 128 kbit/s`,
+    bitrate: 128000,
+  });
 
-    return bitmovinApi.encoding.configurations.audio.aac.create(config);
+  return bitmovinApi.encoding.configurations.audio.aac.create(config);
 }
 
 /**
@@ -442,24 +442,24 @@ function createAacAudioConfig(): Promise<AacAudioConfiguration> {
  * @param codecConfiguration The codec configuration to be applied to the stream
  */
 function createStream(
-    name: string,
-    encoding: Encoding,
-    inputStream: InputStream,
-    codecConfiguration: CodecConfiguration
+  name: string,
+  encoding: Encoding,
+  inputStream: InputStream,
+  codecConfiguration: CodecConfiguration
 ) {
-    console.log('inputStreamId', inputStream.id);
+  console.log('inputStreamId', inputStream.id);
 
-    const streamInput = new StreamInput({
-        inputStreamId: inputStream.id,
-    });
+  const streamInput = new StreamInput({
+    inputStreamId: inputStream.id,
+  });
 
-    const stream = new Stream({
-        name: name,
-        inputStreams: [streamInput],
-        codecConfigId: codecConfiguration.id,
-    });
+  const stream = new Stream({
+    name: name,
+    inputStreams: [streamInput],
+    codecConfigId: codecConfiguration.id,
+  });
 
-    return bitmovinApi.encoding.encodings.streams.create(encoding.id!, stream);
+  return bitmovinApi.encoding.encodings.streams.create(encoding.id!, stream);
 }
 
 /**
@@ -475,17 +475,17 @@ function createStream(
  * @param stream The stream to be muxed
  */
 function createFmp4Muxing(encoding: Encoding, output: Output, outputPath: string, stream: Stream): Promise<Fmp4Muxing> {
-    const muxingStream = new MuxingStream({
-        streamId: stream.id,
-    });
+  const muxingStream = new MuxingStream({
+    streamId: stream.id,
+  });
 
-    const muxing = new Fmp4Muxing({
-        outputs: [buildEncodingOutput(output, outputPath)],
-        streams: [muxingStream],
-        segmentLength: 4,
-    });
+  const muxing = new Fmp4Muxing({
+    outputs: [buildEncodingOutput(output, outputPath)],
+    streams: [muxingStream],
+    segmentLength: 4,
+  });
 
-    return bitmovinApi.encoding.encodings.muxings.fmp4.create(encoding.id!, muxing);
+  return bitmovinApi.encoding.encodings.muxings.fmp4.create(encoding.id!, muxing);
 }
 
 /**
@@ -498,63 +498,63 @@ function createFmp4Muxing(encoding: Encoding, output: Output, outputPath: string
  * @param outputPath The path to which the manifest should be written
  */
 async function createDashManifest(encoding: Encoding, output: Output, outputPath: string): Promise<DashManifest> {
-    let dashManifest = new DashManifest({
-        manifestName: 'stream.mpd',
-        outputs: [buildEncodingOutput(output, outputPath)],
-        name: 'DASH Manifest',
+  let dashManifest = new DashManifest({
+    manifestName: 'stream.mpd',
+    outputs: [buildEncodingOutput(output, outputPath)],
+    name: 'DASH Manifest',
+  });
+
+  dashManifest = await bitmovinApi.encoding.manifests.dash.create(dashManifest);
+  let period = await bitmovinApi.encoding.manifests.dash.periods.create(dashManifest.id!, new Period());
+
+  let videoAdaptationSetHdr = await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
+    dashManifest.id!,
+    period.id!,
+    new VideoAdaptationSet()
+  );
+  let videoAdaptationSetSdr = await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
+    dashManifest.id!,
+    period.id!,
+    new VideoAdaptationSet()
+  );
+  let audioAdaptationSet = await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.audio.create(
+    dashManifest.id!,
+    period.id!,
+    new AudioAdaptationSet({lang: 'en'})
+  );
+
+  let muxings = await bitmovinApi.encoding.encodings.muxings.fmp4.list(encoding.id!);
+  for (let muxing of muxings.items!) {
+    let stream = await bitmovinApi.encoding.encodings.streams.get(encoding.id!, muxing.streams![0].streamId!);
+    let segmentPath = removeOutputBasePath(muxing.outputs![0].outputPath!);
+    let dashFmp4Representation = new DashFmp4Representation({
+      type: DashRepresentationType.TEMPLATE,
+      encodingId: encoding.id,
+      muxingId: muxing.id,
+      segmentPath: segmentPath,
     });
 
-    dashManifest = await bitmovinApi.encoding.manifests.dash.create(dashManifest);
-    let period = await bitmovinApi.encoding.manifests.dash.periods.create(dashManifest.id!, new Period());
+    let adaptationSet = videoAdaptationSetSdr.id!;
+    let codec = await bitmovinApi.encoding.configurations.type.get(stream.codecConfigId!);
+    if (codec.type == CodecConfigType.H265) {
+      let codecInfo = await bitmovinApi.encoding.configurations.video.h265.get(stream.codecConfigId!);
 
-    let videoAdaptationSetHdr = await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
-        dashManifest.id!,
-        period.id!,
-        new VideoAdaptationSet()
-    );
-    let videoAdaptationSetSdr = await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
-        dashManifest.id!,
-        period.id!,
-        new VideoAdaptationSet()
-    );
-    let audioAdaptationSet = await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.audio.create(
-        dashManifest.id!,
-        period.id!,
-        new AudioAdaptationSet({lang: 'en'})
-    );
-
-    let muxings = await bitmovinApi.encoding.encodings.muxings.fmp4.list(encoding.id!);
-    for (let muxing of muxings.items!) {
-        let stream = await bitmovinApi.encoding.encodings.streams.get(encoding.id!, muxing.streams![0].streamId!);
-        let segmentPath = removeOutputBasePath(muxing.outputs![0].outputPath!);
-        let dashFmp4Representation = new DashFmp4Representation({
-            type: DashRepresentationType.TEMPLATE,
-            encodingId: encoding.id,
-            muxingId: muxing.id,
-            segmentPath: segmentPath,
-        });
-
-        let adaptationSet = videoAdaptationSetSdr.id!;
-        let codec = await bitmovinApi.encoding.configurations.type.get(stream.codecConfigId!);
-        if (codec.type == CodecConfigType.H265) {
-            let codecInfo = await bitmovinApi.encoding.configurations.video.h265.get(stream.codecConfigId!);
-
-            if (isDynamicRangeFormatOfDolbyVisionOrHdrOrHlg(codecInfo.dynamicRangeFormat)) {
-                adaptationSet = videoAdaptationSetHdr.id!;
-            }
-        } else if (codec.type == CodecConfigType.AAC) {
-            adaptationSet = audioAdaptationSet.id!;
-        }
-
-        await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.representations.fmp4.create(
-            dashManifest.id!,
-            period.id!,
-            adaptationSet,
-            dashFmp4Representation
-        );
+      if (isDynamicRangeFormatOfDolbyVisionOrHdrOrHlg(codecInfo.dynamicRangeFormat)) {
+        adaptationSet = videoAdaptationSetHdr.id!;
+      }
+    } else if (codec.type == CodecConfigType.AAC) {
+      adaptationSet = audioAdaptationSet.id!;
     }
 
-    return dashManifest;
+    await bitmovinApi.encoding.manifests.dash.periods.adaptationsets.representations.fmp4.create(
+      dashManifest.id!,
+      period.id!,
+      adaptationSet,
+      dashFmp4Representation
+    );
+  }
+
+  return dashManifest;
 }
 
 /**
@@ -567,59 +567,59 @@ async function createDashManifest(encoding: Encoding, output: Output, outputPath
  * @param outputPath The path to which the manifest should be written
  */
 async function createHlsManifest(encoding: Encoding, output: Output, outputPath: string): Promise<HlsManifest> {
-    let hlsManifest = new HlsManifest({
-        manifestName: 'master.m3u8',
-        outputs: [buildEncodingOutput(output, outputPath)],
-        name: 'HLS Manifest',
-        hlsMasterPlaylistVersion: HlsVersion.HLS_V8,
-        hlsMediaPlaylistVersion: HlsVersion.HLS_V8,
-    });
+  let hlsManifest = new HlsManifest({
+    manifestName: 'master.m3u8',
+    outputs: [buildEncodingOutput(output, outputPath)],
+    name: 'HLS Manifest',
+    hlsMasterPlaylistVersion: HlsVersion.HLS_V8,
+    hlsMediaPlaylistVersion: HlsVersion.HLS_V8,
+  });
 
-    hlsManifest = await bitmovinApi.encoding.manifests.hls.create(hlsManifest);
+  hlsManifest = await bitmovinApi.encoding.manifests.hls.create(hlsManifest);
 
-    let muxings = await bitmovinApi.encoding.encodings.muxings.fmp4.list(encoding.id!);
-    for (let muxing of muxings.items!) {
-        let stream = await bitmovinApi.encoding.encodings.streams.get(encoding.id!, muxing.streams![0].streamId!);
-        let segmentPath = removeOutputBasePath(muxing.outputs![0].outputPath!);
-        let codec = await bitmovinApi.encoding.configurations.type.get(stream.codecConfigId!);
-        if (codec.type == CodecConfigType.H265) {
-            let codecInfo = await bitmovinApi.encoding.configurations.video.h265.get(stream.codecConfigId!);
+  let muxings = await bitmovinApi.encoding.encodings.muxings.fmp4.list(encoding.id!);
+  for (let muxing of muxings.items!) {
+    let stream = await bitmovinApi.encoding.encodings.streams.get(encoding.id!, muxing.streams![0].streamId!);
+    let segmentPath = removeOutputBasePath(muxing.outputs![0].outputPath!);
+    let codec = await bitmovinApi.encoding.configurations.type.get(stream.codecConfigId!);
+    if (codec.type == CodecConfigType.H265) {
+      let codecInfo = await bitmovinApi.encoding.configurations.video.h265.get(stream.codecConfigId!);
 
-            let url = `stream_sdr_${codecInfo.bitrate}.m3u8`;
-            if (isDynamicRangeFormatOfDolbyVisionOrHdrOrHlg(codecInfo.dynamicRangeFormat!)) {
-                url = `stream_hdr_${codecInfo.bitrate}.m3u8`;
-            }
+      let url = `stream_sdr_${codecInfo.bitrate}.m3u8`;
+      if (isDynamicRangeFormatOfDolbyVisionOrHdrOrHlg(codecInfo.dynamicRangeFormat!)) {
+        url = `stream_hdr_${codecInfo.bitrate}.m3u8`;
+      }
 
-            let streamInfo = new StreamInfo({
-                audio: 'AUDIO',
-                closedCaptions: 'NONE',
-                segmentPath: '',
-                uri: segmentPath + url,
-                encodingId: encoding.id,
-                streamId: stream.id,
-                muxingId: muxing.id,
-                forceVideoRangeAttribute: true,
-                forceFrameRateAttribute: true,
-            });
-            await bitmovinApi.encoding.manifests.hls.streams.create(hlsManifest.id!, streamInfo);
-        } else if (codec.type == CodecConfigType.AAC) {
-            let codecInfo = await bitmovinApi.encoding.configurations.audio.aac.get(stream.codecConfigId!);
-            let url = `aac_${codecInfo.bitrate}.m3u8`;
-            let audioMediaInfo = new AudioMediaInfo({
-                name: 'HLS Audio Media',
-                groupId: 'AUDIO',
-                segmentPath: '',
-                encodingId: encoding.id,
-                streamId: stream.id,
-                muxingId: muxing.id,
-                language: 'en',
-                uri: segmentPath + url,
-            });
-            await bitmovinApi.encoding.manifests.hls.media.audio.create(hlsManifest.id!, audioMediaInfo);
-        }
+      let streamInfo = new StreamInfo({
+        audio: 'AUDIO',
+        closedCaptions: 'NONE',
+        segmentPath: '',
+        uri: segmentPath + url,
+        encodingId: encoding.id,
+        streamId: stream.id,
+        muxingId: muxing.id,
+        forceVideoRangeAttribute: true,
+        forceFrameRateAttribute: true,
+      });
+      await bitmovinApi.encoding.manifests.hls.streams.create(hlsManifest.id!, streamInfo);
+    } else if (codec.type == CodecConfigType.AAC) {
+      let codecInfo = await bitmovinApi.encoding.configurations.audio.aac.get(stream.codecConfigId!);
+      let url = `aac_${codecInfo.bitrate}.m3u8`;
+      let audioMediaInfo = new AudioMediaInfo({
+        name: 'HLS Audio Media',
+        groupId: 'AUDIO',
+        segmentPath: '',
+        encodingId: encoding.id,
+        streamId: stream.id,
+        muxingId: muxing.id,
+        language: 'en',
+        uri: segmentPath + url,
+      });
+      await bitmovinApi.encoding.manifests.hls.media.audio.create(hlsManifest.id!, audioMediaInfo);
     }
+  }
 
-    return hlsManifest;
+  return hlsManifest;
 }
 
 /**
@@ -637,21 +637,21 @@ async function createHlsManifest(encoding: Encoding, output: Output, outputPath:
  * @param encoding The encoding to be started
  */
 async function executeEncoding(encoding: Encoding): Promise<void> {
-    await bitmovinApi.encoding.encodings.start(encoding.id!);
+  await bitmovinApi.encoding.encodings.start(encoding.id!);
 
-    let task: Task;
-    do {
-        await timeout(5000);
-        task = await bitmovinApi.encoding.encodings.status(encoding.id!);
-        console.log(`Encoding status is ${task.status} (progress: ${task.progress} %)`);
-    } while (task.status !== Status.FINISHED && task.status !== Status.ERROR);
+  let task: Task;
+  do {
+    await timeout(5000);
+    task = await bitmovinApi.encoding.encodings.status(encoding.id!);
+    console.log(`Encoding status is ${task.status} (progress: ${task.progress} %)`);
+  } while (task.status !== Status.FINISHED && task.status !== Status.ERROR);
 
-    if (task.status === Status.ERROR) {
-        logTaskErrors(task);
-        throw new Error('Encoding failed');
-    }
+  if (task.status === Status.ERROR) {
+    logTaskErrors(task);
+    throw new Error('Encoding failed');
+  }
 
-    console.log('Encoding finished successfully');
+  console.log('Encoding finished successfully');
 }
 
 /**
@@ -669,20 +669,20 @@ async function executeEncoding(encoding: Encoding): Promise<void> {
  * @param dashManifest The dash manifest to be started
  */
 async function executeDashManifest(dashManifest: DashManifest): Promise<void> {
-    await bitmovinApi.encoding.manifests.dash.start(dashManifest.id!);
+  await bitmovinApi.encoding.manifests.dash.start(dashManifest.id!);
 
-    let task: Task;
-    do {
-        await timeout(5000);
-        task = await bitmovinApi.encoding.manifests.dash.status(dashManifest.id!);
-    } while (task.status !== Status.FINISHED && task.status !== Status.ERROR);
+  let task: Task;
+  do {
+    await timeout(5000);
+    task = await bitmovinApi.encoding.manifests.dash.status(dashManifest.id!);
+  } while (task.status !== Status.FINISHED && task.status !== Status.ERROR);
 
-    if (task.status === Status.ERROR) {
-        logTaskErrors(task);
-        throw new Error('Dash manifest failed');
-    }
+  if (task.status === Status.ERROR) {
+    logTaskErrors(task);
+    throw new Error('Dash manifest failed');
+  }
 
-    console.log('Dash manifest finished successfully');
+  console.log('Dash manifest finished successfully');
 }
 
 /**
@@ -700,20 +700,20 @@ async function executeDashManifest(dashManifest: DashManifest): Promise<void> {
  * @param hlsManifest The dash manifest to be started
  */
 async function executeHlsManifest(hlsManifest: HlsManifest): Promise<void> {
-    await bitmovinApi.encoding.manifests.hls.start(hlsManifest.id!);
+  await bitmovinApi.encoding.manifests.hls.start(hlsManifest.id!);
 
-    let task: Task;
-    do {
-        await timeout(5000);
-        task = await bitmovinApi.encoding.manifests.hls.status(hlsManifest.id!);
-    } while (task.status !== Status.FINISHED && task.status !== Status.ERROR);
+  let task: Task;
+  do {
+    await timeout(5000);
+    task = await bitmovinApi.encoding.manifests.hls.status(hlsManifest.id!);
+  } while (task.status !== Status.FINISHED && task.status !== Status.ERROR);
 
-    if (task.status === Status.ERROR) {
-        logTaskErrors(task);
-        throw new Error('Hls manifest failed');
-    }
+  if (task.status === Status.ERROR) {
+    logTaskErrors(task);
+    throw new Error('Hls manifest failed');
+  }
 
-    console.log('Hls manifest finished successfully');
+  console.log('Hls manifest finished successfully');
 }
 
 /**
@@ -725,15 +725,15 @@ async function executeHlsManifest(hlsManifest: HlsManifest): Promise<void> {
  * @param outputPath The path where the content will be written to
  */
 function buildEncodingOutput(output: Output, outputPath: string): EncodingOutput {
-    const aclEntry = new AclEntry({
-        permission: AclPermission.PUBLIC_READ,
-    });
+  const aclEntry = new AclEntry({
+    permission: AclPermission.PUBLIC_READ,
+  });
 
-    return new EncodingOutput({
-        outputPath: buildAbsolutePath(outputPath),
-        outputId: output.id,
-        acl: [aclEntry],
-    });
+  return new EncodingOutput({
+    outputPath: buildAbsolutePath(outputPath),
+    outputId: output.id,
+    acl: [aclEntry],
+  });
 }
 
 /**
@@ -746,7 +746,7 @@ function buildEncodingOutput(output: Output, outputPath: string): EncodingOutput
  * @return The absolute path
  */
 function buildAbsolutePath(relativePath: string): string {
-    return join(configProvider.getS3OutputBasePath(), exampleName, relativePath);
+  return join(configProvider.getS3OutputBasePath(), exampleName, relativePath);
 }
 
 /**
@@ -756,32 +756,32 @@ function buildAbsolutePath(relativePath: string): string {
  * @param absolutePath The relative path that is concatenated
  */
 function removeOutputBasePath(absolutePath: string) {
-    const startPath = configProvider.getS3OutputBasePath() + exampleName;
-    if (absolutePath.startsWith(startPath)) {
-        return absolutePath.substr(startPath.length + 1);
-    }
+  const startPath = configProvider.getS3OutputBasePath() + exampleName;
+  if (absolutePath.startsWith(startPath)) {
+    return absolutePath.substr(startPath.length + 1);
+  }
 
-    return absolutePath;
+  return absolutePath;
 }
 
 function isDynamicRangeFormatOfDolbyVisionOrHdrOrHlg(codecDynamicRangeFormat?: H265DynamicRangeFormat): boolean {
-    return (
-        codecDynamicRangeFormat == H265DynamicRangeFormat.HDR10 ||
-        codecDynamicRangeFormat == H265DynamicRangeFormat.DOLBY_VISION ||
-        codecDynamicRangeFormat == H265DynamicRangeFormat.HLG
-    );
+  return (
+    codecDynamicRangeFormat == H265DynamicRangeFormat.HDR10 ||
+    codecDynamicRangeFormat == H265DynamicRangeFormat.DOLBY_VISION ||
+    codecDynamicRangeFormat == H265DynamicRangeFormat.HLG
+  );
 }
 
 function logTaskErrors(task: Task): void {
-    if (task == undefined) {
-        return;
-    }
+  if (task == undefined) {
+    return;
+  }
 
-    task.messages!.filter((msg) => msg.type === MessageType.ERROR).forEach((msg) => console.error(msg.text));
+  task.messages!.filter((msg) => msg.type === MessageType.ERROR).forEach((msg) => console.error(msg.text));
 }
 
 function timeout(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 main();
