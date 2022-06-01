@@ -28,6 +28,7 @@ import BitmovinApi, {
   Status,
   Stream,
   StreamInput,
+  StreamSelectionMode,
   Task
 } from '@bitmovin/api-sdk';
 
@@ -94,8 +95,8 @@ async function main() {
   const h264VideoConfiguration = await createH264VideoConfig(1080, 3000000);
   const aacAudioConfiguration = await createAacAudioConfig(128000);
 
-  const videoStream = await createStream(encoding, input, 'live', h264VideoConfiguration, 0);
-  const audioStream = await createStream(encoding, input, 'live', aacAudioConfiguration, 1);
+  const videoStream = await createStream(encoding, input, 'live', h264VideoConfiguration);
+  const audioStream = await createStream(encoding, input, 'live', aacAudioConfiguration);
 
   await createFmp4Muxing(encoding, output, `/video/${h264VideoConfiguration.height}p`, videoStream);
   await createFmp4Muxing(encoding, output, `/audio/${aacAudioConfiguration.bitrate! / 1000}kbps`, audioStream);
@@ -350,19 +351,17 @@ function createAacAudioConfig(bitrate): Promise<AacAudioConfiguration> {
  * @param input The input resource providing the input file
  * @param inputPath The path to the input file
  * @param codecConfiguration The codec configuration to be applied to the stream
- * @param position The position of the input stream that is associated with the generated stream
  */
 function createStream(
   encoding: Encoding,
   input: Input,
   inputPath: string,
-  codecConfiguration: CodecConfiguration,
-  position: number
+  codecConfiguration: CodecConfiguration
 ): Promise<Stream> {
   const streamInput = new StreamInput({
     inputId: input.id,
     inputPath: inputPath,
-    position
+    selectionMode: StreamSelectionMode.AUTO,
   });
 
   const stream = new Stream({

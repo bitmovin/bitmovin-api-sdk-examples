@@ -106,9 +106,9 @@ public class ConcatenationMultipleInputs {
                 configProvider.getS3OutputSecretKey()
         );
 
-        IngestInputStream main = createIngestInputStream(encoding, input, mainFilePath, StreamSelectionMode.AUTO);
-        IngestInputStream bumper = createIngestInputStream(encoding, input, bumperFilePath, StreamSelectionMode.AUTO);
-        IngestInputStream promo = createIngestInputStream(encoding, input, promoFilePath, StreamSelectionMode.AUTO);
+        IngestInputStream main = createIngestInputStream(encoding, input, mainFilePath);
+        IngestInputStream bumper = createIngestInputStream(encoding, input, bumperFilePath);
+        IngestInputStream promo = createIngestInputStream(encoding, input, promoFilePath);
 
         TimeBasedTrimmingInputStream mainPart1 = createTimeBasedTrimmingInputStream(encoding, main, 10.0, 90.0);
         TimeBasedTrimmingInputStream mainPart2= createTimeBasedTrimmingInputStream(encoding, main, 109.0, 60.0);
@@ -242,13 +242,12 @@ public class ConcatenationMultipleInputs {
      * @param encoding The encoding to be started
      * @param input The input resource providing the input file
      * @param inputPath The path to the input file
-     * @param streamSelectionMode The algorithm how the stream in the input file will be selected
      */
-    private static IngestInputStream createIngestInputStream(Encoding encoding, Input input, String inputPath, StreamSelectionMode streamSelectionMode) {
+    private static IngestInputStream createIngestInputStream(Encoding encoding, Input input, String inputPath) {
         IngestInputStream ingestInputStream = new IngestInputStream();
         ingestInputStream.setInputId(input.getId());
         ingestInputStream.setInputPath(inputPath);
-        ingestInputStream.setSelectionMode(streamSelectionMode);
+        ingestInputStream.setSelectionMode(StreamSelectionMode.AUTO);
 
         return bitmovinApi.encoding.encodings.inputStreams.ingest.create(encoding.getId(), ingestInputStream);
     }

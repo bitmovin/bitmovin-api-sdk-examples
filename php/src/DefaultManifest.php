@@ -36,6 +36,7 @@ use BitmovinApiSdk\Models\StartEncodingRequest;
 use BitmovinApiSdk\Models\Status;
 use BitmovinApiSdk\Models\Stream;
 use BitmovinApiSdk\Models\StreamInput;
+use BitmovinApiSdk\Models\StreamSelectionMode;
 use BitmovinApiSdk\Models\Task;
 
 /**
@@ -272,6 +273,7 @@ function createStream(Encoding $encoding, Input $input, string $inputPath, Codec
     $streamInput = new StreamInput();
     $streamInput->inputId($input->id);
     $streamInput->inputPath($inputPath);
+    $streamInput->selectionMode(StreamSelectionMode::AUTO());
 
     $stream = new Stream();
     $stream->inputStreams([$streamInput]);

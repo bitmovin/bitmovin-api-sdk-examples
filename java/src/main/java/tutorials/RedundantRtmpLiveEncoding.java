@@ -93,13 +93,13 @@ public class RedundantRtmpLiveEncoding {
   /** This list defines the video renditions that will be generated */
   private static List<VideoConfig> videoProfile =
       Arrays.asList(
-          new VideoConfig("480p", 800_000L, 480, "/video/480p", 0),
-          new VideoConfig("720p", 1_200_000L, 720, "/video/720p", 0),
-          new VideoConfig("1080p", 3_000_000L, 1080, "/video/1080p", 0));
+          new VideoConfig("H.264 480p live", 800_000L, 480, "/video/480p"),
+          new VideoConfig("H.264 720p live", 1_200_000L, 720, "/video/720p"),
+          new VideoConfig("H.264 1080p live", 3_000_000L, 1080, "/video/1080p"));
 
   /** This list defines the audio renditions that will be generated */
   private static List<AudioConfig> audioProfile =
-      Collections.singletonList(new AudioConfig("128kbit", 128_000L, "/audio/128kb", 1));
+      Collections.singletonList(new AudioConfig("128kbit", 128_000L, "/audio/128kb"));
 
   public static void main(String[] args) throws Exception {
     configProvider = new ConfigProvider(args);
@@ -130,18 +130,16 @@ public class RedundantRtmpLiveEncoding {
             configProvider.getS3OutputSecretKey());
 
     for (VideoConfig videoConfig : videoProfile) {
-      H264VideoConfiguration h264Configuration =
-          createH264VideoConfig(videoConfig.height, videoConfig.bitRate);
-      Stream stream =
-          createStream(encoding, input, h264Configuration, videoConfig.inputStreamPosition);
+      H264VideoConfiguration h264Config =
+          createH264VideoConfig(videoConfig.name, videoConfig.height, videoConfig.bitRate);
+      Stream stream = createStream(encoding, input, h264Config);
 
       createFmp4Muxing(encoding, stream, output, videoConfig.outputPath);
     }
 
     for (AudioConfig audioConfig : audioProfile) {
-      AacAudioConfiguration aacConfig = createAacAudioConfig(audioConfig.bitrate);
-      Stream audioStream =
-          createStream(encoding, input, aacConfig, audioConfig.inputStreamPosition);
+      AacAudioConfiguration aacConfig = createAacAudioConfig(audioConfig.name, audioConfig.bitrate);
+      Stream audioStream = createStream(encoding, input, aacConfig);
 
       createFmp4Muxing(encoding, audioStream, output, audioConfig.outputPath);
     }
@@ -513,12 +511,11 @@ public class RedundantRtmpLiveEncoding {
    * @param codecConfiguration The codec configuration to be applied to the stream
    */
   private static Stream createStream(
-      Encoding encoding, Input input, CodecConfiguration codecConfiguration, int position)
+      Encoding encoding, Input input, CodecConfiguration codecConfiguration)
       throws BitmovinException {
     StreamInput streamInput = new StreamInput();
     streamInput.setInputId(input.getId());
     streamInput.setInputPath("live");
-    streamInput.setPosition(position);
     streamInput.setSelectionMode(StreamSelectionMode.AUTO);
 
     Stream stream = new Stream();
@@ -536,13 +533,14 @@ public class RedundantRtmpLiveEncoding {
    * href="https://bitmovin.com/docs/encoding/tutorials/how-to-optimize-your-h264-codec-configuration-for-different-use-cases">How
    * to optimize your H264 codec configuration for different use-cases</a> for alternative presets.
    *
+   * @param name The name of the configuration resource being created
    * @param height The height of the output video
    * @param bitrate The target bitrate of the output video
    */
-  private static H264VideoConfiguration createH264VideoConfig(int height, long bitrate)
+  private static H264VideoConfiguration createH264VideoConfig(String name, int height, long bitrate)
       throws BitmovinException {
     H264VideoConfiguration config = new H264VideoConfiguration();
-    config.setName(String.format("H.264 %dp live", height));
+    config.setName(name);
     config.setPresetConfiguration(PresetConfiguration.LIVE_STANDARD);
     config.setBitrate(bitrate);
     config.setHeight(height);
@@ -557,61 +555,51 @@ public class RedundantRtmpLiveEncoding {
    * <p>API endpoint:
    * https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAac
    *
+   * @param name The name of the configuration resource being created
    * @param bitrate The target bitrate for the encoded audio
    */
-  private static AacAudioConfiguration createAacAudioConfig(long bitrate) throws BitmovinException {
+  private static AacAudioConfiguration createAacAudioConfig(String name, long bitrate) throws BitmovinException {
     AacAudioConfiguration config = new AacAudioConfiguration();
-    config.setName(String.format("AAC %d kbit/s", bitrate / 1000));
+    config.setName(name);
     config.setBitrate(bitrate);
 
     return bitmovinApi.encoding.configurations.audio.aac.create(config);
   }
 
   private static class VideoConfig {
-
     private String name;
     private Long bitRate;
     private Integer height;
     private String outputPath;
-    private int inputStreamPosition;
 
     /**
      * @param name The name of the video configuration
      * @param bitRate The target output bitrate of the video configuration
      * @param height The target output height of the video configuration
-     * @param outputPath The output path for this video configuration
-     * @param inputStreamPosition The input stream position that is used for this video
-     *     configuration
      */
     private VideoConfig(
-        String name, Long bitRate, Integer height, String outputPath, int inputStreamPosition) {
+        String name, Long bitRate, Integer height, String outputPath) {
       this.name = name;
       this.bitRate = bitRate;
       this.height = height;
       this.outputPath = outputPath;
-      this.inputStreamPosition = inputStreamPosition;
     }
   }
 
   private static class AudioConfig {
-
     private String name;
     private Long bitrate;
     private String outputPath;
-    private int inputStreamPosition;
 
     /**
      * @param name The name of the audio configuration
      * @param bitrate The target output bitrate of the audio configuration
      * @param outputPath The output path for this audio configuration
-     * @param inputStreamPosition The input stream position that is used for this audio
-     *     configuration
      */
-    public AudioConfig(String name, Long bitrate, String outputPath, int inputStreamPosition) {
+    public AudioConfig(String name, Long bitrate, String outputPath) {
       this.name = name;
       this.bitrate = bitrate;
       this.outputPath = outputPath;
-      this.inputStreamPosition = inputStreamPosition;
     }
   }
 }

@@ -100,11 +100,11 @@ namespace Bitmovin.Api.Sdk.Examples
 
             // Add an H.264 video stream to the encoding
             var h264VideoConfig = await CreateH264VideoConfiguration();
-            var h264VideoStream = await CreateStream(encoding, input, inputFilePath, h264VideoConfig, 0);
+            var h264VideoStream = await CreateStream(encoding, input, inputFilePath, h264VideoConfig);
 
             // Add an AAC audio stream to the encoding
             var aacConfig = await CreateAacAudioConfiguration();
-            var aacAudioStream = await CreateStream(encoding, input, inputFilePath, aacConfig, 1);
+            var aacAudioStream = await CreateStream(encoding, input, inputFilePath, aacConfig);
 
             await CreateFmp4Muxing(encoding, output, $"/video/${h264VideoConfig.Height}p", h264VideoStream);
             await CreateFmp4Muxing(encoding, output, $"/audio/${aacConfig.Bitrate! / 1000}kbps", aacAudioStream);
@@ -369,15 +369,14 @@ namespace Bitmovin.Api.Sdk.Examples
         /// <param name="input">The input that should be used</param>
         /// <param name="inputPath">The path to the input file</param>
         /// <param name="configuration">The codec configuration to be applied to the stream</param>
-        /// <param name="position">The position of the input stream that is associated with the generated stream</param>
         private Task<Stream> CreateStream(Models.Encoding encoding, Input input, string inputPath,
-            CodecConfiguration configuration, int position)
+            CodecConfiguration configuration)
         {
             var streamInput = new StreamInput()
             {
                 InputId = input.Id,
                 InputPath = inputPath,
-                Position = position
+                SelectionMode = StreamSelectionMode.AUTO
             };
 
             var stream = new Stream()

@@ -3,7 +3,8 @@ import math
 from bitmovin_api_sdk import AacAudioConfiguration, AclEntry, AclPermission, BitmovinApi, BitmovinApiLogger, \
     BitmovinError, DashManifestDefault, DashManifestDefaultVersion, Encoding, EncodingOutput, Fmp4Muxing, \
     H264VideoConfiguration, HlsManifestDefault, HlsManifestDefaultVersion, LiveDashManifest, LiveHlsManifest, \
-    MessageType, MuxingStream, PresetConfiguration, S3Output, StartLiveEncodingRequest, Stream, StreamInput, Status
+    MessageType, MuxingStream, PresetConfiguration, S3Output, StartLiveEncodingRequest, Stream, StreamInput, \
+    StreamSelectionMode, Status
 
 from common import ConfigProvider
 from os import path
@@ -71,16 +72,14 @@ def main():
         encoding=encoding,
         encoding_input=rtmp_input,
         input_path="live",
-        codec_configuration=h264_video_configuration,
-        position=0
+        codec_configuration=h264_video_configuration
     )
 
     aac_audio_stream = _create_stream(
         encoding=encoding,
         encoding_input=rtmp_input,
         input_path="live",
-        codec_configuration=aac_audio_configuration,
-        position=1
+        codec_configuration=aac_audio_configuration
     )
 
     _create_fmp4_muxing(encoding=encoding,
@@ -311,8 +310,8 @@ def _create_h264_video_configuration(height, bitrate):
     return bitmovin_api.encoding.configurations.video.h264.create(h264_video_configuration=config)
 
 
-def _create_stream(encoding, encoding_input, input_path, codec_configuration, position):
-    # type: (Encoding, Input, str, CodecConfiguration, int) -> Stream
+def _create_stream(encoding, encoding_input, input_path, codec_configuration):
+    # type: (Encoding, Input, str, CodecConfiguration) -> Stream
     """
     Adds a video or audio stream to an encoding
 
@@ -328,7 +327,7 @@ def _create_stream(encoding, encoding_input, input_path, codec_configuration, po
     stream_input = StreamInput(
         input_id=encoding_input.id,
         input_path=input_path,
-        position=position
+        selection_mode=StreamSelectionMode.AUTO
     )
 
     stream = Stream(

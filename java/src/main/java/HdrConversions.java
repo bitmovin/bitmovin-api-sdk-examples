@@ -134,13 +134,10 @@ public class HdrConversions {
       videoInputStream =
           createDolbyVisionInputStream(encoding, httpsInput, videoInputPath, inputMetadataPath);
     } else {
-      videoInputStream =
-          createIngestInputStream(
-              encoding, httpsInput, videoInputPath, StreamSelectionMode.AUTO, 0);
+      videoInputStream = createIngestInputStream(encoding, httpsInput, videoInputPath);
     }
 
-    InputStream audioInputStream =
-        createIngestInputStream(encoding, httpsInput, audioInputPath, StreamSelectionMode.AUTO, 0);
+    InputStream audioInputStream = createIngestInputStream(encoding, httpsInput, audioInputPath);
     createH265AndAacEncoding(encoding, videoInputStream, audioInputStream, output);
 
     executeEncoding(encoding);
@@ -423,7 +420,6 @@ public class HdrConversions {
    */
   private static S3Output createS3Output(String bucketName, String accessKey, String secretKey)
       throws BitmovinException {
-
     S3Output s3Output = new S3Output();
     s3Output.setBucketName(bucketName);
     s3Output.setAccessKey(accessKey);
@@ -447,15 +443,12 @@ public class HdrConversions {
   private static IngestInputStream createIngestInputStream(
       Encoding encoding,
       Input input,
-      String inputPath,
-      StreamSelectionMode streamSelectionMode,
-      int position)
+      String inputPath)
       throws BitmovinException {
     IngestInputStream ingestInputStream = new IngestInputStream();
     ingestInputStream.setInputId(input.getId());
     ingestInputStream.setInputPath(inputPath);
-    ingestInputStream.setSelectionMode(streamSelectionMode);
-    ingestInputStream.setPosition(position);
+    ingestInputStream.setSelectionMode(StreamSelectionMode.AUTO);
 
     return bitmovinApi.encoding.encodings.inputStreams.ingest.create(
         encoding.getId(), ingestInputStream);

@@ -2,7 +2,8 @@ import time
 
 from bitmovin_api_sdk import AacAudioConfiguration, AclEntry, AclPermission, BitmovinApi, BitmovinApiLogger, \
     DeinterlaceFilter, Encoding, EncodingOutput, H264VideoConfiguration, HttpInput, MessageType, Mp4Muxing, \
-    MuxingStream, PresetConfiguration, S3Output, Status, Stream, StreamInput, StreamFilter, TextFilter, WatermarkFilter
+    MuxingStream, PresetConfiguration, S3Output, Status, Stream, StreamInput, StreamSelectionMode StreamFilter, \
+    TextFilter, WatermarkFilter
 
 from common.config_provider import ConfigProvider
 from os import path
@@ -348,7 +349,8 @@ def _create_stream(encoding, encoding_input, input_path, codec_configuration):
 
     stream_input = StreamInput(
         input_id=encoding_input.id,
-        input_path=input_path
+        input_path=input_path,
+        selection_mode=StreamSelectionMode.AUTO
     )
 
     stream = Stream(

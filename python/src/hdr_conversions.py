@@ -177,17 +177,13 @@ def main():
         video_input_stream = _create_ingest_input_stream(
             encoding=encoding,
             input=https_input,
-            input_path=video_input_path,
-            stream_selection_mode=StreamSelectionMode.AUTO,
-            position=0
+            input_path=video_input_path
         )
 
     audio_input_stream = _create_ingest_input_stream(
         encoding=encoding,
         input=https_input,
-        input_path=audio_input_path,
-        stream_selection_mode=StreamSelectionMode.AUTO,
-        position=0
+        input_path=audio_input_path
     )
 
     _create_h265_and_aac_encoding(
@@ -309,8 +305,8 @@ def _create_dolby_vision_input_stream(encoding, input, dolby_vision_input_path, 
         dolby_vision_input_stream=dolby_vision_input_stream)
 
 
-def _create_ingest_input_stream(encoding, input, input_path, stream_selection_mode, position):
-    # type: (Encoding, Input, str, StreamSelectionMode, int) -> IngestInputStream
+def _create_ingest_input_stream(encoding, input, input_path):
+    # type: (Encoding, Input, str) -> IngestInputStream
     """
     Creates an IngestInputStream and adds it to an encoding.
     <p>The IngestInputStream is used to define where a file to read a stream from is located.
@@ -326,8 +322,7 @@ def _create_ingest_input_stream(encoding, input, input_path, stream_selection_mo
     ingest_input_stream = IngestInputStream(
         input_id=input.id,
         input_path=input_path,
-        selection_mode=stream_selection_mode,
-        position=position
+        selection_mode=StreamSelectionMode.AUTO
     )
 
     return bitmovin_api.encoding.encodings.input_streams.ingest.create(

@@ -9,8 +9,8 @@ from bitmovin_api_sdk import AacAudioConfiguration, AclEntry, AclPermission, \
     DashCmafRepresentation, DashFmp4Representation, DashManifest, DashProfile, DashRepresentationType, \
     DolbyDigitalAudioConfiguration, DolbyDigitalChannelLayout, Encoding, EncodingOutput, Fmp4Muxing, \
     H264VideoConfiguration, H265VideoConfiguration, HlsManifest, HttpInput, Input, MessageType, Muxing, MuxingStream, \
-    Output, Period, PresetConfiguration, S3Output, Status, Stream, StreamInfo, StreamInput, Task, TsMuxing, \
-    VideoAdaptationSet, VorbisAudioConfiguration, Vp9VideoConfiguration, WebmMuxing
+    Output, Period, PresetConfiguration, S3Output, Status, Stream, StreamInfo, StreamInput, StreamSelectionMode Task, \
+    TsMuxing, VideoAdaptationSet, VorbisAudioConfiguration, Vp9VideoConfiguration, WebmMuxing
 
 from common.config_provider import ConfigProvider
 
@@ -1003,7 +1003,8 @@ def _create_stream(encoding, encoding_input, input_path, codec_configuration):
 
     stream_input = StreamInput(
         input_id=encoding_input.id,
-        input_path=input_path
+        input_path=input_path,
+        selection_mode=StreamSelectionMode.AUTO
     )
 
     stream = Stream(

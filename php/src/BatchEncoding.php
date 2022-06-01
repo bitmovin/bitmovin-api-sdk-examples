@@ -30,6 +30,7 @@ use BitmovinApiSdk\Models\S3Output;
 use BitmovinApiSdk\Models\Status;
 use BitmovinApiSdk\Models\Stream;
 use BitmovinApiSdk\Models\StreamInput;
+use BitmovinApiSdk\Models\StreamSelectionMode;
 use BitmovinApiSdk\Models\Task;
 use BitmovinApiSdk\Models\VideoConfiguration;
 
@@ -353,6 +354,7 @@ function createStream(Encoding $encoding, Input $input, string $inputPath, Codec
     $streamInput = new StreamInput();
     $streamInput->inputId($input->id);
     $streamInput->inputPath($inputPath);
+    $streamInput->selectionMode(StreamSelectionMode::AUTO());
 
     $stream = new Stream();
     $stream->inputStreams([$streamInput]);

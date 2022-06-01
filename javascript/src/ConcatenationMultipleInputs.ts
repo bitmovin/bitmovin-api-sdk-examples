@@ -92,9 +92,9 @@ async function main() {
   const bumperFilePath = configProvider.getHttpInputBumperFilePath();
   const promoFilePath = configProvider.getHttpInputPromoFilePath();
 
-  const main = await createIngestInputStream(encoding, input, mainFilePath, StreamSelectionMode.AUTO);
-  const bumper = await createIngestInputStream(encoding, input, bumperFilePath, StreamSelectionMode.AUTO);
-  const promo = await createIngestInputStream(encoding, input, promoFilePath, StreamSelectionMode.AUTO);
+  const main = await createIngestInputStream(encoding, input, mainFilePath);
+  const bumper = await createIngestInputStream(encoding, input, bumperFilePath);
+  const promo = await createIngestInputStream(encoding, input, promoFilePath);
 
   const mainPart1 = await createTimeBasedTrimmingInputStream(encoding, main, 10.0, 90.0);
   const mainPart2 = await createTimeBasedTrimmingInputStream(encoding, main, 109.0, 60.0);
@@ -176,18 +176,16 @@ function createEncoding(name: string, description: string): Promise<Encoding> {
  * @param encoding The encoding to be started
  * @param input The input resource providing the input file
  * @param inputPath The path to the input file
- * @param streamSelectionMode The algorithm how the stream in the input file will be selected
  */
 function createIngestInputStream(
   encoding: Encoding,
   input: Input,
-  inputPath: string,
-  streamSelectionMode: StreamSelectionMode
+  inputPath: string
 ): Promise<IngestInputStream> {
   const ingestInputStream = new IngestInputStream({
     inputId: input.id,
     inputPath: inputPath,
-    selectionMode: streamSelectionMode,
+    selectionMode: StreamSelectionMode.AUTO,
   });
 
   return bitmovinApi.encoding.encodings.inputStreams.ingest.create(encoding.id!, ingestInputStream);

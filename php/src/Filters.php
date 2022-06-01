@@ -30,6 +30,7 @@ use BitmovinApiSdk\Models\Stream;
 use BitmovinApiSdk\Models\StreamFilter;
 use BitmovinApiSdk\Models\StreamFilterList;
 use BitmovinApiSdk\Models\StreamInput;
+use BitmovinApiSdk\Models\StreamSelectionMode;
 use BitmovinApiSdk\Models\Task;
 use BitmovinApiSdk\Models\TextFilter;
 use BitmovinApiSdk\Models\WatermarkFilter;
@@ -342,6 +343,7 @@ function createStream(Encoding $encoding, Input $input, string $inputPath, Codec
     $streamInput = new StreamInput();
     $streamInput->inputId($input->id);
     $streamInput->inputPath($inputPath);
+    $streamInput->selectionMode(StreamSelectionMode::AUTO());
 
     $stream = new Stream();
     $stream->inputStreams([$streamInput]);
