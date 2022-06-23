@@ -45,7 +45,7 @@
         <dependency>
             <groupId>com.bitmovin.api.sdk</groupId>
             <artifactId>bitmovin-api-sdk</artifactId>
-            <version>1.112.0</version>
+            <version>1.118.0</version>
         </dependency>
         <dependency>
             <groupId>io.github.openfeign</groupId>

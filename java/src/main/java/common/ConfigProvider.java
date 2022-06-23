@@ -99,44 +99,44 @@ public class ConfigProvider {
 
   public String getHttpInputBumperFilePath() {
     return getOrThrowException(
-            "HTTP_INPUT_BUMPER_FILE_PATH",
-            "The path to your Http input file. Example: videos/bumper.mp4");
+        "HTTP_INPUT_BUMPER_FILE_PATH",
+        "The path to your Http input file. Example: videos/bumper.mp4");
   }
 
   public String getHttpInputPromoFilePath() {
     return getOrThrowException(
-            "HTTP_INPUT_PROMO_FILE_PATH",
-            "The path to your Http input file. Example: videos/promo.mp4");
+        "HTTP_INPUT_PROMO_FILE_PATH",
+        "The path to your Http input file. Example: videos/promo.mp4");
   }
 
   public String getHttpInputAudioFilePath() {
     return getOrThrowException(
-            "HTTP_INPUT_AUDIO_FILE_PATH",
-            "The path to your audio file in case you want to load audio stream from a separate input file."
-                    + " If HTTP_INPUT_FILE_PATH has audio track too, you can specify the same path in this parameter."
-                    + " Example: audio/big_buck_bunny_1080p_h264.mov");
+        "HTTP_INPUT_AUDIO_FILE_PATH",
+        "The path to your audio file in case you want to load audio stream from a separate input file."
+            + " If HTTP_INPUT_FILE_PATH has audio track too, you can specify the same path in this parameter."
+            + " Example: audio/big_buck_bunny_1080p_h264.mov");
   }
 
   public String getHttpInputDolbyVisionMetadataFilePath() {
     return getOrThrowException(
-            "HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH",
-            "The path to your Http Dolby Vision metadata input file. Example: netflix-opencontent/SolLevante/dolbyvision/sollevante_j2k_sidecar.xml");
+        "HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH",
+        "The path to your Http Dolby Vision metadata input file. Example: netflix-opencontent/SolLevante/dolbyvision/sollevante_j2k_sidecar.xml");
   }
 
   public String getHdrConversionInputFormat() {
     return getOrThrowException(
-            "HDR_CONVERSION_INPUT_FORMAT",
-            "The input HDR format. Either DolbyVision, HDR10, HLG, or SDR can be specified."
-                    + " This parameter needs to be matched with the actual HDR format of the input file."
-                    + " Example: DolbyVision");
+        "HDR_CONVERSION_INPUT_FORMAT",
+        "The input HDR format. Either DolbyVision, HDR10, HLG, or SDR can be specified."
+            + " This parameter needs to be matched with the actual HDR format of the input file."
+            + " Example: DolbyVision");
   }
 
   public String getHdrConversionOutputFormat() {
     return getOrThrowException(
-            "HDR_CONVERSION_OUTPUT_FORMAT",
-            "The output HDR format to be converted from input file."
-                    + " Either DolbyVision, HDR10, HLG, or SDR can be specified. "
-                    + " Example: HDR10");
+        "HDR_CONVERSION_OUTPUT_FORMAT",
+        "The output HDR format to be converted from input file."
+            + " Either DolbyVision, HDR10, HLG, or SDR can be specified. "
+            + " Example: HDR10");
   }
 
   public String getS3InputBucketName() {
@@ -234,6 +234,16 @@ public class ConfigProvider {
   public String getParameterByKey(String keyName) {
     return getOrThrowException(keyName, String.format("Configuration Parameter '%s'", keyName));
   }
+
+  public Boolean hasParameterByKey(String keyName) {
+    try {
+      getOrThrowException(keyName, String.format("Configuration Parameter '%s'", keyName));
+    } catch (MissingArgumentException e) {
+      return false;
+    }
+    return true;
+  }
+
 
   private String getOrThrowException(String key, String description) {
     for (String configurationName : configuration.keySet()) {
