@@ -10,6 +10,9 @@ import com.bitmovin.api.sdk.model.DashManifestDefault;
 import com.bitmovin.api.sdk.model.DashManifestDefaultVersion;
 import com.bitmovin.api.sdk.model.Encoding;
 import com.bitmovin.api.sdk.model.EncodingOutput;
+import com.bitmovin.api.sdk.model.EncodingOutputPaths;
+import com.bitmovin.api.sdk.model.EncodingOutputPathsDashManifest;
+import com.bitmovin.api.sdk.model.EncodingOutputPathsHlsManifest;
 import com.bitmovin.api.sdk.model.Fmp4Muxing;
 import com.bitmovin.api.sdk.model.H264VideoConfiguration;
 import com.bitmovin.api.sdk.model.HlsManifest;
@@ -129,10 +132,14 @@ public class EncodingWithCdnOutput {
 
     executeEncoding(encoding, startEncodingRequest);
 
-    String dashUrl = buildCdnUrl(cdnOutput, dashManifest);
-    String hlsUrl = buildCdnUrl(cdnOutput, hlsManifest);
-    logger.info(hlsUrl);
-    logger.info(dashUrl);
+    for (EncodingOutputPaths encodingOutputPath : bitmovinApi.encoding.encodings.outputPaths.get(encoding.getId())) {
+      for (EncodingOutputPathsDashManifest dm : encodingOutputPath.getPaths().getDashManifests()) {
+        logger.info("Dash Manifest: https://{}/{}", cdnOutput.getDomainName(), dm.getPath());
+      }
+      for (EncodingOutputPathsHlsManifest hm : encodingOutputPath.getPaths().getHlsManifests()) {
+        logger.info("HLS Manifest: https://{}/{}", cdnOutput.getDomainName(), hm.getPath());
+      }
+    }
   }
 
   /**
@@ -389,34 +396,6 @@ public class EncodingWithCdnOutput {
       throw new RuntimeException("Encoding failed");
     }
     logger.info("Encoding finished successfully");
-  }
-
-  /**
-   * Builds an HTTPS URL that points to the manifest output file on the CDN.
-   *
-   * @param manifest  The Manifest for which the CDN URL should be retrieved
-   * @param cdnOutput
-   */
-  private static String buildCdnUrl(CdnOutput cdnOutput, DashManifest manifest) {
-    EncodingOutput dashOutput =
-            bitmovinApi.encoding.manifests.dash.get(manifest.getId()).getOutputs().get(0);
-
-
-    return String.format("https://%s/%s%s", cdnOutput.getDomainName(), dashOutput.getOutputPath(), manifest.getManifestName());
-  }
-
-  /**
-   * Builds an HTTPS URL that points to the manifest output file on the CDN.
-   *
-   * @param manifest  The Manifest for which the CDN URL should be retrieved
-   * @param cdnOutput
-   */
-  private static String buildCdnUrl(CdnOutput cdnOutput, HlsManifest manifest) {
-    EncodingOutput hlsOutput =
-            bitmovinApi.encoding.manifests.hls.get(manifest.getId()).getOutputs().get(0);
-
-
-    return String.format("https://%s/%s%s", cdnOutput.getDomainName(), hlsOutput.getOutputPath(), manifest.getManifestName());
   }
 
   private static void logTaskErrors(Task task) {

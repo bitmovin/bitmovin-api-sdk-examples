@@ -78,10 +78,13 @@ def main():
 
     _execute_encoding(encoding, start_encoding_request)
 
-    dash_url = _build_cdn_url_for_dash(output, dash_manifest)
-    hls_url = _build_cdn_url_for_hls(output, hls_manifest)
-    print(dash_url)
-    print(hls_url)
+    encoding_output_paths = bitmovin_api.encoding.encodings.output_paths.get(encoding.id)
+
+    for encoding_output_path in encoding_output_paths:
+        for dm in encoding_output_path.paths.dash_manifests:
+            print(f"Dash Manifest: https://{output.domain_name}/{dm.path}")
+        for hm in encoding_output_path.paths.hls_manifests:
+            print(f"HLS Manifest: https://{output.domain_name}/{hm.path}")
 
 
 def _create_encoding(name: str, description: str) -> Encoding:
@@ -340,31 +343,6 @@ def _wait_for_enoding_to_finish(encoding_id):
     task = bitmovin_api.encoding.encodings.status(encoding_id=encoding_id)
     print("Encoding status is {} (progress: {} %)".format(task.status, task.progress))
     return task
-
-
-def _build_cdn_url_for_dash(cdn_output: CdnOutput, manifest: DashManifest) -> str:
-    """
-    Builds an HTTPS URL that points to the manifest output file on the CDN.
-
-    @param manifest  The Manifest for which the CDN URL should be retrieved
-    @param cdn_output
-    """
-    dash_output: EncodingOutput = bitmovin_api.encoding.manifests.dash.get(manifest.id).outputs[0]
-
-    return f"https://{cdn_output.domain_name}/{dash_output.output_path}{manifest.manifest_name}"
-
-
-def _build_cdn_url_for_hls(cdn_output: CdnOutput, manifest: HlsManifest) -> str:
-    """
-    Builds an HTTPS URL that points to the manifest output file on the CDN.
-
-    @param manifest  The Manifest for which the CDN URL should be retrieved
-    @param cdn_output
-    """
-    hls_output: EncodingOutput = bitmovin_api.encoding.manifests.hls.get(manifest.id).outputs[0]
-
-    return f"https://{cdn_output.domain_name}/{hls_output.output_path}{manifest.manifest_name}"
-
 
 def _log_task_errors(task: Task):
     error_messages = filter(lambda msg: Message(msg.type == MessageType.ERROR), task.messages)

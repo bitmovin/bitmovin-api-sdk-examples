@@ -58,6 +58,13 @@ export default class ConfigProvider {
     );
   }
 
+  public getHttpAudioFilePath(): string {
+    return this.getOrThrowException(
+      'HTTP_INPUT_AUDIO_FILE_PATH',
+      'The path to your Audio  Http input file. Example: audio/1080p_Sintel.mp4'
+    );
+  }
+
   public getHttpInputFilePathWithStereoSound() {
     return this.getOrThrowException(
       'HTTP_INPUT_FILE_PATH_STEREO_SOUND',
@@ -100,32 +107,19 @@ export default class ConfigProvider {
     );
   }
 
-  public getHttpAudioFilePath(): string {
-    return this.getOrThrowException(
-        'HTTP_INPUT_AUDIO_FILE_PATH',
-        'The path to your Audio  Http input file. Example: audio/1080p_Sintel.mp4'
-    );
-  }
-
   public getHttpDolbyVisionMetadataFilePath() {
     return this.getOrThrowException(
-        'HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH',
-        'The Dolby Vision Metatdata file. Example: metadata.xml'
+      'HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH',
+      'The Dolby Vision Metatdata file. Example: metadata.xml'
     );
   }
 
   public getHdrConversionInputFormat() {
-    return this.getOrThrowException(
-        'HDR_CONVERSION_INPUT_FORMAT',
-        'The input format type'
-    );
+    return this.getOrThrowException('HDR_CONVERSION_INPUT_FORMAT', 'The input format type');
   }
 
   public getHdrConversionOutputFormat() {
-    return this.getOrThrowException(
-        'HDR_CONVERSION_OUTPUT_FORMAT',
-        'The conversion output format'
-    );
+    return this.getOrThrowException('HDR_CONVERSION_OUTPUT_FORMAT', 'The conversion output format');
   }
 
   public getS3OutputBucketName(): string {
@@ -195,8 +189,49 @@ export default class ConfigProvider {
     );
   }
 
+  public getSpekeUrl(): string {
+    return this.getOrThrowException(
+      'SPEKE_URL',
+      'The URL of the SPEKE server. Example: https://my-speke-server.com/v1.0/vod'
+    );
+  }
+
+  public getSpekeArn(): string {
+    return this.getOrThrowException('SPEKE_ARN', 'The role ARN allowing access to the SPEKE server');
+  }
+
+  public getSpekeGatewayRegion(): string {
+    return this.getOrThrowException('SPEKE_GATEWAY_REGION', 'The region of the associated AWS Gateway');
+  }
+
+  public getSpekeUsername(): string {
+    return this.getOrThrowException('SPEKE_USERNAME', 'The username to access the SPEKE server');
+  }
+
+  public getSpekePassword(): string {
+    return this.getOrThrowException('SPEKE_PASSWORD', 'The password to access the SPEKE server');
+  }
+
+  public getDrmContentId(): string {
+    return this.getOrThrowException('DRM_CONTENT_ID', 'The username to access the SPEKE server');
+  }
+
+  public getDrmKeyId(): string {
+    return this.getOrThrowException('DRM_KEY_ID', 'The password to access the SPEKE server');
+  }
+
   public getParameterByKey(key: string): string {
     return this.getOrThrowException(key, `Configuration Parameter '${key}'`);
+  }
+
+  public hasParameterByKey(key: string): boolean {
+    for (const configurationName of Object.keys(this.configuration)) {
+      const subConfiguration = this.configuration[configurationName];
+      if (key in subConfiguration) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private getOrThrowException(key: string, description: string): any {

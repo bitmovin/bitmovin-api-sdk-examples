@@ -14,8 +14,10 @@ from common.config_provider import ConfigProvider, MissingArgumentError
 
 """
 This example demonstrates how to convert dynamic range format between DolbyVision, HDR10, HLG and SDR.
+
 The supported HDR/SDR conversions are following. If targeting output format is either DolbyVision, HDR10 or HLG, this
 example adds SDR renditions automatically. This example works only with Bitmovin Encoder version 2.98.0 or later.
+
   - Input: DolbyVision
     - Output:
       - DolbyVision and SDR
@@ -32,8 +34,11 @@ example adds SDR renditions automatically. This example works only with Bitmovin
     - Output:
       - HDR10 and SDR
       - HLG and SDR
+
 <p>This example assumes that the audio is stored in a separate file from the video.
+
 <p>The following configuration parameters are expected:
+
 <ul>
   <li>BITMOVIN_API_KEY - Your API key for the Bitmovin API
   <li>BITMOVIN_TENANT_ORG_ID - (optional) The ID of the Organisation in which you want to perform the encoding.
@@ -215,8 +220,10 @@ def _create_encoding(name, description):
     # type: (str, str) -> Encoding
     """
     Creates an Encoding object. This is the base object to configure your encoding.
+
     <p>API endpoint:
     https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/PostEncodingEncodings
+
     :param name: A name that will help you identify the encoding in our dashboard (required)
     :param description: A description of the encoding (optional)
     """
@@ -235,12 +242,15 @@ def _create_https_input(host):
     Creates a resource representing an HTTPS server providing the input files. For alternative input methods see
     <a href="https://bitmovin.com/docs/encoding/articles/supported-input-output-storages">
     list of supported input and output storages</a>
+
     For reasons of simplicity, a new input resource is created on each execution of this
     example. In production use, this method should be replaced by a
     <a href="https://bitmovin.com/docs/encoding/api-reference/sections/inputs#/Encoding/GetEncodingInputsHttpsByInputId">
     get call</a> to retrieve an existing resource.
+
     <p>API endpoint:
     https://bitmovin.com/docs/encoding/api-reference/sections/inputs#/Encoding/PostEncodingInputsHttps
+
     :param host: The hostname or IP address of the HTTPS server e.g.: my-storage.biz
     """
 
@@ -256,16 +266,20 @@ def _create_s3_output(bucket_name, access_key, secret_key):
     For alternative output methods see
     <a href="https://bitmovin.com/docs/encoding/articles/supported-input-output-storages">
     list of supported input and output storages</a>
+
     <p>The provided credentials need to allow <i>read</i>, <i>write</i> and <i>list</i> operations.
     <i>delete</i> should also be granted to allow overwriting of existings files. See <a
     href="https://bitmovin.com/docs/encoding/faqs/how-do-i-create-a-aws-s3-bucket-which-can-be-used-as-output-location">
     creating an S3 bucket and setting permissions</a> for further information
+
     <p>For reasons of simplicity, a new output resource is created on each execution of this
     example. In production use, this method should be replaced by a
     <a href="https://bitmovin.com/docs/encoding/api-reference/sections/outputs#/Encoding/GetEncodingOutputsS3">
     get call</a> retrieving an existing resource.
+
     <p>API endpoint:
     https://bitmovin.com/docs/encoding/api-reference/sections/outputs#/Encoding/PostEncodingOutputsS3
+
     :param bucket_name: The name of the S3 bucket
     :param access_key: The access key of your S3 account
     :param secret_key: The secret key of your S3 account
@@ -284,9 +298,12 @@ def _create_dolby_vision_input_stream(encoding, input, dolby_vision_input_path, 
     # type: (Encoding, Input, str, str) -> DolbyVisionInputStream
     """
     Creates a DolbyVisionInputStream and adds it to an encoding.
+
     <p>API endpoints:
     https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/PostEncodingEncodingsInputStreamsDolbyVisionByEncodingId
+
     <p>The DolbyVisionInputStream is used to define where a file to read a dolby vision stream from is located.
+
     :param encoding: The encoding to be started
     :param input: The input resource providing the input file
     :param dolby_vision_input_path: The path to the DolbyVision input file
@@ -309,9 +326,12 @@ def _create_ingest_input_stream(encoding, input, input_path):
     # type: (Encoding, Input, str) -> IngestInputStream
     """
     Creates an IngestInputStream and adds it to an encoding.
+
     <p>The IngestInputStream is used to define where a file to read a stream from is located.
+
     <p>API endpoints:
     https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/PostEncodingEncodingsInputStreamsIngestByEncodingId
+
     :param encoding: The encoding to be started
     :param input: The input resource providing the input file
     :param input_path: The path to the input file
@@ -334,6 +354,7 @@ def _create_h265_and_aac_encoding(encoding, video_input_stream, audio_input_stre
     # type: (Encoding, InputStream, InputStream, Output) -> None
     """
     Creates an encoding with H265 codec/fMP4 muxing and AAC codec/fMP4 muxing
+
     :param encoding: The encoding to be started
     :param video_input_stream: The video input to be used for the encoding
     :param audio_input_stream: The audio input to be used for the encoding
@@ -399,13 +420,17 @@ def _create_h265_video_configuration(height, bitrate, profile, dynamic_range_for
     # type: (int, int, ProfileH265, H265DynamicRangeFormat) -> H265VideoConfiguration
     """
     Creates a configuration for the H.265 video codec to be applied to video streams.
+
     <p>The output resolution is defined by setting the height. Width will be determined automatically to maintain the
     aspect ratio of your input video.
+
     <p>To keep things simple, we use a quality-optimized VoD preset configuration, which will apply
     proven settings for the codec. See <a href="https://bitmovin.com/docs/encoding/tutorials/h265-presets"> for more
     detail of how the preset configuration is converted to each codec parameter.
+
     <p>API endpoint:
     https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsVideoH265
+
     :param height: The height of the output video
     :param bitrate: The target bitrate of the output video
     :param profile: The target H.265 profile (MAIN or MAIN10) of the output video
@@ -429,6 +454,7 @@ def _create_aac_audio_configuration():
     # type: () -> AacAudioConfiguration
     """
     Creates a configuration for the AAC audio codec to be applied to audio streams.
+
     <p>API endpoint:
     https://bitmovin.com/docs/encoding/api-reference/sections/configurations#/Encoding/PostEncodingConfigurationsAudioAac
     """
@@ -446,8 +472,10 @@ def _create_stream(name, encoding, input_stream, codec_configuration):
     # type: (str, Encoding, InputStream, CodecConfiguration) -> Stream
     """
     Adds a video or audio stream to an encoding
+
     <p>API endpoint:
     https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/PostEncodingEncodingsStreamsByEncodingId
+
     :param name: A name that will help you identify the stream in our dashboard
     :param encoding: The encoding to which the stream will be added
     :param input_stream: The input stream resource providing the input video or audio
@@ -472,8 +500,10 @@ def _create_fmp4_muxing(encoding, output, output_path, stream):
     """
     Creates a fragmented MP4 muxing. This will generate segments with a given segment length for
     adaptive streaming.
+
     <p>API endpoint:
     https://bitmovin.com/docs/encoding/api-reference/all#/Encoding/PostEncodingEncodingsMuxingsFmp4ByEncodingId
+
     @param encoding The encoding where to add the muxing to
     @param output The output that should be used for the muxing to write the segments to
     @param output_path The output path where the fragmented segments will be written to
@@ -494,12 +524,15 @@ def _execute_encoding(encoding):
     # type: (Encoding) -> None
     """
     Starts the actual encoding process and periodically polls its status until it reaches a final state
+
     <p>API endpoints:
     https://bitmovin.com/docs/encoding/api-reference/all#/Encoding/PostEncodingEncodingsStartByEncodingId
     https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/GetEncodingEncodingsStatusByEncodingId
+
     <p>Please note that you can also use our webhooks API instead of polling the status. For more
     information consult the API spec:
     https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
+
     :param encoding: The encoding to be started
     """
 
@@ -528,6 +561,7 @@ def _wait_for_enoding_to_finish(encoding_id):
     # type: (str) -> Task
     """
     Waits five second and retrieves afterwards the status of the given encoding id
+
     :param encoding_id The encoding which should be checked
     """
 
@@ -686,12 +720,15 @@ def _execute_dash_manifest(dash_manifest):
     """
     Starts the dash manifest generation process and periodically polls its status until it reaches
     a final state
+
     <p>API endpoints:
     https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsDashStartByManifestId
     https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsDashStatusByManifestId
+
     <p>Please note that you can also use our webhooks API instead of polling the status. For more
     information consult the API spec:
     https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
+
     :param dash_manifest: The dash manifest to be started
     """
 
@@ -714,12 +751,15 @@ def _execute_hls_manifest(hls_manifest):
     """
     Starts the hls manifest generation process and periodically polls its status until it reaches a
     final state
+
     <p>API endpoints:
     https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/PostEncodingManifestsHlsStartByManifestId
     https://bitmovin.com/docs/encoding/api-reference/sections/manifests#/Encoding/GetEncodingManifestsHlsStatusByManifestId
+
     <p>Please note that you can also use our webhooks API instead of polling the status. For more
     information consult the API spec:
     https://bitmovin.com/docs/encoding/api-reference/sections/notifications-webhooks
+
     :param hls_manifest: The dash manifest to be started
     """
 
@@ -754,6 +794,7 @@ def _build_encoding_output(output, output_path):
     """
     Builds an EncodingOutput object which defines where the output content (e.g. of a muxing) will be written to.
     Public read permissions will be set for the files written, so they can be accessed easily via HTTP.
+
     :param output: The output resource to be used by the EncodingOutput
     :param output_path: The path where the content will be written to
     """
@@ -774,7 +815,9 @@ def _build_absolute_path(relative_path):
     """
     Builds an absolute path by concatenating the S3_OUTPUT_BASE_PATH configuration parameter, the
     name of this example and the given relative path
+
     <p>e.g.: /s3/base/path/exampleName/relative/path
+
     :param relative_path: The relative path that is concatenated
     """
 
@@ -785,7 +828,9 @@ def _remove_output_base_path(absolute_path):
     # type: (str) -> str
     """
     Create a relative path from an absolute path by removing S3_OUTPUT_BASE_PATH and EXAMPLE_NAME.
+
     <p>e.g.: input '/s3/base/path/exampleName/relative/path'  output 'relative/path'
+
     :param absolute_path: The relative path that is concatenated
     """
     if absolute_path.startswith(config_provider.get_s3_output_base_path() + EXAMPLE_NAME):
@@ -797,6 +842,7 @@ def _log_task_errors(task):
     # type: (Task) -> None
     """
     Logs all task errors
+
     @param task The task with the error messsages
     """
 

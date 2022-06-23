@@ -104,10 +104,16 @@ async function main() {
 
   await executeEncoding(encoding, startEncodingRequest);
 
-  const dashUrl = await buildCdnUrlForDash(output, dashManifest);
-  const hlsUrl = await buildCdnUrlForHls(output, hlsManifest);
-  console.log(hlsUrl);
-  console.log(dashUrl);
+  const encodingOutputPaths = await bitmovinApi.encoding.encodings.outputPaths.get(encoding.id!)
+
+  encodingOutputPaths.forEach(encodingOutputPath => {
+    encodingOutputPath.paths?.dashManifests?.forEach(dm => {
+      console.log(`Dash Manifest: https://${output.domainName}/${dm.path}`);
+    })
+    encodingOutputPath.paths?.hlsManifests?.forEach(hm => {
+      console.log(`HLS Manifest: https://${output.domainName}/${hm.path}`);
+    })
+  })
 }
 
 /**
@@ -310,32 +316,6 @@ async function executeEncoding(encoding: Encoding, startEncodingRequest: StartEn
   }
 
   console.log('Encoding finished successfully');
-}
-
-/**
- * Builds an HTTPS URL that points to the manifest output file on the CDN.
- *
- * @param manifest  The Manifest for which the CDN URL should be retrieved
- * @param output
- */
-async function buildCdnUrlForDash(output: CdnOutput, manifest: DashManifest) {
-  const dashInfo = await bitmovinApi.encoding.manifests.dash.get(manifest.id!);
-  const dashOutput = dashInfo.outputs![0];
-
-  return `https://${output.domainName}/${dashOutput.outputPath}${manifest.manifestName}`;
-}
-
-/**
- * Builds an HTTPS URL that points to the manifest output file on the CDN.
- *
- * @param manifest  The Manifest for which the CDN URL should be retrieved
- * @param output
- */
-async function buildCdnUrlForHls(output: CdnOutput, manifest: HlsManifest) {
-  const hlsInfo = await bitmovinApi.encoding.manifests.hls.get(manifest.id!);
-  const hlsOutput = hlsInfo.outputs![0];
-
-  return `https://${output.domainName}/${hlsOutput.outputPath}${manifest.manifestName}`;
 }
 
 /**
