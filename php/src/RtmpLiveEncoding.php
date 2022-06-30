@@ -21,6 +21,7 @@ use BitmovinApiSdk\Models\H264VideoConfiguration;
 use BitmovinApiSdk\Models\HlsManifestDefault;
 use BitmovinApiSdk\Models\HlsManifestDefaultVersion;
 use BitmovinApiSdk\Models\Input;
+use BitmovinApiSdk\Models\LiveAutoShutdownConfiguration;
 use BitmovinApiSdk\Models\LiveDashManifest;
 use BitmovinApiSdk\Models\LiveEncoding;
 use BitmovinApiSdk\Models\LiveHlsManifest;
@@ -79,6 +80,16 @@ const ASPECT_RATIO = INPUT_VIDEO_WIDTH / INPUT_VIDEO_HEIGHT;
 const MAX_MINUTES_TO_WAIT_FOR_LIVE_ENCODING_DETAILS = 5;
 const MAX_MINUTES_TO_WAIT_FOR_ENCOIDING_STATUS = 5;
 
+  /**
+   * Automatically shutdown the live stream if there is no input anymore for a predefined number of seconds.
+   */
+const BYTES_READ_TIMEOUT_SECONDS = 3600; // 1 hour
+
+  /**
+   * Automatically shutdown the live stream after a predefined runtime in minutes.
+   */
+const STREAM_TIMEOUT_MINUTES = 12 * 60; // 12 hours
+
 $configProvider = new ConfigProvider();
 
 try {
@@ -121,6 +132,15 @@ try {
     $startLiveEncodingRequest->dashManifests([$liveDashManifest]);
     $startLiveEncodingRequest->hlsManifests([$liveHlsManifest]);
     $startLiveEncodingRequest->streamKey(STREAM_KEY);
+
+    /*
+     Setting the autoShutdownConfiguration is optional,
+     if omitted the live encoding will not shut down automatically.
+     */
+    $autoShutdownConfiguration = new LiveAutoShutdownConfiguration();
+    $autoShutdownConfiguration->bytesReadTimeoutSeconds(BYTES_READ_TIMEOUT_SECONDS);
+    $autoShutdownConfiguration->streamTimeoutMinutes(STREAM_TIMEOUT_MINUTES);
+    $startLiveEncodingRequest->autoShutdownConfiguration($autoShutdownConfiguration);
 
     startLiveEncodingAndWaitUntilRunning($encoding, $startLiveEncodingRequest);
     $liveEncoding = waitForLiveEncodingDetails($encoding);

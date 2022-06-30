@@ -8,6 +8,7 @@ using Bitmovin.Api.Sdk.Common.Logging;
 using Bitmovin.Api.Sdk.Examples.common;
 using Bitmovin.Api.Sdk.Models;
 using Stream = Bitmovin.Api.Sdk.Models.Stream;
+using LiveAutoShutdownConfiguration = Bitmovin.Api.Sdk.Models.LiveAutoShutdownConfiguration;
 
 namespace Bitmovin.Api.Sdk.Examples
 {
@@ -79,6 +80,16 @@ namespace Bitmovin.Api.Sdk.Examples
         private const int MaxMinutesWaitingForLiveEncodingDetails = 5;
         private const int MaxMinutesWaitingForEncodingStatus = 5;
 
+        /*
+         * Automatically shutdown the live stream if there is no input anymore for a predefined number of seconds.
+         */
+        private const long BytesReadTimeoutSeconds = 3600; // 1 hour
+
+        /*
+         * Automatically shutdown the live stream after a predefined runtime in minutes.
+         */
+        private const long StreamTimeoutMinutes = 12 * 60; // 12 hours
+
         public async Task RunExample(string[] args)
         {
             _configProvider = new ConfigProvider(args);
@@ -122,10 +133,21 @@ namespace Bitmovin.Api.Sdk.Examples
                 ManifestId = hlsManifest.Id
             };
 
+            /*
+             * Setting the autoShutdownConfiguration is optional,
+             * if omitted the live encoding will not shut down automatically.
+             */
+            var liveAutoShutdownConfiguration = new LiveAutoShutdownConfiguration()
+            {
+                BytesReadTimeoutSeconds = BytesReadTimeoutSeconds,
+                StreamTimeoutMinutes = StreamTimeoutMinutes
+            };
+
             var startLiveEncodingRequest = new StartLiveEncodingRequest()
             {
                 DashManifests = new List<LiveDashManifest>() {liveDashManifest},
                 HlsManifests = new List<LiveHlsManifest>() {liveHlsManifest},
+                AutoShutdownConfiguration = liveAutoShutdownConfiguration,
                 StreamKey = StreamKey
             };
 

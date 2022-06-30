@@ -4,7 +4,7 @@ from bitmovin_api_sdk import AacAudioConfiguration, AclEntry, AclPermission, Bit
     BitmovinError, DashManifestDefault, DashManifestDefaultVersion, Encoding, EncodingOutput, Fmp4Muxing, \
     H264VideoConfiguration, HlsManifestDefault, HlsManifestDefaultVersion, LiveDashManifest, LiveHlsManifest, \
     MessageType, MuxingStream, PresetConfiguration, S3Output, StartLiveEncodingRequest, Stream, StreamInput, \
-    StreamSelectionMode, Status
+    StreamSelectionMode, Status, LiveAutoShutdownConfiguration
 
 from common import ConfigProvider
 from os import path
@@ -47,6 +47,11 @@ aspect_ratio = input_video_width / input_video_height
 
 max_minutes_to_wait_for_live_encoding_details = 5
 max_minutes_to_wait_for_encoding_status = 5
+
+# Automatically shutdown the live stream if there is no input anymore for a predefined number of seconds.
+bytes_read_timeout_seconds = 3600
+# Automatically shutdown the live stream after a predefined runtime in minutes.
+stream_timeout_minutes = 12 * 60
 
 config_provider = ConfigProvider()
 bitmovin_api = BitmovinApi(api_key=config_provider.get_bitmovin_api_key(),
@@ -105,10 +110,18 @@ def main():
     live_dash_manifest = LiveDashManifest(manifest_id=dash_manifest.id)
     live_hls_manifest = LiveHlsManifest(manifest_id=hls_manifest.id)
 
+    # Setting the auto_shutdown_configuration is optional,
+    # if omitted the live encoding will not shut down automatically.
+    auto_shutdown_configuration = LiveAutoShutdownConfiguration(
+        bytes_read_timeout_seconds=bytes_read_timeout_seconds,
+        stream_timeout_minutes=stream_timeout_minutes
+    )
+
     start_live_encoding_request = StartLiveEncodingRequest(
         dash_manifests=[live_dash_manifest],
         hls_manifests=[live_hls_manifest],
-        stream_key=stream_key
+        stream_key=stream_key,
+        auto_shutdown_configuration=auto_shutdown_configuration
     )
 
     _start_live_encoding_and_wait_until_running(encoding=encoding, request=start_live_encoding_request)

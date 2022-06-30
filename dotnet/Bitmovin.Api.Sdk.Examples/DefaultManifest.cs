@@ -303,7 +303,7 @@ namespace Bitmovin.Api.Sdk.Examples
             {
                 Name = $"H.264 {height}p {Math.Round((double) bitrate)/1000} Kbit/s",
                 PresetConfiguration = PresetConfiguration.VOD_STANDARD,
-                Width = width
+                Width = width,
                 Height = height,
                 Bitrate = bitrate
             };

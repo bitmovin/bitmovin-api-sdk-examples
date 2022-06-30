@@ -17,6 +17,7 @@ import com.bitmovin.api.sdk.model.HlsManifest;
 import com.bitmovin.api.sdk.model.HlsManifestDefault;
 import com.bitmovin.api.sdk.model.HlsManifestDefaultVersion;
 import com.bitmovin.api.sdk.model.Input;
+import com.bitmovin.api.sdk.model.LiveAutoShutdownConfiguration;
 import com.bitmovin.api.sdk.model.LiveDashManifest;
 import com.bitmovin.api.sdk.model.LiveEncoding;
 import com.bitmovin.api.sdk.model.LiveHlsManifest;
@@ -101,6 +102,16 @@ public class RedundantRtmpLiveEncoding {
   private static List<AudioConfig> audioProfile =
       Collections.singletonList(new AudioConfig("128kbit", 128_000L, "/audio/128kb"));
 
+  /**
+   * Automatically shutdown the live stream if there is no input anymore for a predefined number of seconds.
+   */
+  private static long bytesReadTimeoutSeconds = 3600; // 1 hour
+
+  /**
+   * Automatically shutdown the live stream after a predefined runtime in minutes.
+   */
+  private static long streamTimeoutMinutes = 12 * 60; // 12 hours
+
   public static void main(String[] args) throws Exception {
     configProvider = new ConfigProvider(args);
     bitmovinApi =
@@ -157,6 +168,15 @@ public class RedundantRtmpLiveEncoding {
     startRequest.addDashManifestsItem(liveDashManifest);
     startRequest.addHlsManifestsItem(liveHlsManifest);
     startRequest.setStreamKey("notused");
+
+    /*
+     Setting the autoShutdownConfiguration is optional,
+     if omitted the live encoding will not shut down automatically.
+     */
+    LiveAutoShutdownConfiguration autoShutdownConfiguration = new LiveAutoShutdownConfiguration();
+    autoShutdownConfiguration.setBytesReadTimeoutSeconds(bytesReadTimeoutSeconds);
+    autoShutdownConfiguration.setStreamTimeoutMinutes(streamTimeoutMinutes);
+    startRequest.setAutoShutdownConfiguration(autoShutdownConfiguration);
 
     startLiveEncodingAndWaitUntilRunning(encoding, startRequest);
     LiveEncoding liveEncoding = waitForLiveEncodingDetails(encoding);

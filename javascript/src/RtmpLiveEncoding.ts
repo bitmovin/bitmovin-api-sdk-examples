@@ -15,6 +15,7 @@ import BitmovinApi, {
   HlsManifestDefault,
   HlsManifestDefaultVersion,
   Input,
+  LiveAutoShutdownConfiguration,
   LiveDashManifest,
   LiveEncoding,
   LiveHlsManifest,
@@ -74,6 +75,16 @@ const aspectRatio = inputVideoWidth / inputVideoHeight;
 const maxMinutesToWaitForLiveEncodingDetails = 5;
 const maxMinutesToWaitForEncodingStatus = 5;
 
+/**
+ * Automatically shutdown the live stream if there is no input anymore for a predefined number of seconds.
+ */
+const bytesReadTimeoutSeconds = 3600; // 1 hour
+
+/**
+ * Automatically shutdown the live stream after a predefined runtime in minutes.
+ */
+const streamTimeoutMinutes = 12 * 60; // 12 hours
+
 const configProvider: ConfigProvider = new ConfigProvider();
 const bitmovinApi = new BitmovinApi({
   apiKey: configProvider.getBitmovinApiKey(),
@@ -112,10 +123,20 @@ async function main() {
     manifestId: hlsManifest.id
   });
 
+  /*
+  Setting the autoShutdownConfiguration is optional,
+  if omitted the live encoding will not shut down automatically.
+  */
+  const autoShutdownConfiguration = new LiveAutoShutdownConfiguration({
+    bytesReadTimeoutSeconds: bytesReadTimeoutSeconds,
+    streamTimeoutMinutes: streamTimeoutMinutes
+  });
+
   const startLiveEncodingRequest = new StartLiveEncodingRequest({
     dashManifests: [liveDashManifest],
     hlsManifests: [liveHlsManifest],
-    streamKey
+    autoShutdownConfiguration: autoShutdownConfiguration,
+    streamKey: streamKey
   });
 
   await startLiveEncodingAndWaitUntilRunning(encoding, startLiveEncodingRequest);
