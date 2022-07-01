@@ -57,3 +57,6 @@ Execute run_example.bat with the name of the desired [example](src) as first par
 ```bash
 run-example.bat MultiCodecEncoding BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
 ```
+
+### More examples?
+For more code snippets, and sometimes complete scripts, please have a look at our [tutorials](https://bitmovin.com/docs/encoding/tutorials) and our [Community pages](https://community.bitmovin.com/docs?tags=code-example%7Cbitmovin-encoding&utm_source=github&utm_medium=bitmovin-api-sdk-examples-php&utm_campaign=dev-community)

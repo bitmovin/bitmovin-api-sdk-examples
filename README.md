@@ -66,6 +66,8 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
    + [Stream Mapping - Mono Input Tracks](#stream-mapping---mono-input-tracks)
    + [Stream Merging - Multiple Streams](#stream-merging---background-audio)
 
+### More examples?
+For more code snippets, and sometimes complete scripts, please have a look at our [tutorials](https://bitmovin.com/docs/encoding/tutorials) and our [Community pages](https://community.bitmovin.com/docs?tags=code-example%7Cbitmovin-encoding&utm_source=github&utm_medium=bitmovin-api-sdk-examples&utm_campaign=dev-community)
 
 ---
 ### Fixed Bitrate Ladder Encoding
