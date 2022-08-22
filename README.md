@@ -306,7 +306,7 @@ Required configuration parameters:
 ---
 ### HDR SDR Conversion
 <a href="python/src/hdr_conversions.py">Python</a> -
-<a href="java/src/HdrConversions.java">Java</a> -
+<a href="java/src/main/java/HdrConversions.java">Java</a> -
 <a href="javascript/src/HdrConversions.ts">TS/JS</a>
 
 This example demonstrates how to convert dynamic range format between DolbyVision, HDR10, HLG and SDR.
@@ -348,7 +348,7 @@ If you want to load a DolbyVision metadata as a sidecar XML file, the following 
 
 ---
 ### Content Protection
-### Applying CENC DRM Content Protection
+#### Applying CENC DRM Content Protection
 
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/CencDrmContentProtection.cs">C#</a> -
 <a href="java/src/main/java/CencDrmContentProtection.java">Java</a> -
@@ -623,6 +623,12 @@ Example: `08eecef4b026deec395234d94218273d`
 
 <a name="DRM_WIDEVINE_PSSH">**`DRM_WIDEVINE_PSSH`**</a> - Base64 encoded PSSH payload  
 Example: `QWRvYmVhc2Rmc2FkZmFzZg==`
+
+<a name="DRM_CONTENT_ID">**`DRM_CONTENT_ID`**</a> - An optional content ID used to register the DRM keys with the SPEKE provider   
+Example: `my-content-id`
+
+<a name="DRM_KEY_ID">**`DRM_KEY_ID`**</a> - An optional 16-byte hex key ID used to refer to a key stored in the DRM provider system (in particular with SPEKE)   
+Example: `d94238436e2fe421a27a7d5dd3d26f31`
 
 <a name="SPEKE_URL">**`SPEKE_URL`**</a> - The URL of the SPEKE server  
 Example: `https://my-speke-server.com/v1.0/vod`
