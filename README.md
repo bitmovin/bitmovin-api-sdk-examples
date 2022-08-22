@@ -306,7 +306,7 @@ Required configuration parameters:
 ---
 ### HDR SDR Conversion
 <a href="python/src/hdr_conversions.py">Python</a> -
-<a href="java/src/HdrConversions.java">Java</a> -
+<a href="java/src/main/java/HdrConversions.java">Java</a> -
 <a href="javascript/src/HdrConversions.ts">TS/JS</a>
 
 This example demonstrates how to convert dynamic range format between DolbyVision, HDR10, HLG and SDR.
