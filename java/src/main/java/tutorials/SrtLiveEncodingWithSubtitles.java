@@ -5,8 +5,6 @@ import com.bitmovin.api.sdk.model.AacAudioConfiguration;
 import com.bitmovin.api.sdk.model.AclEntry;
 import com.bitmovin.api.sdk.model.AclPermission;
 import com.bitmovin.api.sdk.model.AudioAdaptationSet;
-import com.bitmovin.api.sdk.model.AudioGroup;
-import com.bitmovin.api.sdk.model.AudioGroupConfiguration;
 import com.bitmovin.api.sdk.model.AudioMediaInfo;
 import com.bitmovin.api.sdk.model.ChunkedTextMuxing;
 import com.bitmovin.api.sdk.model.CloudRegion;
@@ -40,7 +38,6 @@ import com.bitmovin.api.sdk.model.SubtitleAdaptationSet;
 import com.bitmovin.api.sdk.model.SubtitlesMediaInfo;
 import com.bitmovin.api.sdk.model.Task;
 import com.bitmovin.api.sdk.model.TsMuxing;
-import com.bitmovin.api.sdk.model.VariantStreamDroppingMode;
 import com.bitmovin.api.sdk.model.VideoAdaptationSet;
 import com.bitmovin.api.sdk.model.WebVttConfiguration;
 import com.bitmovin.api.sdk.model.WebVttCueIdentifierPolicy;
@@ -49,16 +46,11 @@ import feign.slf4j.Slf4jLogger;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class SrtLiveEncodingWithSubtitles {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
     ConfigProvider configProvider = new ConfigProvider(args);
     BitmovinApi bitmovinApi =
         BitmovinApi.builder()
@@ -103,8 +95,8 @@ public class SrtLiveEncodingWithSubtitles {
     audioStreamInput.setInputId(input.getId());
     audioStreamInput.setInputPath(
         "/"); // This is not really considered for SRT but required in our API
-    audioStreamInput.setSelectionMode(
-        StreamSelectionMode.AUTO); // Will automatically detect the audio stream from the input
+    audioStreamInput.setSelectionMode(StreamSelectionMode.POSITION_ABSOLUTE);
+    audioStreamInput.setPosition(1);
 
     Stream audioStream = new Stream();
     audioStream.setName("Live Audio Stream");
@@ -152,7 +144,8 @@ public class SrtLiveEncodingWithSubtitles {
     StreamInput videoStreamInput = new StreamInput();
     videoStreamInput.setInputId(input.getId());
     videoStreamInput.setInputPath("/");
-    videoStreamInput.setSelectionMode(StreamSelectionMode.AUTO);
+    videoStreamInput.setSelectionMode(StreamSelectionMode.POSITION_ABSOLUTE);
+    videoStreamInput.setPosition(0);
 
     Stream videoStream = new Stream();
     videoStream.setName("Live video Stream");
@@ -170,7 +163,7 @@ public class SrtLiveEncodingWithSubtitles {
 
     // TS video Muxing
     TsMuxing videoTsMuxing = new TsMuxing();
-    videoTsMuxing.addStreamsItem(audioMuxingStream);
+    videoTsMuxing.addStreamsItem(videoMuxingStream);
     videoTsMuxing.setSegmentNaming("video_%number%.ts");
     videoTsMuxing.setSegmentLength(4.0);
     videoTsMuxing.addOutputsItem(videoSegmentsOutput);
@@ -191,8 +184,7 @@ public class SrtLiveEncodingWithSubtitles {
     DvbSubtitleInputStream dvbSubtitleInputStream = new DvbSubtitleInputStream();
     dvbSubtitleInputStream.setInputId(input.getId());
     dvbSubtitleInputStream.setInputPath("/");
-    dvbSubtitleInputStream.setPosition(
-        3); // Set this to the position of the subtitle stream in the input
+    dvbSubtitleInputStream.setPosition(4);
     dvbSubtitleInputStream.setSelectionMode(StreamSelectionMode.POSITION_ABSOLUTE);
 
     dvbSubtitleInputStream =
@@ -200,8 +192,7 @@ public class SrtLiveEncodingWithSubtitles {
             encoding.getId(), dvbSubtitleInputStream);
 
     WebVttConfiguration webVttConfig = new WebVttConfiguration();
-    WebVttCueIdentifierPolicy cuePolicy = WebVttCueIdentifierPolicy.fromValue("OMIT_IDENTIFIERS");
-    webVttConfig.setCueIdentifierPolicy(cuePolicy);
+    webVttConfig.setCueIdentifierPolicy(WebVttCueIdentifierPolicy.OMIT_IDENTIFIERS);
     webVttConfig.setAppendOptionalZeroHour(true);
     webVttConfig = bitmovinApi.encoding.configurations.subtitles.webvtt.create(webVttConfig);
 
@@ -224,7 +215,7 @@ public class SrtLiveEncodingWithSubtitles {
 
     ChunkedTextMuxing chunkedTextMuxing = new ChunkedTextMuxing();
     chunkedTextMuxing.setSegmentNaming("webvtt_seg_%number%.vtt");
-    chunkedTextMuxing.setSegmentLength(4.0);
+    chunkedTextMuxing.setSegmentLength(10.0);
     chunkedTextMuxing.setName("Chunked Text Muxing");
     chunkedTextMuxing.addOutputsItem(subtitlesOutput);
     chunkedTextMuxing.addStreamsItem(subtitleMuxingStream);
@@ -292,6 +283,7 @@ public class SrtLiveEncodingWithSubtitles {
     chunkedTextRepresentation.setMuxingId(chunkedTextMuxing.getId());
     chunkedTextRepresentation.setSegmentPath("subtitles");
     chunkedTextRepresentation.setType(DashRepresentationType.TEMPLATE);
+
     bitmovinApi.encoding.manifests.dash.periods.adaptationsets.representations.chunkedText.create(
         dashManifest.getId(),
         period.getId(),
@@ -320,23 +312,6 @@ public class SrtLiveEncodingWithSubtitles {
 
     bitmovinApi.encoding.manifests.hls.media.audio.create(hlsManifest.getId(), audioMediaInfo);
 
-    StreamInfo videoStreamInfo = new StreamInfo();
-    videoStreamInfo.setEncodingId(encoding.getId());
-    videoStreamInfo.setStreamId(videoStream.getId());
-    videoStreamInfo.setMuxingId(videoTsMuxing.getId());
-    videoStreamInfo.setUri("video-720p.m3u8");
-    videoStreamInfo.setSegmentPath("video");
-
-    AudioGroupConfiguration audioGroupConfig = new AudioGroupConfiguration();
-    AudioGroup audioGroup = new AudioGroup();
-    audioGroup.setName("en");
-    audioGroup.setPriority(0);
-    audioGroupConfig.setGroups(Collections.singletonList(audioGroup));
-    audioGroupConfig.setDroppingMode(VariantStreamDroppingMode.AUDIO);
-    videoStreamInfo.setAudioGroups(audioGroupConfig);
-
-    bitmovinApi.encoding.manifests.hls.streams.create(hlsManifest.getId(), videoStreamInfo);
-
     SubtitlesMediaInfo subtitleMediaInfo = new SubtitlesMediaInfo();
     subtitleMediaInfo.setName("Subtitles Media Info");
     subtitleMediaInfo.setUri("subtitles.m3u8");
@@ -349,6 +324,17 @@ public class SrtLiveEncodingWithSubtitles {
     subtitleMediaInfo.setGroupId("subtitle");
     bitmovinApi.encoding.manifests.hls.media.subtitles.create(
         hlsManifest.getId(), subtitleMediaInfo);
+
+    StreamInfo videoStreamInfo = new StreamInfo();
+    videoStreamInfo.setEncodingId(encoding.getId());
+    videoStreamInfo.setStreamId(videoStream.getId());
+    videoStreamInfo.setMuxingId(videoTsMuxing.getId());
+    videoStreamInfo.setUri("video-720p.m3u8");
+    videoStreamInfo.setSegmentPath("video");
+    videoStreamInfo.setAudio("en");
+    videoStreamInfo.setSubtitles("subtitle");
+
+    bitmovinApi.encoding.manifests.hls.streams.create(hlsManifest.getId(), videoStreamInfo);
 
     LiveHlsManifest liveHlsManifest = new LiveHlsManifest();
     liveHlsManifest.setManifestId(hlsManifest.getId());
@@ -363,34 +349,33 @@ public class SrtLiveEncodingWithSubtitles {
     final List<Status> finishedStates =
         Arrays.asList(Status.FINISHED, Status.ERROR, Status.RUNNING, Status.TRANSFER_ERROR);
     final String encodingId = encoding.getId();
-    AtomicReference<Status> statusRef = new AtomicReference<>();
-    ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-    executorService.scheduleAtFixedRate(
-        () -> {
-          Task encodingTask = bitmovinApi.encoding.encodings.status(encodingId);
-          Status status = encodingTask.getStatus();
-          if (finishedStates.contains(status))
-            synchronized (statusRef) {
-              statusRef.set(status);
-              statusRef.notifyAll();
-            }
-        },
-        0,
-        5,
-        TimeUnit.SECONDS);
 
-    synchronized (statusRef) {
-      try {
-        statusRef.wait();
-        if (!Status.RUNNING.equals(statusRef.get())) {
-          throw new IllegalStateException(
-              String.format("Encoding could not be started! Status: %s", statusRef.get()));
-        }
-      } catch (InterruptedException e) {
-        System.err.println("Waiting thread Interrupted!");
-      } finally {
-        executorService.shutdown();
-      }
+    int maxMinutesToWaitForEncodingToRun = 5;
+
+    Status encodingStatus;
+    int checkIntervalInSeconds = 10;
+    int maxMinutesToWaitForLiveEncodingDetails = 5;
+    int maxAttempts = maxMinutesToWaitForLiveEncodingDetails * (60 / checkIntervalInSeconds);
+    int attempt = 0;
+
+    do {
+      Task encodingTask = bitmovinApi.encoding.encodings.status(encodingId);
+      encodingStatus = encodingTask.getStatus();
+      Thread.sleep(checkIntervalInSeconds * 1000L);
+      attempt++;
+    } while (!finishedStates.contains(encodingStatus) && attempt < maxAttempts);
+
+    if (attempt > maxAttempts) {
+      throw new IllegalStateException(
+          String.format(
+              "Encoding is not running after %d minutes! Encoding has to be in state RUNNING to stream content to it but encoding has state %s",
+              maxMinutesToWaitForEncodingToRun, encodingStatus));
+    }
+    if (!Status.RUNNING.equals(encodingStatus)) {
+      throw new IllegalStateException(
+          String.format(
+              "Encoding is not running! Encoding has to be in state RUNNING to stream content to it but encoding has state %s",
+              encodingStatus));
     }
 
     LiveEncoding liveEncodingResponse = bitmovinApi.encoding.encodings.live.get(encoding.getId());
