@@ -45,9 +45,7 @@ import common.ConfigProvider;
 import feign.slf4j.Slf4jLogger;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 public class SrtLiveEncodingWithSubtitles {
   public static void main(String[] args) throws InterruptedException {
@@ -93,8 +91,7 @@ public class SrtLiveEncodingWithSubtitles {
 
     StreamInput audioStreamInput = new StreamInput();
     audioStreamInput.setInputId(input.getId());
-    audioStreamInput.setInputPath(
-        "/"); // This is not really considered for SRT but required in our API
+    audioStreamInput.setInputPath("/");
     audioStreamInput.setSelectionMode(StreamSelectionMode.POSITION_ABSOLUTE);
     audioStreamInput.setPosition(1);
 
@@ -205,13 +202,13 @@ public class SrtLiveEncodingWithSubtitles {
     subtitleStream =
         bitmovinApi.encoding.encodings.streams.create(encoding.getId(), subtitleStream);
 
-    MuxingStream subtitleMuxingStream = new MuxingStream();
-    subtitleMuxingStream.setStreamId(subtitleStream.getId());
-
     EncodingOutput subtitlesOutput = new EncodingOutput();
     subtitlesOutput.addAclItem(publicAclEntry);
     subtitlesOutput.setOutputPath(outputBasePath + "subtitles/");
     subtitlesOutput.setOutputId(s3Output.getId());
+
+    MuxingStream subtitleMuxingStream = new MuxingStream();
+    subtitleMuxingStream.setStreamId(subtitleStream.getId());
 
     ChunkedTextMuxing chunkedTextMuxing = new ChunkedTextMuxing();
     chunkedTextMuxing.setSegmentNaming("webvtt_seg_%number%.vtt");
@@ -260,8 +257,6 @@ public class SrtLiveEncodingWithSubtitles {
         bitmovinApi.encoding.manifests.dash.periods.adaptationsets.video.create(
             dashManifest.getId(), period.getId(), videoAdaptationSet);
 
-    // This should be done for each video representation you want to have. In this example we only
-    // have one
     DashFmp4Representation videoRepresentation = new DashFmp4Representation();
     videoRepresentation.setEncodingId(encoding.getId());
     videoRepresentation.setMuxingId(videoFmp4Muxing.getId());
@@ -345,10 +340,7 @@ public class SrtLiveEncodingWithSubtitles {
     startRequest.addHlsManifestsItem(liveHlsManifest);
 
     bitmovinApi.encoding.encodings.live.start(encoding.getId(), startRequest);
-
-    final List<Status> finishedStates =
-        Arrays.asList(Status.FINISHED, Status.ERROR, Status.RUNNING, Status.TRANSFER_ERROR);
-    final String encodingId = encoding.getId();
+    String encodingId = encoding.getId();
 
     int maxMinutesToWaitForEncodingToRun = 5;
 
@@ -363,19 +355,13 @@ public class SrtLiveEncodingWithSubtitles {
       encodingStatus = encodingTask.getStatus();
       Thread.sleep(checkIntervalInSeconds * 1000L);
       attempt++;
-    } while (!finishedStates.contains(encodingStatus) && attempt < maxAttempts);
+    } while (!Status.RUNNING.equals(encodingStatus) && attempt < maxAttempts);
 
-    if (attempt > maxAttempts) {
+    if (attempt > maxAttempts && !Status.RUNNING.equals(encodingStatus)) {
       throw new IllegalStateException(
           String.format(
               "Encoding is not running after %d minutes! Encoding has to be in state RUNNING to stream content to it but encoding has state %s",
               maxMinutesToWaitForEncodingToRun, encodingStatus));
-    }
-    if (!Status.RUNNING.equals(encodingStatus)) {
-      throw new IllegalStateException(
-          String.format(
-              "Encoding is not running! Encoding has to be in state RUNNING to stream content to it but encoding has state %s",
-              encodingStatus));
     }
 
     LiveEncoding liveEncodingResponse = bitmovinApi.encoding.encodings.live.get(encoding.getId());
