@@ -366,7 +366,9 @@ public class SrtLiveEncodingWithSubtitles {
 
     LiveEncoding liveEncodingResponse = bitmovinApi.encoding.encodings.live.get(encoding.getId());
     System.out.printf("Successfully started live encoding! (id: %s)%n", encoding.getId());
-    System.out.printf(
-        "SRT input URL: srt://%s:%d%n", liveEncodingResponse.getEncoderIp(), input.getPort());
+
+    String srtInputUrl =
+        String.format("srt://%s:%d", liveEncodingResponse.getEncoderIp(), input.getPort());
+    System.out.printf("SRT input URL: %s%n", srtInputUrl);
   }
 }

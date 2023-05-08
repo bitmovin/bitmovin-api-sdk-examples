@@ -59,11 +59,11 @@ public class SrtLiveEncodingUsingSimpleApi {
     int maxAttempts = maxMinutesToWaitForLiveEncodingDetails * (60 / checkIntervalInSeconds);
     int attempt = 0;
 
-    SimpleEncodingLiveJobResponse jobResponse;
+    SimpleEncodingLiveJobResponse jobResponse = bitmovinApi.encoding.simple.jobs.live.create(job);
     SimpleEncodingLiveJobStatus status;
 
     do {
-      jobResponse = bitmovinApi.encoding.simple.jobs.live.create(job);
+      jobResponse = bitmovinApi.encoding.simple.jobs.live.get(jobResponse.getId());
       status = jobResponse.getStatus();
       Thread.sleep(checkIntervalInSeconds * 1000L);
       attempt++;
@@ -78,7 +78,9 @@ public class SrtLiveEncodingUsingSimpleApi {
 
     LiveEncoding liveEncodingResponse =
         bitmovinApi.encoding.encodings.live.get(jobResponse.getEncodingId());
-    System.out.printf("Successfully started live encoding! (id: %s)%n", jobResponse.getEncoderIp());
-    System.out.printf("SRT input URL: srt://%s:2088%n", liveEncodingResponse.getEncoderIp());
+    System.out.printf("Successfully started live encoding! (id: %s)%n", jobResponse.getEncodingId());
+
+    String srtInputUrl = String.format("SRT input URL: srt://%s:2088%n", liveEncodingResponse.getEncoderIp());
+    System.out.printf("SRT input URL: %s%n", srtInputUrl);
   }
 }
