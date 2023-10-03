@@ -39,6 +39,8 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
    Prevent blocking of ads by delivering a continuous content stream
 + [RTMP Live Encoding](#rtmp-live-encoding)  
    Start a live encoding using an RTMP stream as input
++ [RTMP Live HD Encoding](#rtmp-live-hd-encoding)  
+   Start a live encoding with HD option using an RTMP stream as input
 + [Batch Encoding](#batch-encoding)  
    Efficiently start and track a large number of encodings
 + [Multiple Inputs Concatenation](#multiple-inputs-concatenation)  
@@ -231,6 +233,27 @@ Required configuration parameters:
 <a href="python/src/rtmp_live_encoding.py">Python</a>
 
 This example shows how to configure and start a live encoding using default DASH and HLS manifests.
+For more information see: https://bitmovin.com/live-encoding-live-streaming
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+---
+### RTMP Live HD Encoding
+
+<a href="java/src/main/java/RtmpLiveHdEncoding.java">Java</a> -
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/RtmpLiveHdEncoding.cs">C#</a> -
+<a href="javascript/src/RtmpLiveHdEncoding.ts">TS/JS</a> -
+<a href="php/src/RtmpLiveHdEncoding.php">PHP</a> -
+<a href="python/src/rtmp_live_hd_encoding.py">Python</a>
+
+
+This example shows how to configure and start a live encoding with HD option using default DASH and HLS manifests.
 For more information see: https://bitmovin.com/live-encoding-live-streaming
 
 Required configuration parameters:

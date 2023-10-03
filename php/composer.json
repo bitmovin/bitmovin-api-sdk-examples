@@ -9,6 +9,6 @@
     ],
     "require": {
         "php": ">=7.1.0",
-        "bitmovin/bitmovin-api-sdk-php": "1.103.0"
+        "bitmovin/bitmovin-api-sdk-php": "1.174.0"
     }
 }
