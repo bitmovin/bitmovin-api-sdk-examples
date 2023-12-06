@@ -24,12 +24,7 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
 
 ### Prepare the configuration environment
 
-Configuration parameters will be retrieved from these sources in the listed order:
-
-1. Command line arguments passed when running the example (E.g.: `BITMOVIN_API_KEY=xyz`)
-2. A properties file located in the root folder of the GO examples at `./examples.properties` (see `examples.properties.template` as reference)
-3. Environment variables
-4. A properties file located in the home folder at `~/.bitmovin/examples.properties` (see `examples.properties.template` as reference)
+Configuration parameters will be retrieved from a `examples.properties` file located at the root of the GO examples. You can have a look at `examples.properties.template` file for a reference.
 
 Here is an example of an `examples.properties` file:
 ```bash
@@ -45,16 +40,16 @@ S3_OUTPUT_BASE_PATH=/output/finest/encodings
 ### How can I run an example?
 
 #### Linux
-Execute run_example.sh with the name of the desired [example](cmd) as first parameter, followed by a list of configuration parameters if needed.
+Execute run_example.sh with the name of the desired [example](cmd) as first parameter.
 ```bash
-run-example.sh cenc_drm_content_protection BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
+run-example.sh cenc_drm_content_protection
 ```
 
 #### Windows
 
-Execute run_example.bat with the name of the desired [example](cmd) as first parameter, followed by a list of configuration parameters if needed.
+Execute run_example.bat with the name of the desired [example](cmd) as first parameter.
 ```bash
-run-example.bat cenc_drm_content_protection BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
+run-example.bat cenc_drm_content_protection
 ```
 
 ### More examples?
