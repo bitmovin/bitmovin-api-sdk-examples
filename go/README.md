@@ -1,9 +1,9 @@
 <p align="center">
   <a href="https://www.bitmovin.com">
-    <img alt="Bitmovin Java API SDK Examples Header" src="https://cdn.bitmovin.com/frontend/encoding/openapi-clients/readme-headers/ReadmeHeader_JavaExamples.png" >
+    <img alt="Bitmovin GO API SDK Examples Header" src="https://cdn.bitmovin.com/frontend/encoding/openapi-clients/readme-headers/ReadmeHeader_JavaExamples.png" >
   </a>
 
-  <h4 align="center">This folder contains examples demonstrating usage of the <a href="https://github.com/bitmovin/bitmovin-api-sdk-java" target="_blank">Bitmovin Java API SDK</a></h4>
+  <h4 align="center">This folder contains examples demonstrating usage of the <a href="https://github.com/bitmovin/bitmovin-api-sdk-go" target="_blank">Bitmovin GO API SDK</a></h4>
 
   <p align="center">
     <a href="https://search.maven.org/artifact/com.bitmovin.api.sdk/bitmovin-api-sdk"><img src="https://img.shields.io/maven-central/v/com.bitmovin.api.sdk/bitmovin-api-sdk.svg" alt="Maven"></img></a>
@@ -27,7 +27,7 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
 Configuration parameters will be retrieved from these sources in the listed order:
 
 1. Command line arguments passed when running the example (E.g.: `BITMOVIN_API_KEY=xyz`)
-2. A properties file located in the root folder of the Java examples at `./examples.properties` (see `examples.properties.template` as reference)
+2. A properties file located in the root folder of the GO examples at `./examples.properties` (see `examples.properties.template` as reference)
 3. Environment variables
 4. A properties file located in the home folder at `~/.bitmovin/examples.properties` (see `examples.properties.template` as reference)
 
@@ -45,17 +45,17 @@ S3_OUTPUT_BASE_PATH=/output/finest/encodings
 ### How can I run an example?
 
 #### Linux
-Execute run_example.sh with the name of the desired [example](src/main/java) as first parameter, followed by a list of configuration parameters if needed.
+Execute run_example.sh with the name of the desired [example](cmd) as first parameter, followed by a list of configuration parameters if needed.
 ```bash
-run-example.sh PerTitleEncoding BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
+run-example.sh cenc_drm_content_protection BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
 ```
 
 #### Windows
 
-Execute run_example.bat with the name of the desired [example](src/main/java) as first parameter, followed by a list of configuration parameters if needed.
+Execute run_example.bat with the name of the desired [example](cmd) as first parameter, followed by a list of configuration parameters if needed.
 ```bash
-run-example.bat PerTitleEncoding BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
+run-example.bat cenc_drm_content_protection BITMOVIN_API_KEY=your-api-key HTTP_INPUT_HOST=my-storage.biz
 ```
 
 ### More examples?
-For more code snippets, and sometimes complete scripts, please have a look at our [tutorials](https://bitmovin.com/docs/encoding/tutorials) and our [Community pages](https://community.bitmovin.com/docs?tags=code-example%7Cbitmovin-encoding&utm_source=github&utm_medium=bitmovin-api-sdk-examples-java&utm_campaign=dev-community)
+For more code snippets, and sometimes complete scripts, please have a look at our [tutorials](https://bitmovin.com/docs/encoding/tutorials) and our [Community pages](https://community.bitmovin.com/docs?tags=code-example%7Cbitmovin-encoding&utm_source=github&utm_medium=bitmovin-api-sdk-examples-go&utm_campaign=dev-community)

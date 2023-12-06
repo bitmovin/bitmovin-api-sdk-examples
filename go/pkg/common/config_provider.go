@@ -3,6 +3,7 @@ package common
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 )
@@ -12,6 +13,42 @@ type Configuration struct {
 }
 
 const PROPERTIES_FILE = "example.properties"
+
+// This class is responsible for retrieving config values from a properties file. We expect a path to be
+// provided as first argument of the command line. The syntax for this file can be found by checking the
+// example.properties.template file in the root directory of the GO examples.
+func GetConfigProvider() (Configuration, error) {
+	config := Configuration{
+		props: make(map[string]string),
+	}
+
+	if 2 != len(os.Args) {
+		return config, fmt.Errorf("expected one argument but got %d", len(os.Args)-1)
+	}
+
+	file, err := os.Open(os.Args[1])
+	if err != nil {
+		return config, err
+	}
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		idSeparator := strings.Index(line, "=")
+		if idSeparator < 0 || len(line)-1 == idSeparator {
+			continue
+		}
+
+		key := line[:idSeparator]
+		value := line[idSeparator+1:]
+
+		log.Printf("Registering property %v with value %v", key, value)
+
+		config.props[key] = value
+	}
+
+	return config, nil
+}
 
 const BITMOVIN_API_KEY = "BITMOVIN_API_KEY"
 const BITMOVIN_TENANT_ORG_ID = "BITMOVIN_TENANT_ORG_ID"
@@ -101,27 +138,4 @@ func (c Configuration) GetDrmWidevineKidOrPanic() string {
 
 func (c Configuration) GetDrmWidevinePsshOrPanic() string {
 	return c.getPropOrPanic(DRM_WIDEVINE_PSSH)
-}
-
-func GetConfigProvider() (Configuration, error) {
-	config := Configuration{
-		props: make(map[string]string),
-	}
-
-	file, err := os.Open(PROPERTIES_FILE)
-	if err != nil {
-		return config, err
-	}
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		tokens := strings.Split(scanner.Text(), "=")
-		if len(tokens) != 2 {
-			continue
-		}
-
-		config.props[tokens[0]] = tokens[1]
-	}
-
-	return config, nil
 }
