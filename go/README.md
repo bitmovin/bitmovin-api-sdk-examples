@@ -6,8 +6,6 @@
   <h4 align="center">This folder contains examples demonstrating usage of the <a href="https://github.com/bitmovin/bitmovin-api-sdk-go" target="_blank">Bitmovin GO API SDK</a></h4>
 
   <p align="center">
-    <a href="https://search.maven.org/artifact/com.bitmovin.api.sdk/bitmovin-api-sdk"><img src="https://img.shields.io/maven-central/v/com.bitmovin.api.sdk/bitmovin-api-sdk.svg" alt="Maven"></img></a>
-    <a href="https://www.javadoc.io/doc/com.bitmovin.api.sdk/bitmovin-api-sdk"><img src="https://www.javadoc.io/badge/com.bitmovin.api.sdk/bitmovin-api-sdk.svg" alt="Javadoc"></img></a>    
     <a href="../LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="license"></img></a>
   </p>
 </p>
