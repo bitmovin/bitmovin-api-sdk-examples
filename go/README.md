@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://www.bitmovin.com">
-    <img alt="Bitmovin GO API SDK Examples Header" src="https://cdn.bitmovin.com/frontend/encoding/openapi-clients/readme-headers/ReadmeHeader_JavaExamples.png" >
+    <img alt="Bitmovin GO API SDK Examples Header" src="https://cdn.bitmovin.com/frontend/encoding/openapi-clients/readme-headers/ReadmeHeader_GoExamples.png" >
   </a>
 
   <h4 align="center">This folder contains examples demonstrating usage of the <a href="https://github.com/bitmovin/bitmovin-api-sdk-go" target="_blank">Bitmovin GO API SDK</a></h4>
