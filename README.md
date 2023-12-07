@@ -378,6 +378,7 @@ If you want to load a DolbyVision metadata as a sidecar XML file, the following 
 <a href="javascript/src/CencDrmContentProtection.ts">TS/JS</a> -
 <a href="php/src/CencDrmContentProtection.php">PHP</a> -
 <a href="python/src/cenc_drm_content_protection.py">Python</a>
+<a href="go/cmd/cenc_drm_content_protection.go">Go</a>
 
 This example shows how DRM content protection can be applied to a fragmented MP4 muxing. DRM is used to prevent playback on unauthorized devices (piracy) and requires integration with a key server.
 The encryption is configured to be compatible with both FairPlay and Widevine, using the [MPEG Common Encryption](https://en.wikipedia.org/wiki/MPEG_Common_Encryption) standard.
