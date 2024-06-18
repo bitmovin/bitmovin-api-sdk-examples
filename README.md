@@ -3,7 +3,7 @@
     <img alt="Bitmovin API SDK Examples Header" src="https://cdn.bitmovin.com/frontend/encoding/openapi-clients/readme-headers/Readme_OpenApi_Header.png" >
   </a>
 
-  <h4 align="center">This repository provides examples demonstrating usage of the <br><a href="https://bitmovin.com/docs/encoding/sdks" target="_blank">Bitmovin API SDKs</a> in different programming languages.</h4>
+<h4 align="center">This repository provides examples demonstrating usage of the <br><a href="https://bitmovin.com/docs/encoding/sdks" target="_blank">Bitmovin API SDKs</a> in different programming languages.</h4>
 
   <p align="center">
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></img></a>
@@ -24,31 +24,27 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
 
 ### Overview
 + [Fixed Bitrate Ladder Encoding](#fixed-bitrate-ladder-encoding)  
-   Generate multiple MP4 renditions from a single input file using a fixed set of resolutions and target bitrates
+  Generate multiple MP4 renditions from a single input file using a fixed set of resolutions and target bitrates
 + [Generating Default Manifests](#generating-default-manifests)  
-   Generate basic DASH and HLS manifests tailored to your encoding output
+  Generate basic DASH and HLS manifests tailored to your encoding output
 + [Per-Title Encoding](#per-title-encoding)  
-   Generate optimized renditions by letting the Per-Title algorithm choose resolutions and bitrates based on the complexity of your content
+  Generate optimized renditions by letting the Per-Title algorithm choose resolutions and bitrates based on the complexity of your content
 + [Multi Codec Encoding](#multi-codec-encoding)  
-   Run a multi-codec workflow following the best practices.
+  Run a multi-codec workflow following the best practices.
 + [Multi-language Broadcast TS Encoding](#multi-language-broadcast-ts-encoding)  
-   Add multiple audio streams to a Broadcast TS muxing
+  Add multiple audio streams to a Broadcast TS muxing
 + [Applying Filters](#applying-filters)  
-   Enhance and manipulate content by applying pre-defined video or audio filters
+  Enhance and manipulate content by applying pre-defined video or audio filters
 + [Server-Side Ad Insertion (SSAI)](#server-side-ad-insertion-ssai)  
-   Prevent blocking of ads by delivering a continuous content stream
-+ [RTMP Live Encoding](#rtmp-live-encoding)  
-   Start a live encoding using an RTMP stream as input
-+ [RTMP Live HD Encoding](#rtmp-live-hd-encoding)  
-   Start a live encoding with HD option using an RTMP stream as input
+  Prevent blocking of ads by delivering a continuous content stream
 + [Batch Encoding](#batch-encoding)  
-   Efficiently start and track a large number of encodings
+  Efficiently start and track a large number of encodings
 + [Multiple Inputs Concatenation](#multiple-inputs-concatenation)  
-   Combine multiple input files into a single output using concatenation and trimming
+  Combine multiple input files into a single output using concatenation and trimming
 + [HDR SDR Conversion](#hdr-sdr-conversion)
-   Convert dynamic range format between DolbyVision, HDR10, HLG and SDR.
+  Convert dynamic range format between DolbyVision, HDR10, HLG and SDR.
 + [CDN](#cdn)
-   Use the Bitmovin CDN Streaming storage to distribute your assets.
+  Use the Bitmovin CDN Streaming storage to distribute your assets.
 
 
 + **Content Protection**
@@ -61,12 +57,26 @@ For full documentation of all available API endpoints, see the [Bitmovin API ref
 + **Audio Manipulations**
 
   Map, mix and merge audio streams and channels from one or multiple sources
-   + [Simple Handling - Implicit Mapping](#simple-handling---implicit-mapping)
-   + [Simple Handling - Distinct Input Files](#simple-handling---distinct-input-files)
-   + [Channel Mixing - Swapping Channels](#channel-mixing---swapping-channels)
-   + [Channel Mixing - Downmixing](#channel-mixing---downmixing)
-   + [Stream Mapping - Mono Input Tracks](#stream-mapping---mono-input-tracks)
-   + [Stream Merging - Multiple Streams](#stream-merging---background-audio)
+    + [Simple Handling - Implicit Mapping](#simple-handling---implicit-mapping)
+    + [Simple Handling - Distinct Input Files](#simple-handling---distinct-input-files)
+    + [Channel Mixing - Swapping Channels](#channel-mixing---swapping-channels)
+    + [Channel Mixing - Downmixing](#channel-mixing---downmixing)
+    + [Stream Mapping - Mono Input Tracks](#stream-mapping---mono-input-tracks)
+    + [Stream Merging - Multiple Streams](#stream-merging---background-audio)
+
+
++ **Live Encoding**
+    + [RTMP Live Encoding](#rtmp-live-encoding)  
+      Start a live encoding using an RTMP stream as input
+    + [RTMP Live HD Encoding](#rtmp-live-hd-encoding)  
+      Start a live encoding with HD option using an RTMP stream as input
+    + [SRT Live Encoding](#srt-live-encoding)  
+      Start a live encoding using an SRT stream as input
+    + [SRT Live Encoding with HLS, SCTE-35 and SSAI](#srt-live-encoding-with-hls-scte-35-and-ssai)
+    + Start a live encoding with SRT input, HLS output, SCTE-35 markers and SSAI
+    + [SRT Live Encoding HLS with Azure Speech To Captions Filter](#srt-live-encoding-hls-with-azure-speech-to-captions-filter)  
+      Start a live encoding with SRT input and Azure Speech To Captions filter
+
 
 ### More examples?
 For more code snippets, and sometimes complete scripts, please have a look at our [tutorials](https://bitmovin.com/docs/encoding/tutorials) and our [Community pages](https://community.bitmovin.com/docs?tags=code-example%7Cbitmovin-encoding&utm_source=github&utm_medium=bitmovin-api-sdk-examples&utm_campaign=dev-community)
@@ -164,7 +174,7 @@ Required configuration parameters:
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/MultiLanguageBroadcastTs.cs">C#</a> -
 <a href="java/src/main/java/MultiLanguageBroadcastTs.java">Java</a> -
 <a href="javascript/src/MultiLanguageBroadcastTs.ts">TS/JS</a> -
- <a href="php/src/MultiLanguageBroadcastTs.php">PHP</a> -
+<a href="php/src/MultiLanguageBroadcastTs.php">PHP</a> -
 <a href="python/src/multi_language_broadcast_ts.py">Python</a>
 
 This example demonstrates how multiple audio streams can be included in a BroadcastTS muxing. BroadcastTS muxings are [MPEG transport stream](https://en.wikipedia.org/wiki/MPEG_transport_stream) muxings which allow setting custom properties such as [PCR](https://en.wikipedia.org/wiki/MPEG_transport_stream#PCR) interval and [PID](https://en.wikipedia.org/wiki/MPEG_transport_stream#Packet_identifier_(PID))s for transmission to traditional broadcast targets like set top boxes, QAM streamers and similar devices. This muxing is not generally used for streaming to IP devices such as browsers, iOS, or Android devices.
@@ -190,7 +200,7 @@ Required configuration parameters:
 
 This example demonstrates how to apply filters to a video stream. Filters will manipulate the content of a stream, e.g. remove noise or add a watermark image. See the [Encoding Filters API Reference](https://bitmovin.com/docs/encoding/api-reference/sections/filters) for a complete list of available filters.
 
- Required configuration parameters:
+Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
 + `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
@@ -199,8 +209,8 @@ This example demonstrates how to apply filters to a video stream. Filters will m
 + `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
 + `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
 + `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
- + `WATERMARK_IMAGE_PATH` ([?](#WATERMARK_IMAGE_PATH))
- + `TEXT_FILTER_TEXT` ([?](#TEXT_FILTER_TEXT))
++ `WATERMARK_IMAGE_PATH` ([?](#WATERMARK_IMAGE_PATH))
++ `TEXT_FILTER_TEXT` ([?](#TEXT_FILTER_TEXT))
 
 ---
 ### Server-Side Ad Insertion (SSAI)
@@ -218,47 +228,6 @@ Required configuration parameters:
 + `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
 + `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
-
----
-### RTMP Live Encoding
-
-<a href="dotnet/Bitmovin.Api.Sdk.Examples/RtmpLiveEncoding.cs">C#</a> -
-<a href="java/src/main/java/RtmpLiveEncoding.java">Java</a> -
-<a href="javascript/src/RtmpLiveEncoding.ts">TS/JS</a> -
-<a href="php/src/RtmpLiveEncoding.php">PHP</a> -
-<a href="python/src/rtmp_live_encoding.py">Python</a>
-
-This example shows how to configure and start a live encoding using default DASH and HLS manifests.
-For more information see: https://bitmovin.com/live-encoding-live-streaming
-
-Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
-
----
-### RTMP Live HD Encoding
-
-<a href="java/src/main/java/RtmpLiveHdEncoding.java">Java</a> -
-<a href="dotnet/Bitmovin.Api.Sdk.Examples/RtmpLiveHdEncoding.cs">C#</a> -
-<a href="javascript/src/RtmpLiveHdEncoding.ts">TS/JS</a> -
-<a href="php/src/RtmpLiveHdEncoding.php">PHP</a> -
-<a href="python/src/rtmp_live_hd_encoding.py">Python</a>
-
-
-This example shows how to configure and start a live encoding with HD option using default DASH and HLS manifests.
-For more information see: https://bitmovin.com/live-encoding-live-streaming
-
-Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
 + `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
 + `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
 + `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
@@ -336,22 +305,22 @@ This example demonstrates how to convert dynamic range format between DolbyVisio
 
 The supported HDR/SDR conversions are as follows. If the target output format is either DolbyVision, HDR10 or HLG, this example adds SDR renditions automatically. This example works only with Bitmovin Encoder version 2.98.0 or later.
 
-  - Input: DolbyVision
+- Input: DolbyVision
     - Output:
-      - DolbyVision and SDR
-      - HDR10 and SDR
-  - Input: HDR10
+        - DolbyVision and SDR
+        - HDR10 and SDR
+- Input: HDR10
     - Output:
-      - HDR10 and SDR
-      - HLG and SDR
-  - Input: HLG
+        - HDR10 and SDR
+        - HLG and SDR
+- Input: HLG
     - Output:
-      - HLG and SDR
-      - HDR10 and SDR
-  - Input: SDR
+        - HLG and SDR
+        - HDR10 and SDR
+- Input: SDR
     - Output:
-      - HDR10 and SDR
-      - HLG and SDR
+        - HDR10 and SDR
+        - HLG and SDR
 
 Required configuration parameters:
 + `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
@@ -378,7 +347,6 @@ If you want to load a DolbyVision metadata as a sidecar XML file, the following 
 <a href="javascript/src/CencDrmContentProtection.ts">TS/JS</a> -
 <a href="php/src/CencDrmContentProtection.php">PHP</a> -
 <a href="python/src/cenc_drm_content_protection.py">Python</a>
-<a href="go/cmd/cenc_drm_content_protection.go">Go</a>
 
 This example shows how DRM content protection can be applied to a fragmented MP4 muxing. DRM is used to prevent playback on unauthorized devices (piracy) and requires integration with a key server.
 The encryption is configured to be compatible with both FairPlay and Widevine, using the [MPEG Common Encryption](https://en.wikipedia.org/wiki/MPEG_Common_Encryption) standard.
@@ -566,6 +534,102 @@ Required configuration parameters:
 + `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
 + `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
+---
+### Live Encoding
+#### RTMP Live Encoding
+
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/RtmpLiveEncoding.cs">C#</a> -
+<a href="java/src/main/java/RtmpLiveEncoding.java">Java</a> -
+<a href="javascript/src/RtmpLiveEncoding.ts">TS/JS</a> -
+<a href="php/src/RtmpLiveEncoding.php">PHP</a> -
+<a href="python/src/rtmp_live_encoding.py">Python</a>
+
+This example shows how to configure and start a live encoding using default DASH and HLS manifests.
+For more information see: https://bitmovin.com/live-encoding-live-streaming
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+---
+#### RTMP Live HD Encoding
+
+<a href="java/src/main/java/RtmpLiveHdEncoding.java">Java</a> -
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/RtmpLiveHdEncoding.cs">C#</a> -
+<a href="javascript/src/RtmpLiveHdEncoding.ts">TS/JS</a> -
+<a href="php/src/RtmpLiveHdEncoding.php">PHP</a> -
+<a href="python/src/rtmp_live_hd_encoding.py">Python</a>
+
+
+This example shows how to configure and start a live encoding with HD option using default DASH and HLS manifests.
+For more information see: https://bitmovin.com/live-encoding-live-streaming
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+---
+#### SRT Live Encoding
+
+<a href="java/src/main/java/**RtmpLiveEncoding**.java">Java</a>
+
+This example shows how to configure and start a live encoding using default DASH and HLS manifests.
+For more information see: https://bitmovin.com/live-encoding-live-streaming
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+---
+#### SRT Live Encoding with HLS, SCTE-35 and SSAI
+
+<a href="java/src/main/java/Scte35HlsLiveEncoding.java">Java</a>
+
+This example shows how to configure and start a live encoding using a default HLS manifests with SCTE-35 AdMarker settings
+For more information see: https://developer.bitmovin.com/encoding/docs/live-encoding-with-hls-scte-35-and-ssai
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+
+---
+#### SRT Live Encoding HLS with Azure Speech To Captions Filter
+
+<a href="java/src/main/java/tutorials/AzureSpeechToCaptionsFilterHlsLiveEncoding.java">Java</a>
+
+
+This example shows how to configure and start a live encoding using a default HLS manifests with
+Azure Speech Services - Speech to captions feature to transcribe an audio stream in real-time.
+For more information see: https://bitmovin.com/live-encoding-live-streaming
+
+Required configuration parameters:
++ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
++ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
++ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
++ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
++ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
++ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
++ `AZURE_SPEECH_SERVICES_SUBSCRIPTION_KEY` ([?](#AZURE_SPEECH_SERVICES_SUBSCRIPTION_KEY))
++ `AZURE_SPEECH_SERVICES_REGION` ([?](#AZURE_SPEECH_SERVICES_REGION))
+
+
 ## Configuration Parameters
 
 These are the parameters that need to be supplied for the examples to work.
@@ -666,5 +730,11 @@ Example: `eu-west-1`
 <a name="SPEKE_USERNAME">**`SPEKE_USERNAME`**</a> - For basic authentication with the SPEKE server
 
 <a name="SPEKE_PASSWORD">**`SPEKE_PASSWORD`**</a> - For basic authentication with the SPEKE server
+
+<a name="AZURE_SPEECH_SERVICES_SUBSCRIPTION_KEY">**`AZURE_SPEECH_SERVICES_SUBSCRIPTION_KEY`**</a> - The Azure Speech Services subscription key
+
+<a name="AZURE_SPEECH_SERVICES_REGION">**`AZURE_SPEECH_SERVICES_REGION`**</a> - The Azure Speech Services region
+Example: `westus`
+
 
 You may also add your own parameters in your configuration. The ConfigProvider class in each example offers a generic function to get the value of the parameter by its name.
