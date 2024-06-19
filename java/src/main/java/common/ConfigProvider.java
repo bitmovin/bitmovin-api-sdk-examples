@@ -230,6 +230,14 @@ public class ConfigProvider {
         "DRM_WIDEVINE_PSSH", "Base64 encoded PSSH payload Example: QWRvYmVhc2Rmc2FkZmFzZg==");
   }
 
+  public String getAzureSpeechSpeechServicesSubscriptionKey() {
+    return getOrThrowException("AZURE_SPEECH_SERVICES_SUBSCRIPTION_KEY", "The Azure Speech Services subscription key.");
+  }
+
+  public String getAzureSpeechSpeechServicesRegion() {
+    return getOrThrowException("AZURE_SPEECH_SERVICES_REGION", "The Azure Speech Services region.");
+  }
+
   /* This generic method will enable addition and use of new config settings in a simple way */
   public String getParameterByKey(String keyName) {
     return getOrThrowException(keyName, String.format("Configuration Parameter '%s'", keyName));
