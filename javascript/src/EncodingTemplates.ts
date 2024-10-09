@@ -16,8 +16,6 @@ import BitmovinApi, {
  * <ul>
  *   <li>BITMOVIN_API_KEY - Your API key for the Bitmovin API
  *   <li>BITMOVIN_TENANT_ORG_ID - (optional) The ID of the Organisation in which you want to perform the encoding.
- *   <li>HTTP_INPUT_HOST - The Hostname or IP address of the HTTP server hosting your input files,
- *       e.g.: my-storage.biz
  *   <li>HTTP_INPUT_FILE_PATH - The path to your input file on the provided HTTP server Example:
  *       videos/1080p_Sintel.mp4
  *   <li>S3_OUTPUT_BUCKET_NAME - The name of your S3 output bucket. Example: my-bucket-name
@@ -38,8 +36,6 @@ import BitmovinApi, {
  *       examples.properties.template as reference)
  * </ol>
  */
-
-const exampleName = 'EncodingTemplates';
 
 const configProvider: ConfigProvider = new ConfigProvider();
 
