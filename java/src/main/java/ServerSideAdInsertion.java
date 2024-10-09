@@ -391,7 +391,6 @@ public class ServerSideAdInsertion {
     for (Double adBreak : breakPlacements) {
       Keyframe keyframe = new Keyframe();
       keyframe.setTime(adBreak);
-      keyframe.setSegmentCut(true);
 
       keyframes.add(bitmovinApi.encoding.encodings.keyframes.create(encoding.getId(), keyframe));
     }

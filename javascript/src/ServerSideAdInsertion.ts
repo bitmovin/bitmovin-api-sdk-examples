@@ -315,7 +315,6 @@ function createKeyframes(encoding: Encoding, breakPlacements: number[]): Promise
   return breakPlacements.map(adBreak => {
     const keyframe = new Keyframe({
       time: adBreak,
-      segmentCut: true
     });
 
     return bitmovinApi.encoding.encodings.keyframes.create(encoding.id!, keyframe);
