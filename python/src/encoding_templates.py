@@ -1,4 +1,4 @@
-import time
+import time, yaml
 
 from bitmovin_api_sdk import BitmovinApi, BitmovinApiLogger, MessageType, S3Output, Status, Task
 
@@ -154,12 +154,13 @@ manifests:
                 - permission: PRIVATE
           version: V2"""
 
+    yaml_template = yaml.load(template, Loader=yaml.SafeLoader)
+    
     # Execute the encoding
-    _execute_encoding(template=template)
+    _execute_encoding(template=yaml_template)
 
 
 def _execute_encoding(template):
-    # type: (str) -> None
     """
     Starts the actual encoding process and periodically polls its status until it reaches a final state
 
