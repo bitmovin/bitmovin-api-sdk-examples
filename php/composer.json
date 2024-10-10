@@ -1,14 +1,14 @@
 {
-    "name": "bitmovin/examples",
-    "description": "Examples demonstrating the usage of the Bitmovin API SDK.",
-    "authors": [
-        {
-            "name": "Bitmovin Inc",
-            "email": "support@bitmovin.com"
-        }
-    ],
-    "require": {
-        "php": ">=7.1.0",
-        "bitmovin/bitmovin-api-sdk-php": "1.174.0"
+  "name": "bitmovin/examples",
+  "description": "Examples demonstrating the usage of the Bitmovin API SDK.",
+  "authors": [
+    {
+      "name": "Bitmovin Inc",
+      "email": "support@bitmovin.com"
     }
+  ],
+  "require": {
+    "php": ">=7.1.0",
+    "bitmovin/bitmovin-api-sdk-php": "1.207.0"
+  }
 }

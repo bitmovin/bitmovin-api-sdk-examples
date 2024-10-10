@@ -291,8 +291,7 @@ def _wait_for_enoding_to_finish(encoding_id):
 def _create_keyframes(encoding, break_placements):
     # type: (Encoding, list) -> list
     """
-    Creates a Keyframe for each entry in the provided list. With segmentCut set to true, the
-    written segments will be split at the given point.
+    Creates a Keyframe for each entry in the provided list.
 
     :param break_placements: the list holding points in time where a keyframe should be inserted
     :return: the list of created keyframes
@@ -300,8 +299,7 @@ def _create_keyframes(encoding, break_placements):
     keyframes = []
 
     for ad_break in break_placements:
-        keyframe = Keyframe(time=ad_break,
-                            segment_cut=True)
+        keyframe = Keyframe(time=ad_break)
 
         keyframes.append(bitmovin_api.encoding.encodings.keyframes.create(encoding_id=encoding.id,
                                                                           keyframe=keyframe))

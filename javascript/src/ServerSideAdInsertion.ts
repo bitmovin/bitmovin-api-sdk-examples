@@ -303,8 +303,7 @@ function buildAbsolutePath(relativePath: string): string {
 }
 
 /**
- * Creates keyframes at specified positions of the encoded output. With segmentCut set to true,
- * the written segments will be split at keyframe positions.
+ * Creates keyframes at specified positions of the encoded output.
  *
  * @param encoding The encoding to which keyframes should be added
  * @param breakPlacements The points in time where keyframes should be inserted (specified in

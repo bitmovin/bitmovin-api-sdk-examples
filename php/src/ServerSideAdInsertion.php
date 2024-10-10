@@ -77,11 +77,12 @@ $exampleName = 'ServerSideAdInsertion';
 $configProvider = new ConfigProvider();
 
 try {
-    $bitmovinApi = new BitmovinApi(Configuration::create()
-        ->apiKey($configProvider->getBitmovinApiKey())
-        // uncomment the following line if you are working with a multi-tenant account
-        // ->tenantOrgId($configProvider->getBitmovinTenantOrgId())        
-        ->logger(new ConsoleLogger())
+    $bitmovinApi = new BitmovinApi(
+        Configuration::create()
+            ->apiKey($configProvider->getBitmovinApiKey())
+            // uncomment the following line if you are working with a multi-tenant account
+            // ->tenantOrgId($configProvider->getBitmovinTenantOrgId())        
+            ->logger(new ConsoleLogger())
     );
 
     $encoding = createEncoding($exampleName, "Encoding Example - SSAI conditioned HLS streams");
@@ -213,9 +214,14 @@ function placeVideoAdvertisementTags(HlsManifest $manifest, StreamInfo $streamIn
  * @return StreamInfo
  * @throws BitmovinApiException
  */
-function createVideoStreamPlaylist(Encoding $encoding, HlsManifest $manifestHls, string $filename, Fmp4Muxing $muxing,
-                                   string $segmentPath, AudioMediaInfo $audioMediaInfo): StreamInfo
-{
+function createVideoStreamPlaylist(
+    Encoding $encoding,
+    HlsManifest $manifestHls,
+    string $filename,
+    Fmp4Muxing $muxing,
+    string $segmentPath,
+    AudioMediaInfo $audioMediaInfo
+): StreamInfo {
     global $bitmovinApi;
 
     $streamInfo = new StreamInfo();
@@ -354,8 +360,7 @@ function executeEncoding(Encoding $encoding, StartEncodingRequest $startEncoding
 }
 
 /**
- * Creates a Keyframe for each entry in the provided list. With segmentCut set to true, the
- * written segments will be split at the given point.
+ * Creates a Keyframe for each entry in the provided list.
  *
  * @param Encoding $encoding The encoding to which keyframes should be added
  * @param array $adBreakPlacements The points in time where keyframes should be inserted (specified in
@@ -371,7 +376,6 @@ function createKeyframes(Encoding $encoding, array $adBreakPlacements): array
     foreach ($adBreakPlacements as $adBreak) {
         $keyframe = new Keyframe();
         $keyframe->time($adBreak);
-        $keyframe->segmentCut(true);
 
         $keyframes[] = $bitmovinApi->encoding->encodings->keyframes->create($encoding->id, $keyframe);
     }
