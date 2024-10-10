@@ -22,8 +22,6 @@ use BitmovinApiSdk\Models\Task;
  * <ul>
  *   <li>BITMOVIN_API_KEY - Your API key for the Bitmovin API
  *   <li>BITMOVIN_TENANT_ORG_ID - (optional) The ID of the Organisation in which you want to perform the encoding.
- *   <li>HTTP_INPUT_HOST - The Hostname or IP address of the HTTP server hosting your input files,
- *       e.g.: my-storage.biz
  *   <li>HTTP_INPUT_FILE_PATH - The path to your input file on the provided HTTP server Example:
  *       videos/1080p_Sintel.mp4
  *   <li>S3_OUTPUT_BUCKET_NAME - The name of your S3 output bucket. Example: my-bucket-name
@@ -48,26 +46,24 @@ use BitmovinApiSdk\Models\Task;
 $configProvider = new ConfigProvider();
 
 try {
-    $bitmovinApi = new BitmovinApi(
-        Configuration::create()
-            ->apiKey($configProvider->getBitmovinApiKey())
-            // uncomment the following line if you are working with a multi-tenant account
-            // ->tenantOrgId($configProvider->getBitmovinTenantOrgId())        
-            ->logger(new ConsoleLogger())
-    );
+  $bitmovinApi = new BitmovinApi(
+    Configuration::create()
+      ->apiKey($configProvider->getBitmovinApiKey())
+      // uncomment the following line if you are working with a multi-tenant account
+      // ->tenantOrgId($configProvider->getBitmovinTenantOrgId())        
+      ->logger(new ConsoleLogger())
+  );
 
-    $inputFilePath = $configProvider->getHttpInputFilePath();
-    $outputFilePath = $configProvider->getS3OutputBasePath();
+  $inputFilePath = $configProvider->getHttpInputFilePath();
+  $outputFilePath = $configProvider->getS3OutputBasePath();
 
-    $output = createS3Output(
-        $configProvider->getS3OutputBucketName(),
-        $configProvider->getS3OutputAccessKey(),
-        $configProvider->getS3OutputSecretKey()
-    );
+  $output = createS3Output(
+    $configProvider->getS3OutputBucketName(),
+    $configProvider->getS3OutputAccessKey(),
+    $configProvider->getS3OutputSecretKey()
+  );
 
-    $outputId = $output->id;
-
-    $template = "metadata:
+  $template = "metadata:
   type: VOD
   name: Standard VOD Workflow
 
@@ -102,14 +98,14 @@ encodings:
         properties:
           inputStreams:
             - inputId: $/inputs/https/streams_encoding_https_input
-              inputPath: {$inputFilePath}
+              inputPath: $inputFilePath
           codecConfigId: $/configurations/video/h264/streams_encoding_h264
           mode: PER_TITLE_TEMPLATE
       video_h264_1080p:
         properties:
           inputStreams:
             - inputId: $/inputs/https/streams_encoding_https_input
-              inputPath: {$inputFilePath}
+              inputPath: $inputFilePath
           codecConfigId: $/configurations/video/h264/streams_encoding_h264_1080p
           mode: PER_TITLE_TEMPLATE_FIXED_RESOLUTION
 
@@ -122,8 +118,8 @@ encodings:
             streams:
               - streamId: $/encodings/main-encoding/streams/video_h264
             outputs:
-              - outputId: {$outputId}
-                outputPath: {$outputFilePath}/vod_streams_encoding/{width}_{bitrate}_{uuid}/
+              - outputId: $outputId
+                outputPath: $outputFilePath/vod_streams_encoding/{width}_{bitrate}_{uuid}/
                 acl:
                   - permission: PRIVATE
             initSegmentName: init.mp4
@@ -136,8 +132,8 @@ encodings:
             streams:
               - streamId: $/encodings/main-encoding/streams/video_h264_1080p
             outputs:
-              - outputId: {$outputId}
-                outputPath: {$outputFilePath}/vod_streams_encoding/{bitrate}/
+              - outputId: $outputId
+                outputPath: $outputFilePath/vod_streams_encoding/{bitrate}/
                 acl:
                   - permission: PRIVATE
             initSegmentName: init.mp4
@@ -165,18 +161,17 @@ manifests:
           manifestName: manifest.mpd
           profile: ON_DEMAND
           outputs:
-            - outputId: {$outputId}
-              outputPath: {$outputFilePath}/vod_streams_encoding/
+            - outputId: $outputId
+              outputPath: $outputFilePath/vod_streams_encoding/
               acl:
                 - permission: PRIVATE
           version: V2";
 
-    // TODO: use strstr() to interpolate
-    // https://www.delftstack.com/howto/php/php-template-strings/#use-php-strstr-to-generate-a-template-string
+  $interpolatedTemplate = str_replace(array('$inputFilePath', '$outputId', '$outputFilePath'), array($inputFilePath, $output->id, $outputFilePath), $template);
 
-    executeEncoding($template);
+  executeEncoding($interpolatedTemplate);
 } catch (Exception $exception) {
-    echo $exception . PHP_EOL;
+  echo $exception . PHP_EOL;
 }
 
 /**
@@ -197,22 +192,22 @@ manifests:
  */
 function executeEncoding(string $template)
 {
-    global $bitmovinApi;
+  global $bitmovinApi;
 
-    $encoding = $bitmovinApi->encoding->templates->start($template);
+  $encoding = $bitmovinApi->encoding->templates->start($template);
 
-    do {
-        sleep(5);
-        $task = $bitmovinApi->encoding->encodings->status($encoding->encodingId);
-        echo 'Encoding status is ' . $task->status . ' (progress: ' . $task->progress . ' %)' . PHP_EOL;
-    } while ($task->status != Status::FINISHED() && $task->status != Status::ERROR());
+  do {
+    sleep(5);
+    $task = $bitmovinApi->encoding->encodings->status($encoding->encodingId);
+    echo 'Encoding status is ' . $task->status . ' (progress: ' . $task->progress . ' %)' . PHP_EOL;
+  } while ($task->status != Status::FINISHED() && $task->status != Status::ERROR());
 
-    if ($task->status == Status::ERROR()) {
-        logTaskErrors($task);
-        throw new Exception('Encoding failed');
-    }
+  if ($task->status == Status::ERROR()) {
+    logTaskErrors($task);
+    throw new Exception('Encoding failed');
+  }
 
-    echo 'Encoding finished successfully' . PHP_EOL;
+  echo 'Encoding finished successfully' . PHP_EOL;
 }
 
 /**
@@ -242,27 +237,27 @@ function executeEncoding(string $template)
  */
 function createS3Output(string $bucketName, string $accessKey, string $secretKey): S3Output
 {
-    global $bitmovinApi;
+  global $bitmovinApi;
 
-    $output = new S3Output();
-    $output->bucketName($bucketName);
-    $output->accessKey($accessKey);
-    $output->secretKey($secretKey);
+  $output = new S3Output();
+  $output->bucketName($bucketName);
+  $output->accessKey($accessKey);
+  $output->secretKey($secretKey);
 
-    return $bitmovinApi->encoding->outputs->s3->create($output);
+  return $bitmovinApi->encoding->outputs->s3->create($output);
 }
 
 function logTaskErrors(Task $task)
 {
-    if ($task->messages == null) {
-        return;
-    }
+  if ($task->messages == null) {
+    return;
+  }
 
-    $messages = array_filter($task->messages, function ($msg) {
-        return $msg->type == MessageType::ERROR();
-    });
+  $messages = array_filter($task->messages, function ($msg) {
+    return $msg->type == MessageType::ERROR();
+  });
 
-    foreach ($messages as $message) {
-        echo $message->text . PHP_EOL;
-    }
+  foreach ($messages as $message) {
+    echo $message->text . PHP_EOL;
+  }
 }
