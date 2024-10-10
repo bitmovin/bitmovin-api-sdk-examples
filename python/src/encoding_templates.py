@@ -1,6 +1,6 @@
 import time, yaml
 
-from bitmovin_api_sdk import BitmovinApi, BitmovinApiLogger, MessageType, S3Output, Status, Task
+from bitmovin_api_sdk import BitmovinApi, BitmovinApiLogger, EncodingTemplateRequest, MessageType, S3Output, Status, Task
 
 from common.config_provider import ConfigProvider
 
@@ -161,6 +161,7 @@ manifests:
 
 
 def _execute_encoding(template):
+    # type: (EncodingTemplateRequest) -> None
     """
     Starts the actual encoding process and periodically polls its status until it reaches a final state
 
