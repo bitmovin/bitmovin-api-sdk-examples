@@ -365,8 +365,7 @@ namespace Bitmovin.Api.Sdk.Examples
         }
 
         /// <summary>
-        /// Creates keyframes at specified positions of the encoded output. With SegmentCut set to true,
-        /// the written segments will be split at keyframe positions.<para />
+        /// Creates a Keyframe for each entry in the provided list.<para />
         ///
         /// API endpoint:
         /// https://bitmovin.com/docs/encoding/api-reference/sections/encodings#/Encoding/PostEncodingEncodingsKeyframesByEncodingId
@@ -383,8 +382,7 @@ namespace Bitmovin.Api.Sdk.Examples
             {
                 var keyframe = new Keyframe()
                 {
-                    Time = adBreak,
-                    SegmentCut = true
+                    Time = adBreak
                 };
 
                 keyframes.Add(await _bitmovinApi.Encoding.Encodings.Keyframes.CreateAsync(encoding.Id, keyframe));
