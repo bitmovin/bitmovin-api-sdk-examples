@@ -179,10 +179,10 @@ def _execute_encoding(template):
 
     encoding = bitmovin_api.encoding.templates.start(template)
 
-    task = _wait_for_enoding_to_finish(encoding_id=encoding.encodingId)
+    task = _wait_for_enoding_to_finish(encoding_id=encoding.encoding_id)
 
     while task.status is not Status.FINISHED and task.status is not Status.ERROR:
-        task = _wait_for_enoding_to_finish(encoding_id=encoding.encodingId)
+        task = _wait_for_enoding_to_finish(encoding_id=encoding.encoding_id)
 
     if task.status is Status.ERROR:
         _log_task_errors(task=task)
