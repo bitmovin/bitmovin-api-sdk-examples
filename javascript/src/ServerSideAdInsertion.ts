@@ -303,7 +303,7 @@ function buildAbsolutePath(relativePath: string): string {
 }
 
 /**
- * Creates keyframes at specified positions of the encoded output.
+ * Creates a Keyframe for each entry in the provided list.
  *
  * @param encoding The encoding to which keyframes should be added
  * @param breakPlacements The points in time where keyframes should be inserted (specified in
@@ -312,9 +312,7 @@ function buildAbsolutePath(relativePath: string): string {
  */
 function createKeyframes(encoding: Encoding, breakPlacements: number[]): Promise<Keyframe>[] {
   return breakPlacements.map(adBreak => {
-    const keyframe = new Keyframe({
-      time: adBreak,
-    });
+    const keyframe = new Keyframe({time: adBreak});
 
     return bitmovinApi.encoding.encodings.keyframes.create(encoding.id!, keyframe);
   });

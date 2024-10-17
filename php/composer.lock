@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "393ad146ba8cbe98ce355a6264e6e320",
+    "content-hash": "6a63352d3c832c636ce894f5ba50ea38",
     "packages": [
         {
             "name": "bitmovin/bitmovin-api-sdk-php",
-            "version": "1.207.0",
+            "version": "1.208.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bitmovin/bitmovin-api-sdk-php.git",
-                "reference": "786cc8ea4d590b937ccae12494d51eaf5f5babdc"
+                "reference": "bd4ae748837dc742410e80355c726fc9b13965ee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bitmovin/bitmovin-api-sdk-php/zipball/786cc8ea4d590b937ccae12494d51eaf5f5babdc",
-                "reference": "786cc8ea4d590b937ccae12494d51eaf5f5babdc",
+                "url": "https://api.github.com/repos/bitmovin/bitmovin-api-sdk-php/zipball/bd4ae748837dc742410e80355c726fc9b13965ee",
+                "reference": "bd4ae748837dc742410e80355c726fc9b13965ee",
                 "shasum": ""
             },
             "require": {
@@ -48,9 +48,9 @@
             "description": "This is the Bitmovin API SDK for PHP",
             "support": {
                 "issues": "https://github.com/bitmovin/bitmovin-api-sdk-php/issues",
-                "source": "https://github.com/bitmovin/bitmovin-api-sdk-php/tree/v1.207.0"
+                "source": "https://github.com/bitmovin/bitmovin-api-sdk-php/tree/v1.208.0"
             },
-            "time": "2024-10-02T10:31:43+00:00"
+            "time": "2024-10-15T15:02:44+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
