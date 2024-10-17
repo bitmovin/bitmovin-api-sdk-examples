@@ -354,8 +354,7 @@ function executeEncoding(Encoding $encoding, StartEncodingRequest $startEncoding
 }
 
 /**
- * Creates a Keyframe for each entry in the provided list. With segmentCut set to true, the
- * written segments will be split at the given point.
+ * Creates a Keyframe for each entry in the provided list.
  *
  * @param Encoding $encoding The encoding to which keyframes should be added
  * @param array $adBreakPlacements The points in time where keyframes should be inserted (specified in
@@ -371,7 +370,6 @@ function createKeyframes(Encoding $encoding, array $adBreakPlacements): array
     foreach ($adBreakPlacements as $adBreak) {
         $keyframe = new Keyframe();
         $keyframe->time($adBreak);
-        $keyframe->segmentCut(true);
 
         $keyframes[] = $bitmovinApi->encoding->encodings->keyframes->create($encoding->id, $keyframe);
     }
