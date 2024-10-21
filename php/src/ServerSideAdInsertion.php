@@ -77,12 +77,11 @@ $exampleName = 'ServerSideAdInsertion';
 $configProvider = new ConfigProvider();
 
 try {
-    $bitmovinApi = new BitmovinApi(
-        Configuration::create()
-            ->apiKey($configProvider->getBitmovinApiKey())
-            // uncomment the following line if you are working with a multi-tenant account
-            // ->tenantOrgId($configProvider->getBitmovinTenantOrgId())        
-            ->logger(new ConsoleLogger())
+    $bitmovinApi = new BitmovinApi(Configuration::create()
+        ->apiKey($configProvider->getBitmovinApiKey())
+        // uncomment the following line if you are working with a multi-tenant account
+        // ->tenantOrgId($configProvider->getBitmovinTenantOrgId())        
+        ->logger(new ConsoleLogger())
     );
 
     $encoding = createEncoding($exampleName, "Encoding Example - SSAI conditioned HLS streams");
@@ -214,14 +213,9 @@ function placeVideoAdvertisementTags(HlsManifest $manifest, StreamInfo $streamIn
  * @return StreamInfo
  * @throws BitmovinApiException
  */
-function createVideoStreamPlaylist(
-    Encoding $encoding,
-    HlsManifest $manifestHls,
-    string $filename,
-    Fmp4Muxing $muxing,
-    string $segmentPath,
-    AudioMediaInfo $audioMediaInfo
-): StreamInfo {
+function createVideoStreamPlaylist(Encoding $encoding, HlsManifest $manifestHls, string $filename, Fmp4Muxing $muxing,
+                                   string $segmentPath, AudioMediaInfo $audioMediaInfo): StreamInfo
+{
     global $bitmovinApi;
 
     $streamInfo = new StreamInfo();
