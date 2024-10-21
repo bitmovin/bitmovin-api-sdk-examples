@@ -14,6 +14,10 @@ use BitmovinApiSdk\Models\Status;
 use BitmovinApiSdk\Models\Task;
 
 /**
+ * ATTENTION: This example is not working as intended. Either the SDK or the contained Guzzle client break the
+ *            internal resource references like `$/inputs/https/streams_encoding_https_input` which are needed
+ *            to configure a whole encoding containing streams, muxings and manifests.
+ * 
  * This example shows how to do a Per-Title encoding with default manifests. For more information
  * see: https://bitmovin.com/per-title-encoding/
  *
@@ -42,6 +46,7 @@ use BitmovinApiSdk\Models\Task;
  *       examples.properties.template as reference)
  * </ol>
  */
+echo "ATTENTION: This example is not working as intended. Either the SDK or the contained Guzzle client break the internal resource references like `$/inputs/https/streams_encoding_https_input` which are needed to configure a whole encoding containing streams, muxings and manifests." . PHP_EOL;
 
 $configProvider = new ConfigProvider();
 
