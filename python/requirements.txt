@@ -1,2 +1,2 @@
-bitmovin-api-sdk == 1.208.0
+bitmovin-api-sdk == 1.209.0
 pyyaml == 6.0.2
