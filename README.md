@@ -3,7 +3,7 @@
     <img alt="Bitmovin API SDK Examples Header" src="https://cdn.bitmovin.com/frontend/encoding/openapi-clients/readme-headers/Readme_OpenApi_Header.png" >
   </a>
 
-<h4 align="center">This repository provides examples demonstrating usage of the <br><a href="https://bitmovin.com/docs/encoding/sdks" target="_blank">Bitmovin API SDKs</a> in different programming languages.</h4>
+  <h4 align="center">This repository provides examples demonstrating usage of the <br><a href="https://bitmovin.com/docs/encoding/sdks" target="_blank">Bitmovin API SDKs</a> in different programming languages.</h4>
 
   <p align="center">
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></img></a>
@@ -23,65 +23,94 @@ For instructions how to set up the configuration environment and run examples, c
 For full documentation of all available API endpoints, see the [Bitmovin API reference](https://bitmovin.com/docs/encoding/api-reference).
 
 ### Overview
-+ [Fixed Bitrate Ladder Encoding](#fixed-bitrate-ladder-encoding)  
+
+- [Encoding Templates](#encoding-templates)  
+  Generate optimized renditions by letting the Per-Title algorithm choose resolutions and bitrates based on the complexity of your content with a single configuration file
+- [Fixed Bitrate Ladder Encoding](#fixed-bitrate-ladder-encoding)  
   Generate multiple MP4 renditions from a single input file using a fixed set of resolutions and target bitrates
-+ [Generating Default Manifests](#generating-default-manifests)  
+- [Generating Default Manifests](#generating-default-manifests)  
   Generate basic DASH and HLS manifests tailored to your encoding output
-+ [Per-Title Encoding](#per-title-encoding)  
+- [Per-Title Encoding](#per-title-encoding)  
   Generate optimized renditions by letting the Per-Title algorithm choose resolutions and bitrates based on the complexity of your content
-+ [Multi Codec Encoding](#multi-codec-encoding)  
+- [Multi Codec Encoding](#multi-codec-encoding)  
   Run a multi-codec workflow following the best practices.
-+ [Multi-language Broadcast TS Encoding](#multi-language-broadcast-ts-encoding)  
+- [Multi-language Broadcast TS Encoding](#multi-language-broadcast-ts-encoding)  
   Add multiple audio streams to a Broadcast TS muxing
-+ [Applying Filters](#applying-filters)  
+- [Applying Filters](#applying-filters)  
   Enhance and manipulate content by applying pre-defined video or audio filters
-+ [Server-Side Ad Insertion (SSAI)](#server-side-ad-insertion-ssai)  
+- [Server-Side Ad Insertion (SSAI)](#server-side-ad-insertion-ssai)  
   Prevent blocking of ads by delivering a continuous content stream
-+ [Batch Encoding](#batch-encoding)  
+- [Batch Encoding](#batch-encoding)  
   Efficiently start and track a large number of encodings
-+ [Multiple Inputs Concatenation](#multiple-inputs-concatenation)  
+- [Multiple Inputs Concatenation](#multiple-inputs-concatenation)  
   Combine multiple input files into a single output using concatenation and trimming
-+ [HDR SDR Conversion](#hdr-sdr-conversion)
+- [HDR SDR Conversion](#hdr-sdr-conversion)
   Convert dynamic range format between DolbyVision, HDR10, HLG and SDR.
-+ [CDN](#cdn)
+- [CDN](#cdn)
   Use the Bitmovin CDN Streaming storage to distribute your assets.
 
+- **Content Protection**
 
-+ **Content Protection**
-    + [Applying CENC DRM Content Protection](#applying-cenc-drm-content-protection)  
-      Encrypt output to prevent unauthorized playback
-    + [Applying Content Protection with SPEKE](#applying-drm-content-protection-with-speke)  
-      Obtain DRM keys from a SPEKE server
+  - [Applying CENC DRM Content Protection](#applying-cenc-drm-content-protection)  
+    Encrypt output to prevent unauthorized playback
+  - [Applying Content Protection with SPEKE](#applying-drm-content-protection-with-speke)  
+    Obtain DRM keys from a SPEKE server
 
-
-+ **Audio Manipulations**
+- **Audio Manipulations**
 
   Map, mix and merge audio streams and channels from one or multiple sources
-    + [Simple Handling - Implicit Mapping](#simple-handling---implicit-mapping)
-    + [Simple Handling - Distinct Input Files](#simple-handling---distinct-input-files)
-    + [Channel Mixing - Swapping Channels](#channel-mixing---swapping-channels)
-    + [Channel Mixing - Downmixing](#channel-mixing---downmixing)
-    + [Stream Mapping - Mono Input Tracks](#stream-mapping---mono-input-tracks)
-    + [Stream Merging - Multiple Streams](#stream-merging---background-audio)
 
+  - [Simple Handling - Implicit Mapping](#simple-handling---implicit-mapping)
+  - [Simple Handling - Distinct Input Files](#simple-handling---distinct-input-files)
+  - [Channel Mixing - Swapping Channels](#channel-mixing---swapping-channels)
+  - [Channel Mixing - Downmixing](#channel-mixing---downmixing)
+  - [Stream Mapping - Mono Input Tracks](#stream-mapping---mono-input-tracks)
+  - [Stream Merging - Multiple Streams](#stream-merging---background-audio)
 
-+ **Live Encoding**
-    + [RTMP Live Encoding](#rtmp-live-encoding)  
-      Start a live encoding using an RTMP stream as input
-    + [RTMP Live HD Encoding](#rtmp-live-hd-encoding)  
-      Start a live encoding with HD option using an RTMP stream as input
-    + [SRT Live Encoding](#srt-live-encoding)  
-      Start a live encoding using an SRT stream as input
-    + [SRT Live Encoding with HLS, SCTE-35 and SSAI](#srt-live-encoding-with-hls-scte-35-and-ssai)
-    + Start a live encoding with SRT input, HLS output, SCTE-35 markers and SSAI
-    + [SRT Live Encoding HLS with Azure Speech To Captions Filter](#srt-live-encoding-hls-with-azure-speech-to-captions-filter)  
-      Start a live encoding with SRT input and Azure Speech To Captions filter
-
+- **Live Encoding**
+  - [RTMP Live Encoding](#rtmp-live-encoding)  
+    Start a live encoding using an RTMP stream as input
+  - [RTMP Live HD Encoding](#rtmp-live-hd-encoding)  
+    Start a live encoding with HD option using an RTMP stream as input
+  - [SRT Live Encoding](#srt-live-encoding)  
+    Start a live encoding using an SRT stream as input
+  - [SRT Live Encoding with HLS, SCTE-35 and SSAI](#srt-live-encoding-with-hls-scte-35-and-ssai)
+  - Start a live encoding with SRT input, HLS output, SCTE-35 markers and SSAI
+  - [SRT Live Encoding HLS with Azure Speech To Captions Filter](#srt-live-encoding-hls-with-azure-speech-to-captions-filter)  
+    Start a live encoding with SRT input and Azure Speech To Captions filter
 
 ### More examples?
+
 For more code snippets, and sometimes complete scripts, please have a look at our [tutorials](https://bitmovin.com/docs/encoding/tutorials) and our [Community pages](https://community.bitmovin.com/docs?tags=code-example%7Cbitmovin-encoding&utm_source=github&utm_medium=bitmovin-api-sdk-examples&utm_campaign=dev-community)
 
 ---
+
+### Encoding Templates
+
+<a href="dotnet/Bitmovin.Api.Sdk.Examples/EncodingTemplates.cs">C#</a> -
+<a href="go/cmd/encoding_templates/main.go">Go</a> -
+<a href="java/src/main/java/EncodingTemplates.java">Java</a> -
+<a href="javascript/src/EncodingTemplates.ts">TS/JS</a> -
+<a href="php/src/EncodingTemplates.php">~~PHP~~</a> (not working) -
+<a href="python/src/encoding_templates.py">Python</a>
+
+This example shows how to do a Per-Title encoding with default manifests with a single configuration file.
+A Per-Title encoding automatically detects the optimal codec settings for your video assets.
+
+Visit https://bitmovin.com/per-title-encoding/ to get an insight what Per-Title encoding is and how it works.
+
+Required configuration parameters:
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+---
+
 ### Fixed Bitrate Ladder Encoding
 
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/FixedBitrateLadder.cs">C#</a> -
@@ -93,16 +122,18 @@ For more code snippets, and sometimes complete scripts, please have a look at ou
 This example demonstrates how to create multiple MP4 renditions in a single encoding, using a fixed resolution- and bitrate ladder.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 ### Generating Default Manifests
 
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/DefaultManifest.cs">C#</a> -
@@ -114,16 +145,18 @@ Required configuration parameters:
 This example demonstrates how to create basic DASH and HLS manifests for an encoding. Default manifests will try include all the encoding's features that are supported by the respective manifest type.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 ### Per-Title Encoding
 
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/PerTitleEncoding.cs">C#</a> -
@@ -138,16 +171,18 @@ A Per-Title encoding automatically detects the optimal codec settings for your v
 Visit https://bitmovin.com/per-title-encoding/ to get an insight what Per-Title encoding is and how it works.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 ### Multi Codec Encoding
 
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/MultiCodecEncoding.cs">C#</a> -
@@ -159,16 +194,18 @@ Required configuration parameters:
 This example showcases how to run a multi-codec workflow following the best practices.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 ### Multi-language Broadcast TS Encoding
 
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/MultiLanguageBroadcastTs.cs">C#</a> -
@@ -177,19 +214,21 @@ Required configuration parameters:
 <a href="php/src/MultiLanguageBroadcastTs.php">PHP</a> -
 <a href="python/src/multi_language_broadcast_ts.py">Python</a>
 
-This example demonstrates how multiple audio streams can be included in a BroadcastTS muxing. BroadcastTS muxings are [MPEG transport stream](https://en.wikipedia.org/wiki/MPEG_transport_stream) muxings which allow setting custom properties such as [PCR](https://en.wikipedia.org/wiki/MPEG_transport_stream#PCR) interval and [PID](https://en.wikipedia.org/wiki/MPEG_transport_stream#Packet_identifier_(PID))s for transmission to traditional broadcast targets like set top boxes, QAM streamers and similar devices. This muxing is not generally used for streaming to IP devices such as browsers, iOS, or Android devices.
+This example demonstrates how multiple audio streams can be included in a BroadcastTS muxing. BroadcastTS muxings are [MPEG transport stream](https://en.wikipedia.org/wiki/MPEG_transport_stream) muxings which allow setting custom properties such as [PCR](https://en.wikipedia.org/wiki/MPEG_transport_stream#PCR) interval and [PID](<https://en.wikipedia.org/wiki/MPEG_transport_stream#Packet_identifier_(PID)>)s for transmission to traditional broadcast targets like set top boxes, QAM streamers and similar devices. This muxing is not generally used for streaming to IP devices such as browsers, iOS, or Android devices.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 ### Applying Filters
 
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/Filters.cs">C#</a> -
@@ -201,18 +240,20 @@ Required configuration parameters:
 This example demonstrates how to apply filters to a video stream. Filters will manipulate the content of a stream, e.g. remove noise or add a watermark image. See the [Encoding Filters API Reference](https://bitmovin.com/docs/encoding/api-reference/sections/filters) for a complete list of available filters.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
-+ `WATERMARK_IMAGE_PATH` ([?](#WATERMARK_IMAGE_PATH))
-+ `TEXT_FILTER_TEXT` ([?](#TEXT_FILTER_TEXT))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+- `WATERMARK_IMAGE_PATH` ([?](#WATERMARK_IMAGE_PATH))
+- `TEXT_FILTER_TEXT` ([?](#TEXT_FILTER_TEXT))
 
 ---
+
 ### Server-Side Ad Insertion (SSAI)
 
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/ServerSideAdInsertion.cs">C#</a> -
@@ -224,16 +265,18 @@ Required configuration parameters:
 This example demonstrates how to create multiple fMP4 renditions with Server Side Ad Insertion (SSAI).
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 ### Batch Encoding
 
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/BatchEncoding.cs">C#</a> -
@@ -248,16 +291,17 @@ some encodings queued. Encodings will therefore be started in a way to maintain 
 size.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 ### CDN
 
 <a href="java/src/main/java/EncodingWithCdnOutput.java">Java</a> -
@@ -267,11 +311,13 @@ Required configuration parameters:
 This example demonstrates how to use the Bitmovin CDN Streaming storage to distribute your assets to end users.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
 
 ---
+
 ### Multiple Inputs Concatenation
 
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/ConcatenationMultipleInputs.cs">C#</a> -
@@ -284,19 +330,22 @@ This example demonstrates how to use concatenation and trimming to combine multi
 This script is the full version of the script documented in the tutorial on concatenation and trimming https://bitmovin.com/docs/encoding/tutorials/stitching-and-trimming-part-1-the-basics
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
-+ `HTTP_INPUT_BUMPER_FILE_PATH` ([?](#HTTP_INPUT_BUMPER_FILE_PATH))
-+ `HTTP_INPUT_PROMO_FILE_PATH` ([?](#HTTP_INPUT_PROMO_FILE_PATH))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
+- `HTTP_INPUT_BUMPER_FILE_PATH` ([?](#HTTP_INPUT_BUMPER_FILE_PATH))
+- `HTTP_INPUT_PROMO_FILE_PATH` ([?](#HTTP_INPUT_PROMO_FILE_PATH))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 ### HDR SDR Conversion
+
 <a href="python/src/hdr_conversions.py">Python</a> -
 <a href="java/src/main/java/HdrConversions.java">Java</a> -
 <a href="javascript/src/HdrConversions.ts">TS/JS</a>
@@ -306,43 +355,48 @@ This example demonstrates how to convert dynamic range format between DolbyVisio
 The supported HDR/SDR conversions are as follows. If the target output format is either DolbyVision, HDR10 or HLG, this example adds SDR renditions automatically. This example works only with Bitmovin Encoder version 2.98.0 or later.
 
 - Input: DolbyVision
-    - Output:
-        - DolbyVision and SDR
-        - HDR10 and SDR
+  - Output:
+    - DolbyVision and SDR
+    - HDR10 and SDR
 - Input: HDR10
-    - Output:
-        - HDR10 and SDR
-        - HLG and SDR
+  - Output:
+    - HDR10 and SDR
+    - HLG and SDR
 - Input: HLG
-    - Output:
-        - HLG and SDR
-        - HDR10 and SDR
+  - Output:
+    - HLG and SDR
+    - HDR10 and SDR
 - Input: SDR
-    - Output:
-        - HDR10 and SDR
-        - HLG and SDR
+  - Output:
+    - HDR10 and SDR
+    - HLG and SDR
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
-+ `HTTP_INPUT_AUDIO_FILE_PATH` ([?](#HTTP_INPUT_AUDIO_FILE_PATH))
-+ `HDR_CONVERSION_INPUT_FORMAT` ([?](#HDR_CONVERSION_INPUT_FORMAT))
-+ `HDR_CONVERSION_OUTPUT_FORMAT` ([?](#HDR_CONVERSION_OUTPUT_FORMAT))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
+- `HTTP_INPUT_AUDIO_FILE_PATH` ([?](#HTTP_INPUT_AUDIO_FILE_PATH))
+- `HDR_CONVERSION_INPUT_FORMAT` ([?](#HDR_CONVERSION_INPUT_FORMAT))
+- `HDR_CONVERSION_OUTPUT_FORMAT` ([?](#HDR_CONVERSION_OUTPUT_FORMAT))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 If you want to load a DolbyVision metadata as a sidecar XML file, the following parameter also needs to be specified. If that parameter is not provided for a DolbyVision encoding, the example assumes the corresponding metadata is embedded into the DolbyVision input mezzanine file itself.
-+ `HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH` ([?](#HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH))
+
+- `HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH` ([?](#HTTP_INPUT_DOLBY_VISION_METADATA_FILE_PATH))
 
 ---
+
 ### Content Protection
+
 #### Applying CENC DRM Content Protection
 
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/CencDrmContentProtection.cs">C#</a> -
+<a href="go/cmd/cenc_drm_content_protection/main.go">Go</a> -
 <a href="java/src/main/java/CencDrmContentProtection.java">Java</a> -
 <a href="javascript/src/CencDrmContentProtection.ts">TS/JS</a> -
 <a href="php/src/CencDrmContentProtection.php">PHP</a> -
@@ -352,20 +406,22 @@ This example shows how DRM content protection can be applied to a fragmented MP4
 The encryption is configured to be compatible with both FairPlay and Widevine, using the [MPEG Common Encryption](https://en.wikipedia.org/wiki/MPEG_Common_Encryption) standard.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
-+ `DRM_KEY` ([?](#DRM_KEY))
-+ `DRM_FAIRPLAY_IV` ([?](#DRM_FAIRPLAY_IV))
-+ `DRM_FAIRPLAY_URI` ([?](#DRM_FAIRPLAY_URI))
-+ `DRM_WIDEVINE_KID` ([?](#DRM_WIDEVINE_KID))
-+ `DRM_WIDEVINE_PSSH` ([?](#DRM_WIDEVINE_PSSH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+- `DRM_KEY` ([?](#DRM_KEY))
+- `DRM_FAIRPLAY_IV` ([?](#DRM_FAIRPLAY_IV))
+- `DRM_FAIRPLAY_URI` ([?](#DRM_FAIRPLAY_URI))
+- `DRM_WIDEVINE_KID` ([?](#DRM_WIDEVINE_KID))
+- `DRM_WIDEVINE_PSSH` ([?](#DRM_WIDEVINE_PSSH))
 
 ---
+
 #### Applying DRM Content Protection with SPEKE
 
 <a href="java/src/main/java/DrmContentProtectionWithSpeke.java">Java</a> -
@@ -377,28 +433,32 @@ can be obtained from a SPEKE server, and adds FairPlay DRM. Manifests are built
 from scratch, with DASH for CENC protected outputs, and HLS for FairPlay
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
-+ `SPEKE_URL` ([?](#SPEKE_URL))
-+ and for AWS IAM authentication
-    + `SPEKE_ARN` ([?](#SPEKE_ARN))
-    + `SPEKE_GATEWAY_REGION` ([?](#SPEKE_GATEWAY_REGION))
-+ or for simple credentials
-    + `SPEKE_USERNAME` ([?](#SPEKE_USERNAME))
-    + `SPEKE_PASSWORD` ([?](#SPEKE_PASSWORD))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+- `SPEKE_URL` ([?](#SPEKE_URL))
+- and for AWS IAM authentication
+  - `SPEKE_ARN` ([?](#SPEKE_ARN))
+  - `SPEKE_GATEWAY_REGION` ([?](#SPEKE_GATEWAY_REGION))
+- or for simple credentials
+  - `SPEKE_USERNAME` ([?](#SPEKE_USERNAME))
+  - `SPEKE_PASSWORD` ([?](#SPEKE_PASSWORD))
 
 Optional Parameters
-+ `DRM_FAIRPLAY_IV` ([?](#DRM_FAIRPLAY_IV))
-+ `DRM_CONTENT_ID` ([?](#DRM_CONTENT_ID))
-+ `DRM_KEY_ID` ([?](#DRM_KEY_ID))
+
+- `DRM_FAIRPLAY_IV` ([?](#DRM_FAIRPLAY_IV))
+- `DRM_CONTENT_ID` ([?](#DRM_CONTENT_ID))
+- `DRM_KEY_ID` ([?](#DRM_KEY_ID))
 
 ---
+
 ### Audio Manipulations
+
 A set of examples that demonstrate how to perform audio stream and channel manipulations.
 They are provided as illustrations of the [tutorial on audio manipulations]
 (https://bitmovin.com/docs/encoding/tutorials/separating-and-combining-audio-streams)
@@ -416,14 +476,15 @@ MP4, from an input file containing a stereo audio stream (and a video stream), w
 single IngestInputStream.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH_STEREO_SOUND` ([?](#HTTP_INPUT_FILE_PATH_STEREO_SOUND))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH_STEREO_SOUND` ([?](#HTTP_INPUT_FILE_PATH_STEREO_SOUND))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 #### Simple Handling - Distinct Input Files
 
@@ -437,16 +498,17 @@ This example demonstrates how to combine and map audio streams from multiple inp
 single output MP4 file with multiple audio streams/tracks, with multiple IngestInputStreams.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
-+ `HTTP_INPUT_FILE_PATH_STEREO_SOUND` ([?](#HTTP_INPUT_FILE_PATH_STEREO_SOUND))
-+ `HTTP_INPUT_FILE_PATH_SURROUND_SOUND` ([?](#HTTP_INPUT_FILE_PATH_SURROUND_SOUND))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH` ([?](#HTTP_INPUT_FILE_PATH))
+- `HTTP_INPUT_FILE_PATH_STEREO_SOUND` ([?](#HTTP_INPUT_FILE_PATH_STEREO_SOUND))
+- `HTTP_INPUT_FILE_PATH_SURROUND_SOUND` ([?](#HTTP_INPUT_FILE_PATH_SURROUND_SOUND))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 #### Channel Mixing - Swapping Channels
 
@@ -460,14 +522,15 @@ This example demonstrates how to swap 2 audio channels from a stereo input, usin
 AudioMixInputStream configuration.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH_STEREO_SOUND` ([?](#HTTP_INPUT_FILE_PATH_STEREO_SOUND))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH_STEREO_SOUND` ([?](#HTTP_INPUT_FILE_PATH_STEREO_SOUND))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 #### Channel Mixing - Downmixing
 
@@ -481,14 +544,15 @@ This example demonstrates one mechanism to downmix a 5.1 stream down to 2.0.
 It uses an advanced AudioMixInputStream configuration with gain adjusted on each input channel.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH_SURROUND_SOUND` ([?](#HTTP_INPUT_FILE_PATH_SURROUND_SOUND))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH_SURROUND_SOUND` ([?](#HTTP_INPUT_FILE_PATH_SURROUND_SOUND))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 #### Stream Mapping - Mono Input Tracks
 
@@ -503,14 +567,15 @@ tracks, using multiple IngestInputStreams (by position in the source),
 and mapping them to output channels (by type).
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS` ([?](#HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS` ([?](#HTTP_INPUT_FILE_PATH_MULTIPLE_MONO_AUDIO_TRACKS))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 #### Stream Merging - Background Audio
 
@@ -525,17 +590,20 @@ easily be extended to select them from separate input files), adjusting gain on 
 to turn it into a background effect.
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
-+ `HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS` ([?](#HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `HTTP_INPUT_HOST` ([?](#HTTP_INPUT_HOST))
+- `HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS` ([?](#HTTP_INPUT_FILE_PATH_TWO_STEREO_TRACKS))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 ### Live Encoding
+
 #### RTMP Live Encoding
 
 <a href="dotnet/Bitmovin.Api.Sdk.Examples/RtmpLiveEncoding.cs">C#</a> -
@@ -548,14 +616,16 @@ This example shows how to configure and start a live encoding using default DASH
 For more information see: https://bitmovin.com/live-encoding-live-streaming
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 #### RTMP Live HD Encoding
 
 <a href="java/src/main/java/RtmpLiveHdEncoding.java">Java</a> -
@@ -564,19 +634,20 @@ Required configuration parameters:
 <a href="php/src/RtmpLiveHdEncoding.php">PHP</a> -
 <a href="python/src/rtmp_live_hd_encoding.py">Python</a>
 
-
 This example shows how to configure and start a live encoding with HD option using default DASH and HLS manifests.
 For more information see: https://bitmovin.com/live-encoding-live-streaming
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 #### SRT Live Encoding
 
 <a href="java/src/main/java/**RtmpLiveEncoding**.java">Java</a>
@@ -585,14 +656,16 @@ This example shows how to configure and start a live encoding using default DASH
 For more information see: https://bitmovin.com/live-encoding-live-streaming
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 #### SRT Live Encoding with HLS, SCTE-35 and SSAI
 
 <a href="java/src/main/java/Scte35HlsLiveEncoding.java">Java</a>
@@ -601,34 +674,34 @@ This example shows how to configure and start a live encoding using a default HL
 For more information see: https://developer.bitmovin.com/encoding/docs/live-encoding-with-hls-scte-35-and-ssai
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
 
 ---
+
 #### SRT Live Encoding HLS with Azure Speech To Captions Filter
 
 <a href="java/src/main/java/tutorials/AzureSpeechToCaptionsFilterHlsLiveEncoding.java">Java</a>
-
 
 This example shows how to configure and start a live encoding using a default HLS manifests with
 Azure Speech Services - Speech to captions feature to transcribe an audio stream in real-time.
 For more information see: https://bitmovin.com/live-encoding-live-streaming
 
 Required configuration parameters:
-+ `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
-+ `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
-+ `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
-+ `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
-+ `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
-+ `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
-+ `AZURE_SPEECH_SERVICES_SUBSCRIPTION_KEY` ([?](#AZURE_SPEECH_SERVICES_SUBSCRIPTION_KEY))
-+ `AZURE_SPEECH_SERVICES_REGION` ([?](#AZURE_SPEECH_SERVICES_REGION))
 
+- `BITMOVIN_API_KEY` ([?](#BITMOVIN_API_KEY))
+- `BITMOVIN_TENANT_ORG_ID` ([?](#BITMOVIN_TENANT_ORG_ID))
+- `S3_OUTPUT_BUCKET_NAME` ([?](#S3_OUTPUT_BUCKET_NAME))
+- `S3_OUTPUT_ACCESS_KEY` ([?](#S3_OUTPUT_ACCESS_KEY))
+- `S3_OUTPUT_SECRET_KEY` ([?](#S3_OUTPUT_SECRET_KEY))
+- `S3_OUTPUT_BASE_PATH` ([?](#S3_OUTPUT_BASE_PATH))
+- `AZURE_SPEECH_SERVICES_SUBSCRIPTION_KEY` ([?](#AZURE_SPEECH_SERVICES_SUBSCRIPTION_KEY))
+- `AZURE_SPEECH_SERVICES_REGION` ([?](#AZURE_SPEECH_SERVICES_REGION))
 
 ## Configuration Parameters
 
@@ -712,10 +785,10 @@ Example: `08eecef4b026deec395234d94218273d`
 <a name="DRM_WIDEVINE_PSSH">**`DRM_WIDEVINE_PSSH`**</a> - Base64 encoded PSSH payload  
 Example: `QWRvYmVhc2Rmc2FkZmFzZg==`
 
-<a name="DRM_CONTENT_ID">**`DRM_CONTENT_ID`**</a> - An optional content ID used to register the DRM keys with the SPEKE provider   
+<a name="DRM_CONTENT_ID">**`DRM_CONTENT_ID`**</a> - An optional content ID used to register the DRM keys with the SPEKE provider  
 Example: `my-content-id`
 
-<a name="DRM_KEY_ID">**`DRM_KEY_ID`**</a> - An optional 16-byte hex key ID used to refer to a key stored in the DRM provider system (in particular with SPEKE)   
+<a name="DRM_KEY_ID">**`DRM_KEY_ID`**</a> - An optional 16-byte hex key ID used to refer to a key stored in the DRM provider system (in particular with SPEKE)  
 Example: `d94238436e2fe421a27a7d5dd3d26f31`
 
 <a name="SPEKE_URL">**`SPEKE_URL`**</a> - The URL of the SPEKE server  
@@ -724,7 +797,7 @@ Example: `https://my-speke-server.com/v1.0/vod`
 <a name="SPEKE_ARN">**`SPEKE_ARN`**</a> - For AWS IAM authentication, the role ARN for the user providing access to the SPEKE server  
 Example: `arn:aws:iam::1234567890:role/speke_role_assumption`
 
-<a name="SPEKE_GATEWAY_REGION">**`SPEKE_GATEWAY_REGION`**</a> - For AWS IAM authentication, the AWS Gateway region hosting the SPEKE server   
+<a name="SPEKE_GATEWAY_REGION">**`SPEKE_GATEWAY_REGION`**</a> - For AWS IAM authentication, the AWS Gateway region hosting the SPEKE server  
 Example: `eu-west-1`
 
 <a name="SPEKE_USERNAME">**`SPEKE_USERNAME`**</a> - For basic authentication with the SPEKE server
@@ -735,6 +808,5 @@ Example: `eu-west-1`
 
 <a name="AZURE_SPEECH_SERVICES_REGION">**`AZURE_SPEECH_SERVICES_REGION`**</a> - The Azure Speech Services region
 Example: `westus`
-
 
 You may also add your own parameters in your configuration. The ConfigProvider class in each example offers a generic function to get the value of the parameter by its name.
