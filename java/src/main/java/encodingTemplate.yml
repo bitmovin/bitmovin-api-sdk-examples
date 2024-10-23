@@ -1,0 +1,104 @@
+metadata:
+  type: VOD
+  name: Standard VOD Workflow
+
+inputs:
+  https:
+    streams_encoding_https_input:
+      properties:
+        host: bitmovin-sample-content.s3.eu-west-1.amazonaws.com
+        name: Bitmovin Sample Content
+
+configurations:
+  video:
+    h264:
+      streams_encoding_h264:
+        properties:
+          name: streams_encoding_h264
+          profile: MAIN
+      streams_encoding_h264_1080p:
+        properties:
+          name: streams_encoding_h264_1080p
+          profile: MAIN
+          height: 1080
+
+encodings:
+  main-encoding:
+    properties:
+      name: Standard VOD Workflow
+      cloudRegion: AWS_EU_WEST_1
+      encoderVersion: STABLE
+
+    streams:
+      video_h264:
+        properties:
+          inputStreams:
+            - inputId: $/inputs/https/streams_encoding_https_input
+              inputPath: {{input.path}}
+          codecConfigId: $/configurations/video/h264/streams_encoding_h264
+          mode: PER_TITLE_TEMPLATE
+      video_h264_1080p:
+        properties:
+          inputStreams:
+            - inputId: $/inputs/https/streams_encoding_https_input
+              inputPath: {{input.path}}
+          codecConfigId: $/configurations/video/h264/streams_encoding_h264_1080p
+          mode: PER_TITLE_TEMPLATE_FIXED_RESOLUTION
+
+    muxings:
+      fmp4:
+        fmp4_h264:
+          properties:
+            name: fmp4_h264
+            streamConditionsMode: DROP_MUXING
+            streams:
+              - streamId: $/encodings/main-encoding/streams/video_h264
+            outputs:
+              - outputId: {{output.id}}
+                outputPath: {{output.path}}/vod_streams_encoding/{width}_{bitrate}_{uuid}/
+                acl:
+                  - permission: PRIVATE
+            initSegmentName: init.mp4
+            segmentLength: 4
+            segmentNaming: seg_%number%.m4s
+        fmp4_h264_1080p:
+          properties:
+            name: fmp4_h264_1080p
+            streamConditionsMode: DROP_MUXING
+            streams:
+              - streamId: $/encodings/main-encoding/streams/video_h264_1080p
+            outputs:
+              - outputId: {{output.id}}
+                outputPath: {{output.path}}/vod_streams_encoding/{bitrate}/
+                acl:
+                  - permission: PRIVATE
+            initSegmentName: init.mp4
+            segmentLength: 4
+            segmentNaming: seg_%number%.m4s
+
+    start:
+      properties:
+        encodingMode: THREE_PASS
+        perTitle:
+          h264Configuration:
+            targetQualityCrf: 25
+        previewDashManifests:
+          - manifestId: $/manifests/dash/defaultapi/default-dash
+        vodDashManifests:
+          - manifestId: $/manifests/dash/defaultapi/default-dash
+
+manifests:
+  dash:
+    defaultapi:
+      default-dash:
+        properties:
+          encodingId: $/encodings/main-encoding
+          name: Template encoding default DASH manifest
+          manifestName: manifest.mpd
+          profile: ON_DEMAND
+          outputs:
+            - outputId: {{output.id}}
+              outputPath: {{output.path}}/vod_streams_encoding/
+              acl:
+                - permission: PRIVATE
+          version: V2
