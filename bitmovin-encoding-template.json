@@ -8075,11 +8075,11 @@
                                 "type" : "object",
                                 "properties" : {
                                   "periodOption" : {
-                                    "enum" : [ "single-period", "multi-period" ],
+                                    "enum" : [ "SINGLE_PERIOD", "MULTI_PERIOD" ],
                                     "type" : "string"
                                   },
                                   "eventStreamSignalling" : {
-                                    "enum" : [ "xml", "xml+bin" ],
+                                    "enum" : [ "XML", "XML_BIN" ],
                                     "type" : "string"
                                   }
                                 }
@@ -8441,11 +8441,11 @@
                                         "type" : "object",
                                         "properties" : {
                                           "periodOption" : {
-                                            "enum" : [ "single-period", "multi-period" ],
+                                            "enum" : [ "SINGLE_PERIOD", "MULTI_PERIOD" ],
                                             "type" : "string"
                                           },
                                           "eventStreamSignalling" : {
-                                            "enum" : [ "xml", "xml+bin" ],
+                                            "enum" : [ "XML", "XML_BIN" ],
                                             "type" : "string"
                                           }
                                         }
