@@ -493,6 +493,39 @@
             }
           }
         },
+        "hls" : {
+          "type" : "object",
+          "patternProperties" : {
+            "^[A-Za-z0-9_-]+$" : {
+              "type" : "object",
+              "properties" : {
+                "properties" : {
+                  "type" : "object",
+                  "title" : "HlsInput",
+                  "properties" : {
+                    "name" : {
+                      "description" : "Name of the resource. Can be freely chosen by the user.",
+                      "type" : "string"
+                    },
+                    "description" : {
+                      "description" : "Description of the resource. Can be freely chosen by the user.",
+                      "type" : "string"
+                    },
+                    "customData" : {
+                      "type" : "object",
+                      "description" : "User-specific meta data. This can hold anything."
+                    },
+                    "url" : {
+                      "description" : "URL of HLS input",
+                      "type" : "string"
+                    }
+                  }
+                }
+              },
+              "required" : [ "properties" ]
+            }
+          }
+        },
         "sftp" : {
           "type" : "object",
           "patternProperties" : {
