@@ -169,7 +169,7 @@ encodings:
         encodingMode: THREE_PASS
         perTitle:
           h264Configuration:
-            targetQualityCrf: 25
+            autoRepresentations: {}
         previewDashManifests:
           - manifestId: $/manifests/dash/defaultapi/default-dash
         vodDashManifests:
