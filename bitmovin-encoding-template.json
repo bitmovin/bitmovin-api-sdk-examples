@@ -5639,7 +5639,7 @@
                       "description" : "User-specific meta data. This can hold anything."
                     },
                     "parity" : {
-                      "enum" : [ "AUTO", "TOP_FIELD_FIRST", "BOTTOM_FIELD_FIRST" ],
+                      "enum" : [ "TOP_FIELD_FIRST", "BOTTOM_FIELD_FIRST" ],
                       "type" : "string"
                     },
                     "mode" : {
@@ -13769,17 +13769,12 @@
                       "type" : "object",
                       "title" : "Scte35Trigger",
                       "properties" : {
-                        "time" : {
-                          "description" : "Time in seconds where the SCTE 35 trigger should be inserted",
-                          "format" : "double",
-                          "type" : "number"
-                        },
                         "base64EncodedMetadata" : {
                           "description" : "The base 64 encoded data for the SCTE trigger",
                           "type" : "string"
                         }
                       },
-                      "required" : [ "base64EncodedMetadata", "time" ]
+                      "required" : [ "base64EncodedMetadata" ]
                     }
                   },
                   "required" : [ "properties" ]
@@ -14354,7 +14349,8 @@
                                         "format" : "double",
                                         "type" : "number"
                                       }
-                                    }
+                                    },
+                                    "required" : [ "maxDeviation", "position" ]
                                   },
                                   "type" : "array"
                                 }
