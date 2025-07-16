@@ -4,7 +4,7 @@
   "title" : "Bitmovin Encoding Template JSON Schema",
   "description" : "An encoding workflow from a single configuration template",
   "properties" : {
-    "metaData" : {
+    "metadata" : {
       "type" : "object",
       "description" : "Metadata for the encoding template",
       "properties" : {
