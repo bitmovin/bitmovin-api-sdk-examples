@@ -4,7 +4,7 @@
   "title" : "Bitmovin Encoding Template JSON Schema",
   "description" : "An encoding workflow from a single configuration template",
   "properties" : {
-    "metaData" : {
+    "metadata" : {
       "type" : "object",
       "description" : "Metadata for the encoding template",
       "properties" : {
@@ -8061,6 +8061,10 @@
                                       "title" : "HlsManifestAdMarkerType"
                                     },
                                     "type" : "array"
+                                  },
+                                  "disablePreannouncing" : {
+                                    "type" : "boolean",
+                                    "description" : "Certain tags, such as EXT_X_DATERANGE, may be preannounced in the HLS manifest. This means they are inserted as early as possible, before the actual ad break begins or ends.\nPreannouncing helps clients anticipate upcoming splice points, but may cause compatibility issues with some downstream consumers (e.g., AWS MediaTailor SSAI).\nWhen this setting is enabled, preannouncing of tags is disabled, and tags are inserted at the segment corresponding to the event's splice time.\n"
                                   }
                                 }
                               }
@@ -8427,6 +8431,10 @@
                                               "title" : "HlsManifestAdMarkerType"
                                             },
                                             "type" : "array"
+                                          },
+                                          "disablePreannouncing" : {
+                                            "type" : "boolean",
+                                            "description" : "Certain tags, such as EXT_X_DATERANGE, may be preannounced in the HLS manifest. This means they are inserted as early as possible, before the actual ad break begins or ends.\nPreannouncing helps clients anticipate upcoming splice points, but may cause compatibility issues with some downstream consumers (e.g., AWS MediaTailor SSAI).\nWhen this setting is enabled, preannouncing of tags is disabled, and tags are inserted at the segment corresponding to the event's splice time.\n"
                                           }
                                         }
                                       }
@@ -8801,6 +8809,11 @@
                             },
                             "segmentLength" : {
                               "description" : "Length of the fragments in seconds",
+                              "format" : "double",
+                              "type" : "number"
+                            },
+                            "minimumSegmentLength" : {
+                              "description" : "Prevents creation of very short final segments (in seconds). If the last segment is shorter than minimumSegmentLength, it will be merged with the previous one, creating a segment of a size up to segmentLength + minimumSegmentLength.",
                               "format" : "double",
                               "type" : "number"
                             },
@@ -10399,6 +10412,11 @@
                             },
                             "segmentLength" : {
                               "description" : "Length of the fragments in seconds",
+                              "format" : "double",
+                              "type" : "number"
+                            },
+                            "minimumSegmentLength" : {
+                              "description" : "Prevents creation of very short final segments (in seconds). If the last segment is shorter than minimumSegmentLength, it will be merged with the previous one, creating a segment of a size up to segmentLength + minimumSegmentLength.",
                               "format" : "double",
                               "type" : "number"
                             },
