@@ -14373,6 +14373,18 @@
                                   "type" : "array"
                                 }
                               }
+                            },
+                            "outputLanguageCodes" : {
+                              "type" : "object",
+                              "description" : "AI scene analysis will create translated asset description files for the language codes.\n",
+                              "properties" : {
+                                "outputLanguageCodes" : {
+                                  "items" : {
+                                    "type" : "string"
+                                  },
+                                  "type" : "array"
+                                }
+                              }
                             }
                           }
                         }
