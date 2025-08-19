@@ -12,6 +12,7 @@
 
 ### 💡 Getting started
 
+
 You'll need an active Bitmovin API key for these examples to work.
 
 > Don't have an account yet? [Sign up for a free Bitmovin trial plan](https://dashboard.bitmovin.com/signup)!
