@@ -518,6 +518,11 @@
                     "url" : {
                       "description" : "URL of HLS input",
                       "type" : "string"
+                    },
+                    "AdMarkersSource" : {
+                      "description" : "Specifies the source for ad markers messages:\n- MANIFEST: Ad marker messages are read from tags in the HLS manifest\n- SEGMENTS: Ad marker messages are read from the content segments from the data stream\n",
+                      "enum" : [ "MANIFEST", "SEGMENTS" ],
+                      "type" : "string"
                     }
                   }
                 }
