@@ -8356,372 +8356,367 @@
                   "properties" : {
                     "start" : {
                       "type" : "object",
-                      "patternProperties" : {
-                        "^[A-Za-z0-9_-]+$" : {
+                      "properties" : {
+                        "properties" : {
                           "type" : "object",
+                          "title" : "StartLiveChannelEncodingRequest",
                           "properties" : {
-                            "properties" : {
-                              "type" : "object",
-                              "title" : "StartLiveChannelEncodingRequest",
-                              "properties" : {
-                                "streamKey" : {
-                                  "description" : "Key for the stream. (a-zA-Z, 3-20 characters)",
-                                  "type" : "string"
-                                },
-                                "hlsManifests" : {
-                                  "description" : "HLS manifests to be generated during the encoding. See [documentation](https://developer.bitmovin.com/encoding/docs/how-to-create-manifests-for-your-encodings#just-in-time-jit)",
-                                  "items" : {
+                            "streamKey" : {
+                              "description" : "Key for the stream. (a-zA-Z, 3-20 characters)",
+                              "type" : "string"
+                            },
+                            "hlsManifests" : {
+                              "description" : "HLS manifests to be generated during the encoding. See [documentation](https://developer.bitmovin.com/encoding/docs/how-to-create-manifests-for-your-encodings#just-in-time-jit)",
+                              "items" : {
+                                "type" : "object",
+                                "title" : "LiveHlsManifest",
+                                "properties" : {
+                                  "manifestId" : {
+                                    "description" : "HLS manifest id",
+                                    "type" : "string"
+                                  },
+                                  "timeshift" : {
+                                    "description" : "Timeshift in seconds. We recommend to use a timeshift value not greater than 3 hours (10800.0 seconds). Longer values could negatively impact the manifest update frequency.\n",
+                                    "format" : "double",
+                                    "type" : "number"
+                                  },
+                                  "liveEdgeOffset" : {
+                                    "description" : "Live edge offset in seconds",
+                                    "format" : "double",
+                                    "type" : "number"
+                                  },
+                                  "insertProgramDateTime" : {
+                                    "type" : "boolean",
+                                    "description" : "Specifies if the EXT-X-PROGRAM-DATETIME tag will be included"
+                                  },
+                                  "programDateTimeSettings" : {
                                     "type" : "object",
-                                    "title" : "LiveHlsManifest",
+                                    "description" : "Configuration for the EXT-X-PROGRAM-DATETIME tag",
                                     "properties" : {
-                                      "manifestId" : {
-                                        "description" : "HLS manifest id",
+                                      "programDateTimeSource" : {
+                                        "title" : "ProgramDateTimeSource",
+                                        "description" : "Source for the EXT-X-PROGRAM-DATETIME tag",
+                                        "enum" : [ "SYSTEM_CLOCK", "EMBEDDED" ],
                                         "type" : "string"
                                       },
-                                      "timeshift" : {
-                                        "description" : "Timeshift in seconds. We recommend to use a timeshift value not greater than 3 hours (10800.0 seconds). Longer values could negatively impact the manifest update frequency.\n",
-                                        "format" : "double",
-                                        "type" : "number"
+                                      "programDateTimePlacement" : {
+                                        "type" : "object",
+                                        "title" : "ProgramDateTimePlacement",
+                                        "properties" : {
+                                          "programDateTimePlacementMode" : {
+                                            "title" : "ProgramDateTimePlacementMode",
+                                            "description" : "Placement mode of the ProgramDateTime tag.",
+                                            "enum" : [ "ONCE_PER_PLAYLIST", "SEGMENTS_INTERVAL", "SECONDS_INTERVAL" ],
+                                            "type" : "string"
+                                          },
+                                          "interval" : {
+                                            "description" : "Interval for placing ProgramDateTime. Only required for SEGMENTS_INTERVAL or SECONDS_INTERVAL.",
+                                            "type" : "integer"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "adMarkerSettings" : {
+                                    "type" : "object",
+                                    "description" : "Configuration for tags related to ad markers (e.g. Scte35)",
+                                    "properties" : {
+                                      "enabledMarkerTypes" : {
+                                        "description" : "Ad marker types that will be inserted. More than one type is possible.\n\n- EXT_X_CUE_OUT_IN: Ad markers will be inserted using `#EXT-X-CUE-OUT` and `#EXT-X-CUE-IN` tags\n- EXT_OATCLS_SCTE35: Ad markers will be inserted using `#EXT-OATCLS-SCTE35` tags. They contain the base64 encoded raw bytes of the original SCTE-35 trigger.\n- EXT_X_SPLICEPOINT_SCTE35: Ad markers will be inserted using `#EXT-X-SPLICEPOINT-SCTE35` tags. They contain the base64 encoded raw bytes of the original SCTE-35 trigger.\n- EXT_X_DATERANGE: Ad markers will be inserted using `#EXT-X-DATERANGE` tags. They contain the ID, start timestamp and hex encoded raw bytes of the original SCTE-35 trigger.\n- EXT_X_SCTE35: Ad markers will be inserted using `#EXT-X-SCTE35` tags. They contain the base64 encoded raw bytes of the original SCTE-35 trigger.\n",
+                                        "items" : {
+                                          "type" : "string",
+                                          "title" : "HlsManifestAdMarkerType"
+                                        },
+                                        "type" : "array"
                                       },
-                                      "liveEdgeOffset" : {
-                                        "description" : "Live edge offset in seconds",
-                                        "format" : "double",
-                                        "type" : "number"
-                                      },
-                                      "insertProgramDateTime" : {
+                                      "disablePreannouncing" : {
                                         "type" : "boolean",
-                                        "description" : "Specifies if the EXT-X-PROGRAM-DATETIME tag will be included"
-                                      },
-                                      "programDateTimeSettings" : {
-                                        "type" : "object",
-                                        "description" : "Configuration for the EXT-X-PROGRAM-DATETIME tag",
-                                        "properties" : {
-                                          "programDateTimeSource" : {
-                                            "title" : "ProgramDateTimeSource",
-                                            "description" : "Source for the EXT-X-PROGRAM-DATETIME tag",
-                                            "enum" : [ "SYSTEM_CLOCK", "EMBEDDED" ],
-                                            "type" : "string"
-                                          },
-                                          "programDateTimePlacement" : {
-                                            "type" : "object",
-                                            "title" : "ProgramDateTimePlacement",
-                                            "properties" : {
-                                              "programDateTimePlacementMode" : {
-                                                "title" : "ProgramDateTimePlacementMode",
-                                                "description" : "Placement mode of the ProgramDateTime tag.",
-                                                "enum" : [ "ONCE_PER_PLAYLIST", "SEGMENTS_INTERVAL", "SECONDS_INTERVAL" ],
-                                                "type" : "string"
-                                              },
-                                              "interval" : {
-                                                "description" : "Interval for placing ProgramDateTime. Only required for SEGMENTS_INTERVAL or SECONDS_INTERVAL.",
-                                                "type" : "integer"
-                                              }
-                                            }
-                                          }
-                                        }
-                                      },
-                                      "adMarkerSettings" : {
-                                        "type" : "object",
-                                        "description" : "Configuration for tags related to ad markers (e.g. Scte35)",
-                                        "properties" : {
-                                          "enabledMarkerTypes" : {
-                                            "description" : "Ad marker types that will be inserted. More than one type is possible.\n\n- EXT_X_CUE_OUT_IN: Ad markers will be inserted using `#EXT-X-CUE-OUT` and `#EXT-X-CUE-IN` tags\n- EXT_OATCLS_SCTE35: Ad markers will be inserted using `#EXT-OATCLS-SCTE35` tags. They contain the base64 encoded raw bytes of the original SCTE-35 trigger.\n- EXT_X_SPLICEPOINT_SCTE35: Ad markers will be inserted using `#EXT-X-SPLICEPOINT-SCTE35` tags. They contain the base64 encoded raw bytes of the original SCTE-35 trigger.\n- EXT_X_DATERANGE: Ad markers will be inserted using `#EXT-X-DATERANGE` tags. They contain the ID, start timestamp and hex encoded raw bytes of the original SCTE-35 trigger.\n- EXT_X_SCTE35: Ad markers will be inserted using `#EXT-X-SCTE35` tags. They contain the base64 encoded raw bytes of the original SCTE-35 trigger.\n",
-                                            "items" : {
-                                              "type" : "string",
-                                              "title" : "HlsManifestAdMarkerType"
-                                            },
-                                            "type" : "array"
-                                          },
-                                          "disablePreannouncing" : {
-                                            "type" : "boolean",
-                                            "description" : "Certain tags, such as EXT_X_DATERANGE, may be preannounced in the HLS manifest. This means they are inserted as early as possible, before the actual ad break begins or ends.\nPreannouncing helps clients anticipate upcoming splice points, but may cause compatibility issues with some downstream consumers (e.g., AWS MediaTailor SSAI).\nWhen this setting is enabled, preannouncing of tags is disabled, and tags are inserted at the segment corresponding to the event's splice time.\n"
-                                          }
-                                        }
+                                        "description" : "Certain tags, such as EXT_X_DATERANGE, may be preannounced in the HLS manifest. This means they are inserted as early as possible, before the actual ad break begins or ends.\nPreannouncing helps clients anticipate upcoming splice points, but may cause compatibility issues with some downstream consumers (e.g., AWS MediaTailor SSAI).\nWhen this setting is enabled, preannouncing of tags is disabled, and tags are inserted at the segment corresponding to the event's splice time.\n"
                                       }
-                                    },
-                                    "required" : [ "manifestId" ]
-                                  },
-                                  "type" : "array"
+                                    }
+                                  }
                                 },
-                                "dashManifests" : {
-                                  "description" : "DASH manifests to be generated during the encoding. See [documentation](https://developer.bitmovin.com/encoding/docs/how-to-create-manifests-for-your-encodings#just-in-time-jit)",
-                                  "items" : {
+                                "required" : [ "manifestId" ]
+                              },
+                              "type" : "array"
+                            },
+                            "dashManifests" : {
+                              "description" : "DASH manifests to be generated during the encoding. See [documentation](https://developer.bitmovin.com/encoding/docs/how-to-create-manifests-for-your-encodings#just-in-time-jit)",
+                              "items" : {
+                                "type" : "object",
+                                "title" : "LiveDashManifest",
+                                "properties" : {
+                                  "manifestId" : {
+                                    "description" : "Dash manifest id",
+                                    "type" : "string"
+                                  },
+                                  "timeshift" : {
+                                    "description" : "Timeshift in seconds",
+                                    "format" : "double",
+                                    "type" : "number"
+                                  },
+                                  "liveEdgeOffset" : {
+                                    "description" : "Live edge offset in seconds",
+                                    "format" : "double",
+                                    "type" : "number"
+                                  },
+                                  "suggestedPresentationDelay" : {
+                                    "description" : "The suggestedPresentationDelay to be set in the DASH manifest. If nothing is set, no value will be set.",
+                                    "format" : "double",
+                                    "type" : "number"
+                                  },
+                                  "minimumUpdatePeriod" : {
+                                    "description" : "The minimumUpdatePeriod to be set in the DASH manifest. If nothing is set, the segment duration will be set.",
+                                    "format" : "double",
+                                    "type" : "number"
+                                  },
+                                  "availabilityStartTimeMode" : {
+                                    "description" : "The mode to trigger the availabilityStartTime initialization.",
+                                    "enum" : [ "ON_FIRST_SEGMENT", "ON_STREAM_INGEST" ],
+                                    "type" : "string"
+                                  },
+                                  "adMarkerSettings" : {
                                     "type" : "object",
-                                    "title" : "LiveDashManifest",
                                     "properties" : {
-                                      "manifestId" : {
-                                        "description" : "Dash manifest id",
+                                      "periodOption" : {
+                                        "enum" : [ "SINGLE_PERIOD", "MULTI_PERIOD" ],
                                         "type" : "string"
                                       },
-                                      "timeshift" : {
-                                        "description" : "Timeshift in seconds",
-                                        "format" : "double",
-                                        "type" : "number"
-                                      },
-                                      "liveEdgeOffset" : {
-                                        "description" : "Live edge offset in seconds",
-                                        "format" : "double",
-                                        "type" : "number"
-                                      },
-                                      "suggestedPresentationDelay" : {
-                                        "description" : "The suggestedPresentationDelay to be set in the DASH manifest. If nothing is set, no value will be set.",
-                                        "format" : "double",
-                                        "type" : "number"
-                                      },
-                                      "minimumUpdatePeriod" : {
-                                        "description" : "The minimumUpdatePeriod to be set in the DASH manifest. If nothing is set, the segment duration will be set.",
-                                        "format" : "double",
-                                        "type" : "number"
-                                      },
-                                      "availabilityStartTimeMode" : {
-                                        "description" : "The mode to trigger the availabilityStartTime initialization.",
-                                        "enum" : [ "ON_FIRST_SEGMENT", "ON_STREAM_INGEST" ],
+                                      "eventStreamSignalling" : {
+                                        "enum" : [ "XML", "XML_BIN" ],
                                         "type" : "string"
-                                      },
-                                      "adMarkerSettings" : {
-                                        "type" : "object",
-                                        "properties" : {
-                                          "periodOption" : {
-                                            "enum" : [ "SINGLE_PERIOD", "MULTI_PERIOD" ],
-                                            "type" : "string"
-                                          },
-                                          "eventStreamSignalling" : {
-                                            "enum" : [ "XML", "XML_BIN" ],
-                                            "type" : "string"
-                                          }
+                                      }
+                                    }
+                                  }
+                                },
+                                "required" : [ "manifestId" ]
+                              },
+                              "type" : "array"
+                            },
+                            "liveEncodingMode" : {
+                              "description" : "The pass mode of the encoding. Must only be set when `encodingMode` is not set on any codec configuration used by this encoding.",
+                              "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                              "type" : "string"
+                            },
+                            "reuploadSettings" : {
+                              "type" : "object",
+                              "description" : "Reupload specific files during a live encoding. This can be helpful if an automatic life cycle policy is enabled on the output storage",
+                              "properties" : {
+                                "dashManifestInterval" : {
+                                  "description" : "Interval in seconds to reupload the DASH manifest. Valid values are either `null` to never reupload the dash manifest or at least `30`.",
+                                  "minimum" : 30,
+                                  "format" : "double",
+                                  "type" : "number"
+                                },
+                                "hlsManifestInterval" : {
+                                  "description" : "Interval in seconds to reupload the HLS master file. Valid values are either `0` to never reupload the hls manifest or at least `30`. This is currently not used, as the master file will always be uploaded when one of the playlist files has changed.",
+                                  "format" : "double",
+                                  "type" : "number"
+                                },
+                                "muxingInitFileInterval" : {
+                                  "description" : "The interval in seconds to reupload the init file for segmented muxings, e.g. fMP4, WebM. Valid values are either `null` to never reupload the init file for segmented muxings or at least `30`.",
+                                  "minimum" : 30,
+                                  "format" : "double",
+                                  "type" : "number"
+                                }
+                              }
+                            },
+                            "manifestGenerator" : {
+                              "description" : "Major version of the manifest generator to be used for manifests referenced in this request (by properties dashManifests, dashManifests). `V2` is available for encoder versions 2.70.0 and above and is the recommended option. The default value depends on the sign-up date of your organization. See [documentation](https://developer.bitmovin.com/encoding/docs/manifest-generator-v2) page for a detailed explanation.\n",
+                              "enum" : [ "LEGACY", "V2" ],
+                              "type" : "string"
+                            },
+                            "autoRestartConfiguration" : {
+                              "type" : "object",
+                              "description" : "Configuration for auto restarting the live encoding",
+                              "properties" : {
+                                "segmentsWrittenTimeout" : {
+                                  "description" : "If no segments were generated for the given number of seconds, a restart is triggered. Minimum: 30.0",
+                                  "minimum" : 30,
+                                  "format" : "double",
+                                  "type" : "number"
+                                },
+                                "bytesWrittenTimeout" : {
+                                  "description" : "If no data was written for the given number of seconds, a restart is triggered. Minimum: 30.0",
+                                  "minimum" : 30,
+                                  "format" : "double",
+                                  "type" : "number"
+                                },
+                                "framesWrittenTimeout" : {
+                                  "description" : "If no frames were generated for the given number of seconds, a restart is triggered. Minimum: 30.0",
+                                  "minimum" : 30,
+                                  "format" : "double",
+                                  "type" : "number"
+                                },
+                                "hlsManifestsUpdateTimeout" : {
+                                  "description" : "If HLS manifests were not updated for the given number of seconds, a restart is triggered. Minimum: 30.0",
+                                  "minimum" : 30,
+                                  "format" : "double",
+                                  "type" : "number"
+                                },
+                                "dashManifestsUpdateTimeout" : {
+                                  "description" : "If DASH manifests were not updated for the given number of seconds, a restart is triggered. Minimum: 30.0",
+                                  "minimum" : 30,
+                                  "format" : "double",
+                                  "type" : "number"
+                                },
+                                "scheduleExpression" : {
+                                  "description" : "Defines a schedule for restarts using the unix crontab syntax. This example would trigger a restart every monday at 05:30 (AM)",
+                                  "type" : "string"
+                                },
+                                "restartOnEncoderError" : {
+                                  "type" : "boolean",
+                                  "description" : "Defines if the encoding should be restarted in case of an error during encoding."
+                                }
+                              }
+                            },
+                            "autoShutdownConfiguration" : {
+                              "type" : "object",
+                              "description" : "Configuration for auto shutdown of the live encoding",
+                              "properties" : {
+                                "bytesReadTimeoutSeconds" : {
+                                  "description" : "Automatically shutdown the live stream if there is no input anymore for a predefined number of seconds.",
+                                  "minimum" : 30,
+                                  "type" : "integer"
+                                },
+                                "streamTimeoutMinutes" : {
+                                  "description" : "Automatically shutdown the live stream after a predefined runtime in minutes.",
+                                  "minimum" : 5,
+                                  "type" : "integer"
+                                },
+                                "waitingForFirstConnectTimeoutMinutes" : {
+                                  "description" : "Automatically shutdown the live stream if input is never connected for a predefined number of minutes.",
+                                  "minimum" : 5,
+                                  "type" : "integer"
+                                }
+                              }
+                            },
+                            "esamSettings" : {
+                              "type" : "object",
+                              "description" : "Configuration for Event Signaling and Management (ESAM) system, \nallowing the encoder to communicate with an ESAM server for signal processing and dynamic ad insertion update.'\n",
+                              "properties" : {
+                                "poisEndpoint" : {
+                                  "description" : "The URL of the Placement Opportunity Information System (POIS) signal processing endpoint. \nThe encoder transmits SignalProcessingEvents to this endpoint whenever SCTE-35 messages are detected.\n",
+                                  "type" : "string"
+                                },
+                                "acquisitionPointIdentity" : {
+                                  "description" : "A unique identifier representing the `Acquisition Point Identity` defined in the ESAM specification.\n",
+                                  "type" : "string"
+                                },
+                                "zoneIdentity" : {
+                                  "description" : "Specifies the `Zone Identity` defined in the ESAM specification.\n",
+                                  "type" : "string"
+                                },
+                                "adAvailOffset" : {
+                                  "description" : "Defines an offset (in milliseconds) to be applied to the stream event timestamp. \nThis offset adjusts the `StreamTime` values (such as PTS) associated with ad opportunities \nor content insertions. It is used to fine-tune timing for embedded SCTE-104/35 messages \nto ensure precise frame alignment in the transport stream.\n",
+                                  "minimum" : 0,
+                                  "type" : "integer"
+                                },
+                                "poisEndpointCredentials" : {
+                                  "type" : "object",
+                                  "description" : "If authentication is required to access the POIS endpoint, credentials must be provided.\n",
+                                  "properties" : {
+                                    "username" : {
+                                      "description" : "The username required to authenticate with the POIS server.\n",
+                                      "type" : "string"
+                                    },
+                                    "password" : {
+                                      "description" : "The password required for authentication with the POIS server.\n",
+                                      "type" : "string"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "cacheControlSettings" : {
+                              "type" : "object",
+                              "description" : "Configuration of cache control policies for media segments, HLS, and DASH manifests. \nYou can set caching for the HLS multivariant playlist, HLS media playlist, DASH timeline manifest, \nDASH template manifest, initialization segment, and media segment.\n",
+                              "properties" : {
+                                "hls" : {
+                                  "type" : "object",
+                                  "description" : "Cache control settings for HLS manifest.",
+                                  "properties" : {
+                                    "multiVariantPlaylist" : {
+                                      "type" : "object",
+                                      "description" : "Cache control settings for HLS Multivariant playlist.",
+                                      "properties" : {
+                                        "cacheControl" : {
+                                          "description" : "Cache control for storing data on CDN. Example \"public, max-age=0, no-cache\". Cache control is supported on S3, GCS and Azure output storage providers.",
+                                          "type" : "string"
                                         }
                                       }
                                     },
-                                    "required" : [ "manifestId" ]
-                                  },
-                                  "type" : "array"
-                                },
-                                "liveEncodingMode" : {
-                                  "description" : "The pass mode of the encoding. Must only be set when `encodingMode` is not set on any codec configuration used by this encoding.",
-                                  "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
-                                  "type" : "string"
-                                },
-                                "reuploadSettings" : {
-                                  "type" : "object",
-                                  "description" : "Reupload specific files during a live encoding. This can be helpful if an automatic life cycle policy is enabled on the output storage",
-                                  "properties" : {
-                                    "dashManifestInterval" : {
-                                      "description" : "Interval in seconds to reupload the DASH manifest. Valid values are either `null` to never reupload the dash manifest or at least `30`.",
-                                      "minimum" : 30,
-                                      "format" : "double",
-                                      "type" : "number"
-                                    },
-                                    "hlsManifestInterval" : {
-                                      "description" : "Interval in seconds to reupload the HLS master file. Valid values are either `0` to never reupload the hls manifest or at least `30`. This is currently not used, as the master file will always be uploaded when one of the playlist files has changed.",
-                                      "format" : "double",
-                                      "type" : "number"
-                                    },
-                                    "muxingInitFileInterval" : {
-                                      "description" : "The interval in seconds to reupload the init file for segmented muxings, e.g. fMP4, WebM. Valid values are either `null` to never reupload the init file for segmented muxings or at least `30`.",
-                                      "minimum" : 30,
-                                      "format" : "double",
-                                      "type" : "number"
-                                    }
-                                  }
-                                },
-                                "manifestGenerator" : {
-                                  "description" : "Major version of the manifest generator to be used for manifests referenced in this request (by properties dashManifests, dashManifests). `V2` is available for encoder versions 2.70.0 and above and is the recommended option. The default value depends on the sign-up date of your organization. See [documentation](https://developer.bitmovin.com/encoding/docs/manifest-generator-v2) page for a detailed explanation.\n",
-                                  "enum" : [ "LEGACY", "V2" ],
-                                  "type" : "string"
-                                },
-                                "autoRestartConfiguration" : {
-                                  "type" : "object",
-                                  "description" : "Configuration for auto restarting the live encoding",
-                                  "properties" : {
-                                    "segmentsWrittenTimeout" : {
-                                      "description" : "If no segments were generated for the given number of seconds, a restart is triggered. Minimum: 30.0",
-                                      "minimum" : 30,
-                                      "format" : "double",
-                                      "type" : "number"
-                                    },
-                                    "bytesWrittenTimeout" : {
-                                      "description" : "If no data was written for the given number of seconds, a restart is triggered. Minimum: 30.0",
-                                      "minimum" : 30,
-                                      "format" : "double",
-                                      "type" : "number"
-                                    },
-                                    "framesWrittenTimeout" : {
-                                      "description" : "If no frames were generated for the given number of seconds, a restart is triggered. Minimum: 30.0",
-                                      "minimum" : 30,
-                                      "format" : "double",
-                                      "type" : "number"
-                                    },
-                                    "hlsManifestsUpdateTimeout" : {
-                                      "description" : "If HLS manifests were not updated for the given number of seconds, a restart is triggered. Minimum: 30.0",
-                                      "minimum" : 30,
-                                      "format" : "double",
-                                      "type" : "number"
-                                    },
-                                    "dashManifestsUpdateTimeout" : {
-                                      "description" : "If DASH manifests were not updated for the given number of seconds, a restart is triggered. Minimum: 30.0",
-                                      "minimum" : 30,
-                                      "format" : "double",
-                                      "type" : "number"
-                                    },
-                                    "scheduleExpression" : {
-                                      "description" : "Defines a schedule for restarts using the unix crontab syntax. This example would trigger a restart every monday at 05:30 (AM)",
-                                      "type" : "string"
-                                    },
-                                    "restartOnEncoderError" : {
-                                      "type" : "boolean",
-                                      "description" : "Defines if the encoding should be restarted in case of an error during encoding."
-                                    }
-                                  }
-                                },
-                                "autoShutdownConfiguration" : {
-                                  "type" : "object",
-                                  "description" : "Configuration for auto shutdown of the live encoding",
-                                  "properties" : {
-                                    "bytesReadTimeoutSeconds" : {
-                                      "description" : "Automatically shutdown the live stream if there is no input anymore for a predefined number of seconds.",
-                                      "minimum" : 30,
-                                      "type" : "integer"
-                                    },
-                                    "streamTimeoutMinutes" : {
-                                      "description" : "Automatically shutdown the live stream after a predefined runtime in minutes.",
-                                      "minimum" : 5,
-                                      "type" : "integer"
-                                    },
-                                    "waitingForFirstConnectTimeoutMinutes" : {
-                                      "description" : "Automatically shutdown the live stream if input is never connected for a predefined number of minutes.",
-                                      "minimum" : 5,
-                                      "type" : "integer"
-                                    }
-                                  }
-                                },
-                                "esamSettings" : {
-                                  "type" : "object",
-                                  "description" : "Configuration for Event Signaling and Management (ESAM) system, \nallowing the encoder to communicate with an ESAM server for signal processing and dynamic ad insertion update.'\n",
-                                  "properties" : {
-                                    "poisEndpoint" : {
-                                      "description" : "The URL of the Placement Opportunity Information System (POIS) signal processing endpoint. \nThe encoder transmits SignalProcessingEvents to this endpoint whenever SCTE-35 messages are detected.\n",
-                                      "type" : "string"
-                                    },
-                                    "acquisitionPointIdentity" : {
-                                      "description" : "A unique identifier representing the `Acquisition Point Identity` defined in the ESAM specification.\n",
-                                      "type" : "string"
-                                    },
-                                    "zoneIdentity" : {
-                                      "description" : "Specifies the `Zone Identity` defined in the ESAM specification.\n",
-                                      "type" : "string"
-                                    },
-                                    "adAvailOffset" : {
-                                      "description" : "Defines an offset (in milliseconds) to be applied to the stream event timestamp. \nThis offset adjusts the `StreamTime` values (such as PTS) associated with ad opportunities \nor content insertions. It is used to fine-tune timing for embedded SCTE-104/35 messages \nto ensure precise frame alignment in the transport stream.\n",
-                                      "minimum" : 0,
-                                      "type" : "integer"
-                                    },
-                                    "poisEndpointCredentials" : {
+                                    "variantPlaylist" : {
                                       "type" : "object",
-                                      "description" : "If authentication is required to access the POIS endpoint, credentials must be provided.\n",
+                                      "description" : "Cache control settings for HLS Media playlist.",
                                       "properties" : {
-                                        "username" : {
-                                          "description" : "The username required to authenticate with the POIS server.\n",
-                                          "type" : "string"
-                                        },
-                                        "password" : {
-                                          "description" : "The password required for authentication with the POIS server.\n",
+                                        "cacheControl" : {
+                                          "description" : "Cache control for storing data on CDN. Example \"public, max-age=0, no-cache\". Cache control is supported on S3, GCS and Azure output storage providers.",
                                           "type" : "string"
                                         }
                                       }
                                     }
                                   }
                                 },
-                                "cacheControlSettings" : {
+                                "dash" : {
                                   "type" : "object",
-                                  "description" : "Configuration of cache control policies for media segments, HLS, and DASH manifests. \nYou can set caching for the HLS multivariant playlist, HLS media playlist, DASH timeline manifest, \nDASH template manifest, initialization segment, and media segment.\n",
+                                  "description" : "Cache control settings for DASH manifest.",
                                   "properties" : {
-                                    "hls" : {
+                                    "timelineManifest" : {
                                       "type" : "object",
-                                      "description" : "Cache control settings for HLS manifest.",
+                                      "description" : "Cache control settings for DASH Timeline manifest.",
                                       "properties" : {
-                                        "multiVariantPlaylist" : {
-                                          "type" : "object",
-                                          "description" : "Cache control settings for HLS Multivariant playlist.",
-                                          "properties" : {
-                                            "cacheControl" : {
-                                              "description" : "Cache control for storing data on CDN. Example \"public, max-age=0, no-cache\". Cache control is supported on S3, GCS and Azure output storage providers.",
-                                              "type" : "string"
-                                            }
-                                          }
-                                        },
-                                        "variantPlaylist" : {
-                                          "type" : "object",
-                                          "description" : "Cache control settings for HLS Media playlist.",
-                                          "properties" : {
-                                            "cacheControl" : {
-                                              "description" : "Cache control for storing data on CDN. Example \"public, max-age=0, no-cache\". Cache control is supported on S3, GCS and Azure output storage providers.",
-                                              "type" : "string"
-                                            }
-                                          }
+                                        "cacheControl" : {
+                                          "description" : "Cache control for storing data on CDN. Example \"public, max-age=0, no-cache\". Cache control is supported on S3, GCS and Azure output storage providers.",
+                                          "type" : "string"
                                         }
                                       }
                                     },
-                                    "dash" : {
+                                    "templateManifest" : {
                                       "type" : "object",
-                                      "description" : "Cache control settings for DASH manifest.",
+                                      "description" : "Cache control settings for DASH Template manifest.",
                                       "properties" : {
-                                        "timelineManifest" : {
-                                          "type" : "object",
-                                          "description" : "Cache control settings for DASH Timeline manifest.",
-                                          "properties" : {
-                                            "cacheControl" : {
-                                              "description" : "Cache control for storing data on CDN. Example \"public, max-age=0, no-cache\". Cache control is supported on S3, GCS and Azure output storage providers.",
-                                              "type" : "string"
-                                            }
-                                          }
-                                        },
-                                        "templateManifest" : {
-                                          "type" : "object",
-                                          "description" : "Cache control settings for DASH Template manifest.",
-                                          "properties" : {
-                                            "cacheControl" : {
-                                              "description" : "Cache control for storing data on CDN. Example \"public, max-age=0, no-cache\". Cache control is supported on S3, GCS and Azure output storage providers.",
-                                              "type" : "string"
-                                            }
-                                          }
+                                        "cacheControl" : {
+                                          "description" : "Cache control for storing data on CDN. Example \"public, max-age=0, no-cache\". Cache control is supported on S3, GCS and Azure output storage providers.",
+                                          "type" : "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "segments" : {
+                                  "type" : "object",
+                                  "description" : "Cache control settings for segments.",
+                                  "properties" : {
+                                    "initSegment" : {
+                                      "type" : "object",
+                                      "description" : "Cache control settings for init segment.",
+                                      "properties" : {
+                                        "cacheControl" : {
+                                          "description" : "Cache control for storing data on CDN. Example \"public, max-age=0, no-cache\". Cache control is supported on S3, GCS and Azure output storage providers.",
+                                          "type" : "string"
                                         }
                                       }
                                     },
-                                    "segments" : {
+                                    "mediaSegment" : {
                                       "type" : "object",
-                                      "description" : "Cache control settings for segments.",
+                                      "description" : "Cache control settings for media segment.",
                                       "properties" : {
-                                        "initSegment" : {
-                                          "type" : "object",
-                                          "description" : "Cache control settings for init segment.",
-                                          "properties" : {
-                                            "cacheControl" : {
-                                              "description" : "Cache control for storing data on CDN. Example \"public, max-age=0, no-cache\". Cache control is supported on S3, GCS and Azure output storage providers.",
-                                              "type" : "string"
-                                            }
-                                          }
-                                        },
-                                        "mediaSegment" : {
-                                          "type" : "object",
-                                          "description" : "Cache control settings for media segment.",
-                                          "properties" : {
-                                            "cacheControl" : {
-                                              "description" : "Cache control for storing data on CDN. Example \"public, max-age=0, no-cache\". Cache control is supported on S3, GCS and Azure output storage providers.",
-                                              "type" : "string"
-                                            }
-                                          }
+                                        "cacheControl" : {
+                                          "description" : "Cache control for storing data on CDN. Example \"public, max-age=0, no-cache\". Cache control is supported on S3, GCS and Azure output storage providers.",
+                                          "type" : "string"
                                         }
                                       }
                                     }
                                   }
                                 }
-                              },
-                              "required" : [ "streamKey" ]
+                              }
                             }
                           },
-                          "required" : [ "properties" ]
+                          "required" : [ "streamKey" ]
                         }
-                      }
+                      },
+                      "required" : [ "properties" ]
                     }
                   }
                 }
