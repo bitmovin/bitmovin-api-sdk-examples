@@ -8813,7 +8813,7 @@
                               "type" : "number"
                             },
                             "minimumSegmentLength" : {
-                              "description" : "Prevents creation of very short final segments (in seconds). If the last segment is shorter than minimumSegmentLength, it will be merged with the previous one, creating a segment of a size up to segmentLength + minimumSegmentLength.",
+                              "description" : "Prevents creation of very short segments (in seconds). If the last segment is shorter than minimumSegmentLength or there is a custom keyframe too close to a segment boundary, short segments will be omitted by removing segment boundaries, resulting in a segment of a size up to segmentLength + minimumSegmentLength.",
                               "format" : "double",
                               "type" : "number"
                             },
@@ -10416,7 +10416,7 @@
                               "type" : "number"
                             },
                             "minimumSegmentLength" : {
-                              "description" : "Prevents creation of very short final segments (in seconds). If the last segment is shorter than minimumSegmentLength, it will be merged with the previous one, creating a segment of a size up to segmentLength + minimumSegmentLength.",
+                              "description" : "Prevents creation of very short segments (in seconds). If the last segment is shorter than minimumSegmentLength or there is a custom keyframe too close to a segment boundary, short segments will be omitted by removing segment boundaries, resulting in a segment of a size up to segmentLength + minimumSegmentLength.",
                               "format" : "double",
                               "type" : "number"
                             },
@@ -11362,6 +11362,11 @@
                             "fragmentDuration" : {
                               "description" : " Duration of fragments in milliseconds. Required for Fragmented MP4 Muxing (for Smooth Streaming or DASH On-Demand). Not setting this will result in unfragmented mp4.",
                               "type" : "integer"
+                            },
+                            "minimumFragmentDuration" : {
+                              "description" : "Prevents creation of very short fragments (in seconds). If the last fragment is shorter than minimumFragmentDuration or there is a custom keyframe too close to a fragment boundary, short fragments will be omitted by removing fragment boundaries, resulting in a fragment of a size up to fragmentDuration + minimumFragmentDuration.",
+                              "format" : "double",
+                              "type" : "number"
                             },
                             "fragmentedMP4MuxingManifestType" : {
                               "enum" : [ "SMOOTH", "DASH_ON_DEMAND", "HLS_BYTE_RANGES", "NONE", "HLS_BYTE_RANGES_AND_IFRAME_PLAYLIST" ],
