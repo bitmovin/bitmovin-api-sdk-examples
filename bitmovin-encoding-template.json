@@ -6441,10 +6441,6 @@
                                   "type" : "object",
                                   "title" : "BurnInSubtitleSrt",
                                   "properties" : {
-                                    "id" : {
-                                      "type" : "object",
-                                      "description" : "Id of the burn-in SRT subtitle"
-                                    },
                                     "name" : {
                                       "description" : "Name of the resource. Can be freely chosen by the user.",
                                       "type" : "string"
@@ -6478,7 +6474,7 @@
                                       "required" : [ "inputId", "inputPath" ]
                                     }
                                   },
-                                  "required" : [ "characterEncoding", "id", "input" ]
+                                  "required" : [ "characterEncoding", "input" ]
                                 }
                               },
                               "required" : [ "properties" ]
@@ -6495,10 +6491,6 @@
                                   "type" : "object",
                                   "title" : "BurnInSubtitleAssa",
                                   "properties" : {
-                                    "id" : {
-                                      "type" : "object",
-                                      "description" : "Id of the burn-in ASSA subtitle"
-                                    },
                                     "name" : {
                                       "description" : "Name of the resource. Can be freely chosen by the user.",
                                       "type" : "string"
@@ -6532,7 +6524,7 @@
                                       "required" : [ "inputId", "inputPath" ]
                                     }
                                   },
-                                  "required" : [ "characterEncoding", "id", "input" ]
+                                  "required" : [ "characterEncoding", "input" ]
                                 }
                               },
                               "required" : [ "properties" ]
