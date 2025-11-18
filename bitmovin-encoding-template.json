@@ -1811,6 +1811,10 @@
                     "publishingPoint" : {
                       "description" : "URL specifying the publishing point for the output. Can use either http or https.",
                       "type" : "string"
+                    },
+                    "scte35Passthrough" : {
+                      "type" : "boolean",
+                      "description" : "Enable passthrough of SCTE-35 messages from input to output. Default is false."
                     }
                   },
                   "required" : [ "publishingPoint" ]
@@ -7951,6 +7955,81 @@
                     }
                   }
                 },
+                "esam" : {
+                  "type" : "object",
+                  "properties" : {
+                    "mediaPoints" : {
+                      "type" : "object",
+                      "patternProperties" : {
+                        "^[A-Za-z0-9_-]+$" : {
+                          "type" : "object",
+                          "properties" : {
+                            "properties" : {
+                              "type" : "object",
+                              "title" : "EsamMediaPoint",
+                              "description" : "ESAM media point following the SCTE-250 standard",
+                              "properties" : {
+                                "matchTime" : {
+                                  "type" : "object",
+                                  "description" : "ISO 8601 date-time specifying when the signal should be matched and inserted into the live stream"
+                                },
+                                "signals" : {
+                                  "description" : "Array of ESAM signals containing SCTE-35 binary data. At least one signal is required",
+                                  "items" : {
+                                    "type" : "object",
+                                    "title" : "EsamSignal",
+                                    "properties" : {
+                                      "offset" : {
+                                        "description" : "The offset from the matched signal in ISO 8601 duration format, accurate to milliseconds",
+                                        "type" : "string"
+                                      },
+                                      "binary" : {
+                                        "description" : "Base64-encoded SCTE-35 binary data to be inserted into the stream",
+                                        "type" : "string"
+                                      },
+                                      "interval" : {
+                                        "description" : "Interval in ISO 8601 duration format for which the signal should be repeated.\n\nA signal may be specified as repeating when the interval and end attributes are present. \nIn this case, the signal is executed at the time specified by offset and again at the time \nspecified by adding interval to offset. This should be continued until reaching the duration \nof offset + end.\n",
+                                        "type" : "string"
+                                      },
+                                      "end" : {
+                                        "description" : "End duration in ISO 8601 duration format when a repeated signal should stop being repeated",
+                                        "type" : "string"
+                                      }
+                                    },
+                                    "required" : [ "binary" ]
+                                  },
+                                  "type" : "array"
+                                },
+                                "conditions" : {
+                                  "description" : "Optional array of ESAM conditions with timing offsets and directional markers (OUT/IN) for signaling content boundaries",
+                                  "items" : {
+                                    "type" : "object",
+                                    "title" : "EsamCondition",
+                                    "properties" : {
+                                      "offset" : {
+                                        "description" : "The offset from the matched signal when this condition applies in ISO 8601 duration format, accurate to milliseconds",
+                                        "type" : "string"
+                                      },
+                                      "direction" : {
+                                        "description" : "Direction marker indicating the boundary type (OUT for start, IN for end)",
+                                        "enum" : [ "OUT", "IN", "BOTH" ],
+                                        "type" : "string"
+                                      }
+                                    },
+                                    "required" : [ "direction", "offset" ]
+                                  },
+                                  "type" : "array"
+                                }
+                              },
+                              "required" : [ "signals" ]
+                            }
+                          },
+                          "required" : [ "properties" ]
+                        }
+                      }
+                    }
+                  }
+                },
                 "scte35Cue" : {
                   "type" : "object",
                   "patternProperties" : {
@@ -8261,7 +8340,7 @@
                           "description" : "Configuration for Event Signaling and Management (ESAM) system, \nallowing the encoder to communicate with an ESAM server for signal processing and dynamic ad insertion update.'\n",
                           "properties" : {
                             "poisEndpoint" : {
-                              "description" : "The URL of the Placement Opportunity Information System (POIS) signal processing endpoint. \nThe encoder transmits SignalProcessingEvents to this endpoint whenever SCTE-35 messages are detected.\n",
+                              "description" : "The URL of the Placement Opportunity Information System (POIS) signal processing endpoint.\nThe encoder transmits SignalProcessingEvents to this endpoint whenever SCTE-35 messages are detected.\n",
                               "type" : "string"
                             },
                             "acquisitionPointIdentity" : {
@@ -8273,7 +8352,7 @@
                               "type" : "string"
                             },
                             "adAvailOffset" : {
-                              "description" : "Defines an offset (in milliseconds) to be applied to the stream event timestamp. \nThis offset adjusts the `StreamTime` values (such as PTS) associated with ad opportunities \nor content insertions. It is used to fine-tune timing for embedded SCTE-104/35 messages \nto ensure precise frame alignment in the transport stream.\n",
+                              "description" : "Defines an offset (in milliseconds) to be applied to the stream event timestamp.\nThis offset adjusts the `StreamTime` values (such as PTS) associated with ad opportunities\nor content insertions. It is used to fine-tune timing for embedded SCTE-104/35 messages\nto ensure precise frame alignment in the transport stream.\n",
                               "minimum" : 0,
                               "type" : "integer"
                             },
@@ -8628,7 +8707,7 @@
                               "description" : "Configuration for Event Signaling and Management (ESAM) system, \nallowing the encoder to communicate with an ESAM server for signal processing and dynamic ad insertion update.'\n",
                               "properties" : {
                                 "poisEndpoint" : {
-                                  "description" : "The URL of the Placement Opportunity Information System (POIS) signal processing endpoint. \nThe encoder transmits SignalProcessingEvents to this endpoint whenever SCTE-35 messages are detected.\n",
+                                  "description" : "The URL of the Placement Opportunity Information System (POIS) signal processing endpoint.\nThe encoder transmits SignalProcessingEvents to this endpoint whenever SCTE-35 messages are detected.\n",
                                   "type" : "string"
                                 },
                                 "acquisitionPointIdentity" : {
@@ -8640,7 +8719,7 @@
                                   "type" : "string"
                                 },
                                 "adAvailOffset" : {
-                                  "description" : "Defines an offset (in milliseconds) to be applied to the stream event timestamp. \nThis offset adjusts the `StreamTime` values (such as PTS) associated with ad opportunities \nor content insertions. It is used to fine-tune timing for embedded SCTE-104/35 messages \nto ensure precise frame alignment in the transport stream.\n",
+                                  "description" : "Defines an offset (in milliseconds) to be applied to the stream event timestamp.\nThis offset adjusts the `StreamTime` values (such as PTS) associated with ad opportunities\nor content insertions. It is used to fine-tune timing for embedded SCTE-104/35 messages\nto ensure precise frame alignment in the transport stream.\n",
                                   "minimum" : 0,
                                   "type" : "integer"
                                 },
