@@ -14390,17 +14390,6 @@
                       "type" : "object",
                       "description" : "AI scene analysis settings",
                       "properties" : {
-                        "aiService" : {
-                          "type" : "object",
-                          "description" : "AI service settings",
-                          "properties" : {
-                            "provider" : {
-                              "description" : "AI service provider",
-                              "enum" : [ "GOOGLE" ],
-                              "type" : "string"
-                            }
-                          }
-                        },
                         "features" : {
                           "type" : "object",
                           "description" : "Features of the AI scene analysis",
