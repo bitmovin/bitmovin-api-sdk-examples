@@ -8455,6 +8455,21 @@
                               }
                             }
                           }
+                        },
+                        "adInsertionSettings" : {
+                          "type" : "object",
+                          "description" : "Configuration for ad insertion features like ESAM MediaPoint insertion",
+                          "properties" : {
+                            "enableEsamMediaPointInsertion" : {
+                              "type" : "boolean",
+                              "description" : "Enabling this allows on-demand insertion of ESAM MediaPoints. When enabled, the encoder ensures that at least one SCTE-35 data stream is available."
+                            },
+                            "clockSynchronizationMode" : {
+                              "description" : "Mode of clock synchronization during ad insertion. \nIf an HLS manifest is configured that has a PDT source set, the encoder defaults to the equivalent clockSynchronizationMode. \nIf both, HLS PDT source and clockSynchronizationMode, are set and don't match, the encoding will fail.\n",
+                              "enum" : [ "SYSTEM_CLOCK", "EMBEDDED" ],
+                              "type" : "string"
+                            }
+                          }
                         }
                       },
                       "required" : [ "streamKey" ]
@@ -8820,6 +8835,21 @@
                                       }
                                     }
                                   }
+                                }
+                              }
+                            },
+                            "adInsertionSettings" : {
+                              "type" : "object",
+                              "description" : "Configuration for ad insertion features like ESAM MediaPoint insertion",
+                              "properties" : {
+                                "enableEsamMediaPointInsertion" : {
+                                  "type" : "boolean",
+                                  "description" : "Enabling this allows on-demand insertion of ESAM MediaPoints. When enabled, the encoder ensures that at least one SCTE-35 data stream is available."
+                                },
+                                "clockSynchronizationMode" : {
+                                  "description" : "Mode of clock synchronization during ad insertion. \nIf an HLS manifest is configured that has a PDT source set, the encoder defaults to the equivalent clockSynchronizationMode. \nIf both, HLS PDT source and clockSynchronizationMode, are set and don't match, the encoding will fail.\n",
+                                  "enum" : [ "SYSTEM_CLOCK", "EMBEDDED" ],
+                                  "type" : "string"
                                 }
                               }
                             }
@@ -13853,6 +13883,86 @@
                 }
               }
             },
+            "kantarWatermark" : {
+              "type" : "object",
+              "patternProperties" : {
+                "^[A-Za-z0-9_-]+$" : {
+                  "type" : "object",
+                  "properties" : {
+                    "properties" : {
+                      "type" : "object",
+                      "title" : "KantarWatermark",
+                      "properties" : {
+                        "login" : {
+                          "description" : "Username used to authenticate with the Kantar watermarking service.",
+                          "type" : "string"
+                        },
+                        "password" : {
+                          "description" : "Password associated with the provided login for authentication.",
+                          "type" : "string"
+                        },
+                        "licenseId" : {
+                          "description" : "Identifier of the Kantar license to be used when processing the audio watermark.",
+                          "type" : "integer"
+                        },
+                        "channelName" : {
+                          "description" : "Name of the distribution channel associated with the audio content being watermarked.",
+                          "type" : "string"
+                        },
+                        "contentReference" : {
+                          "description" : "Unique reference or identifier for the audio content that will be processed.",
+                          "type" : "string"
+                        },
+                        "serverUrl" : {
+                          "description" : "URL of the Kantar server endpoint used to apply or validate the audio watermark.",
+                          "type" : "string"
+                        },
+                        "reportOutputs" : {
+                          "description" : "The outputs where the processing report should be delivered.",
+                          "items" : {
+                            "type" : "object",
+                            "title" : "EncodingOutput",
+                            "properties" : {
+                              "outputId" : {
+                                "description" : "Id of the corresponding output",
+                                "type" : "string"
+                              },
+                              "outputPath" : {
+                                "description" : "Subdirectory where to save the files to",
+                                "type" : "string"
+                              },
+                              "acl" : {
+                                "description" : "Determines accessibility of files written to this output. Only applies to output types that support ACLs. Defaults to PUBLIC_READ if the list is empty. The destination (e.g. cloud storage bucket) needs to allow the configured ACL",
+                                "items" : {
+                                  "type" : "object",
+                                  "title" : "AclEntry",
+                                  "properties" : {
+                                    "scope" : {
+                                      "description" : "Deprecation notice: The value of this property is not being used. It can be chosen arbitrarily or not set at all",
+                                      "type" : "string"
+                                    },
+                                    "permission" : {
+                                      "enum" : [ "PUBLIC_READ", "PRIVATE" ],
+                                      "type" : "string"
+                                    }
+                                  },
+                                  "required" : [ "permission" ]
+                                },
+                                "type" : "array"
+                              }
+                            },
+                            "required" : [ "outputId", "outputPath" ]
+                          },
+                          "type" : "array"
+                        }
+                      },
+                      "required" : [ "channelName", "contentReference", "licenseId", "login", "password", "reportOutputs", "serverUrl" ]
+                    }
+                  },
+                  "required" : [ "properties" ]
+                }
+              }
+            },
             "keyframes" : {
               "type" : "object",
               "patternProperties" : {
@@ -14801,6 +14911,11 @@
                           "enum" : [ "LONG", "SHORT" ],
                           "type" : "string"
                         },
+                        "minBufferTime" : {
+                          "description" : "The minimum buffer time in seconds that the client should maintain to ensure uninterrupted playback. Default is 2 seconds.\nNote: For VOD ON_DEMAND dash manifests, the default value may differ from 2.0 seconds if not explicitly set.\n",
+                          "format" : "double",
+                          "type" : "number"
+                        },
                         "encodingId" : {
                           "description" : "The id of the encoding to create a default manifest for. Either \"encodingId\" or \"periods\" is required.",
                           "type" : "string"
@@ -14972,6 +15087,11 @@
                       "description" : "Determines how timestamps should appear in the manifest",
                       "enum" : [ "LONG", "SHORT" ],
                       "type" : "string"
+                    },
+                    "minBufferTime" : {
+                      "description" : "The minimum buffer time in seconds that the client should maintain to ensure uninterrupted playback. Default is 2 seconds.\nNote: For VOD ON_DEMAND dash manifests, the default value may differ from 2.0 seconds if not explicitly set.\n",
+                      "format" : "double",
+                      "type" : "number"
                     }
                   },
                   "required" : [ "outputs" ]
