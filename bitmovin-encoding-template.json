@@ -14766,6 +14766,46 @@
                     }
                   },
                   "required" : [ "encodingTemplate", "targetPoolSize" ]
+                },
+                "actions" : {
+                  "type" : "object",
+                  "properties" : {
+                    "acquireEncoding" : {
+                      "type" : "object",
+                      "patternProperties" : {
+                        "^[A-Za-z0-9_-]+$" : {
+                          "type" : "object",
+                          "properties" : {
+                            "properties" : {
+                              "type" : "object",
+                              "title" : "LiveStandbyPoolAcquireEncoding",
+                              "properties" : {
+                                "ingestPoints" : {
+                                  "description" : "Note: This is not implemented yet and will be ignored if provided.\nList of ingest points to be used for the acquired encoding.\nThe DNS hostname and RTMPs application name and streamKey will be assigned to the encoding.\n",
+                                  "items" : {
+                                    "type" : "object",
+                                    "title" : "LiveStandbyPoolEncodingIngestPoint",
+                                    "properties" : {
+                                      "streamBaseUrl" : {
+                                        "description" : "URL to the RTMP/RTMPS endpoint for this live encoding",
+                                        "type" : "string"
+                                      },
+                                      "streamKey" : {
+                                        "description" : "Stream key value of this live encoding",
+                                        "type" : "string"
+                                      }
+                                    }
+                                  },
+                                  "type" : "array"
+                                }
+                              }
+                            }
+                          },
+                          "required" : [ "properties" ]
+                        }
+                      }
+                    }
+                  }
                 }
               },
               "required" : [ "properties" ]
