@@ -4335,6 +4335,27 @@
                             }
                           },
                           "required" : [ "dialogueIntelligence", "meteringMode", "speechThreshold" ]
+                        },
+                        "preprocessing" : {
+                          "type" : "object",
+                          "properties" : {
+                            "dynamicRangeCompression" : {
+                              "type" : "object",
+                              "description" : "It indicates a gain change to be applied in the Dolby Atmos decoder in order to implement dynamic range compression.\n\nThe values typically indicate gain reductions (cut) during loud passages and gain increases (boost) during quiet passages based on desired compression characteristics.\n",
+                              "properties" : {
+                                "lineMode" : {
+                                  "description" : "Line mode is intended for use in products providing line‐level or speaker‐level outputs, and is applicable to the widest range of products.\nProducts such as set‐top boxes, DVD players, DTVs, A/V surround decoders, and outboard Dolby Atmos decoders typically use this mode.",
+                                  "enum" : [ "AUTO", "NONE", "FILM_STANDARD", "FILM_LIGHT", "MUSIC_STANDARD", "MUSIC_LIGHT", "SPEECH" ],
+                                  "type" : "string"
+                                },
+                                "rfMode" : {
+                                  "description" : "RF mode is intended for products such as a low‐cost television receivers.",
+                                  "enum" : [ "AUTO", "NONE", "FILM_STANDARD", "FILM_LIGHT", "MUSIC_STANDARD", "MUSIC_LIGHT", "SPEECH" ],
+                                  "type" : "string"
+                                }
+                              }
+                            }
+                          }
                         }
                       },
                       "required" : [ "loudnessControl", "bitrate" ]
