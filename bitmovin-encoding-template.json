@@ -8007,37 +8007,9 @@
                                       "binary" : {
                                         "description" : "Base64-encoded SCTE-35 binary data to be inserted into the stream",
                                         "type" : "string"
-                                      },
-                                      "interval" : {
-                                        "description" : "Interval in ISO 8601 duration format for which the signal should be repeated.\n\nA signal may be specified as repeating when the interval and end attributes are present. \nIn this case, the signal is executed at the time specified by offset and again at the time \nspecified by adding interval to offset. This should be continued until reaching the duration \nof offset + end.\n",
-                                        "type" : "string"
-                                      },
-                                      "end" : {
-                                        "description" : "End duration in ISO 8601 duration format when a repeated signal should stop being repeated",
-                                        "type" : "string"
                                       }
                                     },
                                     "required" : [ "binary" ]
-                                  },
-                                  "type" : "array"
-                                },
-                                "conditions" : {
-                                  "description" : "Optional array of ESAM conditions with timing offsets and directional markers (OUT/IN) for signaling content boundaries",
-                                  "items" : {
-                                    "type" : "object",
-                                    "title" : "EsamCondition",
-                                    "properties" : {
-                                      "offset" : {
-                                        "description" : "The offset from the matched signal when this condition applies in ISO 8601 duration format, accurate to milliseconds",
-                                        "type" : "string"
-                                      },
-                                      "direction" : {
-                                        "description" : "Direction marker indicating the boundary type (OUT for start, IN for end)",
-                                        "enum" : [ "OUT", "IN", "BOTH" ],
-                                        "type" : "string"
-                                      }
-                                    },
-                                    "required" : [ "direction", "offset" ]
                                   },
                                   "type" : "array"
                                 }
