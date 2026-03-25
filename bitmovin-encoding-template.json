@@ -14512,6 +14512,20 @@
                                     "required" : [ "maxDeviation", "position" ]
                                   },
                                   "type" : "array"
+                                },
+                                "allSceneBoundaries" : {
+                                  "type" : "object",
+                                  "description" : "Configuration for placing keyframes and optional cue tags at every detected scene boundary.\n",
+                                  "properties" : {
+                                    "isEnabled" : {
+                                      "type" : "boolean",
+                                      "description" : "If true, a keyframe (IDR frame) is placed at every detected scene boundary,\nenabling clean segment cuts aligned with scene changes.\n"
+                                    },
+                                    "insertCueTags" : {
+                                      "type" : "boolean",
+                                      "description" : "If true, cue tags are inserted at every scene boundary in addition to keyframes.\n"
+                                    }
+                                  }
                                 }
                               }
                             },
