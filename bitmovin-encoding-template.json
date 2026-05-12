@@ -427,12 +427,34 @@
                       "description" : "Azure Account Key",
                       "type" : "string"
                     },
+                    "servicePrincipal" : {
+                      "type" : "object",
+                      "properties" : {
+                        "tenantId" : {
+                          "description" : "Tenant ID (Directory ID) of the Azure service principal",
+                          "type" : "string"
+                        },
+                        "clientId" : {
+                          "description" : "Client ID of the Azure service principal",
+                          "type" : "string"
+                        },
+                        "clientSecret" : {
+                          "description" : "Client secret of the Azure service principal",
+                          "type" : "string"
+                        },
+                        "clientCertificate" : {
+                          "description" : "PEM-encoded client certificate and private key of the Azure service principal. Newline symbols must be preserved.",
+                          "type" : "string"
+                        }
+                      },
+                      "required" : [ "clientId", "tenantId" ]
+                    },
                     "container" : {
                       "description" : "Name of the bucket",
                       "type" : "string"
                     }
                   },
-                  "required" : [ "accountKey", "accountName", "container" ]
+                  "required" : [ "accountName", "container" ]
                 }
               },
               "required" : [ "properties" ]
@@ -1475,12 +1497,34 @@
                       "description" : "Azure Account Key",
                       "type" : "string"
                     },
+                    "servicePrincipal" : {
+                      "type" : "object",
+                      "properties" : {
+                        "tenantId" : {
+                          "description" : "Tenant ID (Directory ID) of the Azure service principal",
+                          "type" : "string"
+                        },
+                        "clientId" : {
+                          "description" : "Client ID of the Azure service principal",
+                          "type" : "string"
+                        },
+                        "clientSecret" : {
+                          "description" : "Client secret of the Azure service principal",
+                          "type" : "string"
+                        },
+                        "clientCertificate" : {
+                          "description" : "PEM-encoded client certificate and private key of the Azure service principal. Newline symbols must be preserved.",
+                          "type" : "string"
+                        }
+                      },
+                      "required" : [ "clientId", "tenantId" ]
+                    },
                     "container" : {
                       "description" : "Name of the bucket",
                       "type" : "string"
                     }
                   },
-                  "required" : [ "accountKey", "accountName", "container" ]
+                  "required" : [ "accountName", "container" ]
                 }
               },
               "required" : [ "properties" ]
