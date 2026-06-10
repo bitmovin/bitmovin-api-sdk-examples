@@ -6283,6 +6283,51 @@
                   "description" : "The chosen live option type of the live encoding",
                   "enum" : [ "HD" ],
                   "type" : "string"
+                },
+                "rtVmaf" : {
+                  "type" : "object",
+                  "description" : "Configuration for RT-VMAF quality analysis. Setting this object enables\nRT-VMAF for the encoding; omit it to disable. RT-VMAF requires an\nH265/HEVC stream and is supported for VOD only.\n",
+                  "properties" : {
+                    "outputs" : {
+                      "description" : "Output destination(s) for the RT-VMAF results file. At least one output\nmust be provided. The results are written to each configured output at\nthe given output path.\n",
+                      "items" : {
+                        "type" : "object",
+                        "title" : "EncodingOutput",
+                        "properties" : {
+                          "outputId" : {
+                            "description" : "Id of the corresponding output",
+                            "type" : "string"
+                          },
+                          "outputPath" : {
+                            "description" : "Subdirectory where to save the files to",
+                            "type" : "string"
+                          },
+                          "acl" : {
+                            "description" : "Determines accessibility of files written to this output. Only applies to output types that support ACLs. Defaults to PUBLIC_READ if the list is empty. The destination (e.g. cloud storage bucket) needs to allow the configured ACL",
+                            "items" : {
+                              "type" : "object",
+                              "title" : "AclEntry",
+                              "properties" : {
+                                "scope" : {
+                                  "description" : "Deprecation notice: The value of this property is not being used. It can be chosen arbitrarily or not set at all",
+                                  "type" : "string"
+                                },
+                                "permission" : {
+                                  "enum" : [ "PUBLIC_READ", "PRIVATE" ],
+                                  "type" : "string"
+                                }
+                              },
+                              "required" : [ "permission" ]
+                            },
+                            "type" : "array"
+                          }
+                        },
+                        "required" : [ "outputId", "outputPath" ]
+                      },
+                      "type" : "array"
+                    }
+                  },
+                  "required" : [ "outputs" ]
                 }
               }
             },
