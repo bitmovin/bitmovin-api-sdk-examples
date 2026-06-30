@@ -2026,7 +2026,7 @@
                         },
                         "encodingMode" : {
                           "description" : "The mode of the encoding. When this is set, `encodingMode` (`liveEncodingMode`) must not be set in the (live) encoding start request.",
-                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
                           "type" : "string"
                         },
                         "presetConfiguration" : {
@@ -2219,7 +2219,7 @@
                         },
                         "encodingMode" : {
                           "description" : "The mode of the encoding. When this is set, `encodingMode` (`liveEncodingMode`) must not be set in the (live) encoding start request.",
-                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
                           "type" : "string"
                         },
                         "presetConfiguration" : {
@@ -2609,7 +2609,7 @@
                         },
                         "encodingMode" : {
                           "description" : "The mode of the encoding. When this is set, `encodingMode` (`liveEncodingMode`) must not be set in the (live) encoding start request.",
-                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
                           "type" : "string"
                         },
                         "presetConfiguration" : {
@@ -3230,7 +3230,7 @@
                         },
                         "encodingMode" : {
                           "description" : "The mode of the encoding. When this is set, `encodingMode` (`liveEncodingMode`) must not be set in the (live) encoding start request.",
-                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
                           "type" : "string"
                         },
                         "presetConfiguration" : {
@@ -3251,6 +3251,428 @@
                         "minBitrate" : {
                           "description" : "Minimum Bitrate",
                           "type" : "integer"
+                        }
+                      }
+                    }
+                  },
+                  "required" : [ "properties" ]
+                }
+              }
+            },
+            "h265v2" : {
+              "type" : "object",
+              "patternProperties" : {
+                "^[A-Za-z0-9_-]+$" : {
+                  "type" : "object",
+                  "properties" : {
+                    "properties" : {
+                      "type" : "object",
+                      "title" : "H265V2VideoConfiguration",
+                      "properties" : {
+                        "name" : {
+                          "description" : "Name of the resource. Can be freely chosen by the user.",
+                          "type" : "string"
+                        },
+                        "description" : {
+                          "description" : "Description of the resource. Can be freely chosen by the user.",
+                          "type" : "string"
+                        },
+                        "customData" : {
+                          "type" : "object",
+                          "description" : "User-specific meta data. This can hold anything."
+                        },
+                        "width" : {
+                          "description" : "Width of the encoded video in pixels",
+                          "type" : "integer"
+                        },
+                        "height" : {
+                          "description" : "Height of the encoded video in pixels",
+                          "type" : "integer"
+                        },
+                        "bitrate" : {
+                          "description" : "Target bitrate for the encoded video in bps. Either bitrate or crf is required.",
+                          "type" : "integer"
+                        },
+                        "rate" : {
+                          "description" : "Target frame rate of the encoded video. Must be set for live encodings",
+                          "format" : "double",
+                          "type" : "number"
+                        },
+                        "pixelFormat" : {
+                          "description" : "Describes the color encoding, bit depth, and chroma subsampling of each pixel in the output image.",
+                          "enum" : [ "YUV410P", "YUV411P", "YUV420P", "YUV422P", "YUV440P", "YUV444P", "YUVJ411P", "YUVJ420P", "YUVJ422P", "YUVJ440P", "YUVJ444P", "YUV420P10LE", "YUV422P10LE", "YUV440P10LE", "YUV444P10LE", "YUV420P12LE", "YUV422P12LE", "YUV440P12LE", "YUV444P12LE", "YUV420P10BE", "YUV422P10BE", "YUV440P10BE", "YUV444P10BE", "YUV420P12BE", "YUV422P12BE", "YUV440P12BE", "YUV444P12BE" ],
+                          "type" : "string"
+                        },
+                        "colorConfig" : {
+                          "type" : "object",
+                          "properties" : {
+                            "copyChromaLocationFlag" : {
+                              "type" : "boolean",
+                              "description" : "Copy the chroma location setting from the input source"
+                            },
+                            "copyColorSpaceFlag" : {
+                              "type" : "boolean",
+                              "description" : "Copy the color space setting from the input source"
+                            },
+                            "copyColorPrimariesFlag" : {
+                              "type" : "boolean",
+                              "description" : "Copy the color primaries setting from the input source"
+                            },
+                            "copyColorRangeFlag" : {
+                              "type" : "boolean",
+                              "description" : "Copy the color range setting from the input source"
+                            },
+                            "copyColorTransferFlag" : {
+                              "type" : "boolean",
+                              "description" : "Copy the color transfer setting from the input source"
+                            },
+                            "chromaLocation" : {
+                              "description" : "The chroma location to be applied",
+                              "enum" : [ "UNSPECIFIED", "LEFT", "CENTER", "TOPLEFT", "TOP", "BOTTOMLEFT", "BOTTOM" ],
+                              "type" : "string"
+                            },
+                            "colorSpace" : {
+                              "description" : "The color space to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "enum" : [ "UNSPECIFIED", "RGB", "BT709", "FCC", "BT470BG", "SMPTE170M", "SMPTE240M", "YCGCO", "YCOCG", "BT2020_NCL", "BT2020_CL", "SMPTE2085" ],
+                              "type" : "string"
+                            },
+                            "colorPrimaries" : {
+                              "description" : "The color primaries to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "enum" : [ "UNSPECIFIED", "BT709", "BT470M", "BT470BG", "SMPTE170M", "SMPTE240M", "FILM", "BT2020", "SMPTE428", "SMPTEST428_1", "SMPTE431", "SMPTE432", "JEDEC_P22" ],
+                              "type" : "string"
+                            },
+                            "colorRange" : {
+                              "description" : "The color range to be applied. If used on a Dolby Vision stream, this value must be set to JPEG.",
+                              "enum" : [ "UNSPECIFIED", "MPEG", "JPEG" ],
+                              "type" : "string"
+                            },
+                            "colorTransfer" : {
+                              "description" : "The color transfer to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "enum" : [ "UNSPECIFIED", "BT709", "GAMMA22", "GAMMA28", "SMPTE170M", "SMPTE240M", "LINEAR", "LOG", "LOG_SQRT", "IEC61966_2_4", "BT1361_ECG", "IEC61966_2_1", "BT2020_10", "BT2020_12", "SMPTE2084", "SMPTE428", "ARIB_STD_B67" ],
+                              "type" : "string"
+                            },
+                            "inputColorSpace" : {
+                              "description" : "Override the color space detected in the input file. If not set the input color space will be automatically detected if possible.",
+                              "enum" : [ "UNSPECIFIED", "RGB", "BT709", "FCC", "BT470BG", "SMPTE170M", "SMPTE240M", "YCGCO", "YCOCG", "BT2020_NCL", "BT2020_CL", "SMPTE2085" ],
+                              "type" : "string"
+                            },
+                            "inputColorRange" : {
+                              "description" : "Override the color range detected in the input file. If not set the input color range will be automatically detected if possible.",
+                              "enum" : [ "UNSPECIFIED", "MPEG", "JPEG" ],
+                              "type" : "string"
+                            },
+                            "inputColorPrimaries" : {
+                              "description" : "Override the color primaries detected in the input file. If not set the input color primaries will be automatically detected if possible.",
+                              "enum" : [ "UNSPECIFIED", "BT709", "BT470M", "BT470BG", "SMPTE170M", "SMPTE240M", "FILM", "BT2020", "SMPTE428", "SMPTEST428_1", "SMPTE431", "SMPTE432", "JEDEC_P22" ],
+                              "type" : "string"
+                            },
+                            "inputColorTransfer" : {
+                              "description" : "Override the color transfer detected in the input file. If not set the input color transfer will be automatically detected if possible.",
+                              "enum" : [ "UNSPECIFIED", "BT709", "GAMMA22", "GAMMA28", "SMPTE170M", "SMPTE240M", "LINEAR", "LOG", "LOG_SQRT", "IEC61966_2_4", "BT1361_ECG", "IEC61966_2_1", "BT2020_10", "BT2020_12", "SMPTE2084", "SMPTE428", "ARIB_STD_B67" ],
+                              "type" : "string"
+                            }
+                          }
+                        },
+                        "sampleAspectRatioNumerator" : {
+                          "description" : "The numerator of the sample aspect ratio (also known as pixel aspect ratio). Must be set if sampleAspectRatioDenominator is set. If set then displayAspectRatio is not allowed.",
+                          "type" : "integer"
+                        },
+                        "sampleAspectRatioDenominator" : {
+                          "description" : "The denominator of the sample aspect ratio (also known as pixel aspect ratio). Must be set if sampleAspectRatioNumerator is set. If set then displayAspectRatio is not allowed.",
+                          "type" : "integer"
+                        },
+                        "displayAspectRatio" : {
+                          "type" : "object",
+                          "description" : "Specifies a display aspect ratio (DAR) to be enforced. The sample aspect ratio (SAR) will be adjusted accordingly. If set then sampleAspectRatioNumerator and sampleAspectRatioDenominator are not allowed.",
+                          "properties" : {
+                            "numerator" : {
+                              "description" : "The numerator of the display aspect ratio (DAR). For example for a DAR of 16:9, the value 16 must be used.",
+                              "minimum" : 1,
+                              "type" : "integer"
+                            },
+                            "denominator" : {
+                              "description" : "The denominator of the display aspect ratio (DAR). For example for a DAR of 16:9, the value 9 must be used.",
+                              "minimum" : 1,
+                              "type" : "integer"
+                            }
+                          },
+                          "required" : [ "denominator", "numerator" ]
+                        },
+                        "encodingMode" : {
+                          "description" : "The mode of the encoding. When this is set, `encodingMode` (`liveEncodingMode`) must not be set in the (live) encoding start request.",
+                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
+                          "type" : "string"
+                        },
+                        "presetConfiguration" : {
+                          "description" : "Use a set of well defined configurations preset to support certain use cases. Can be overwritten with more specific values.",
+                          "enum" : [ "VOD_QUALITY", "VOD_HIGH_QUALITY" ],
+                          "type" : "string"
+                        },
+                        "dynamicRangeFormat" : {
+                          "description" : "Automatically configures the encoder for the given SDR/HDR format.",
+                          "enum" : [ "DOLBY_VISION", "DOLBY_VISION_PROFILE_5", "DOLBY_VISION_PROFILE_8_1", "HDR10", "HLG", "SDR" ],
+                          "type" : "string"
+                        },
+                        "enableHlgSignaling" : {
+                          "type" : "boolean",
+                          "description" : "Enable HLG signaling"
+                        },
+                        "autoLevelSetup" : {
+                          "description" : "Automatic level setup",
+                          "enum" : [ "ENABLED", "DISABLED" ],
+                          "type" : "string"
+                        },
+                        "cea608708SubtitleConfig" : {
+                          "type" : "object",
+                          "description" : "CEA 608/708 subtitle passthrough configuration",
+                          "properties" : {
+                            "passthroughActivated" : {
+                              "type" : "boolean",
+                              "description" : "If enabled, CEA 608 an CEA 708 subtitles will be copied from the input video stream to the output video stream. Note: This does not work, if the output framerate is different than the input framerate (except doubling the framerate with deinterlacing per field)"
+                            },
+                            "passthroughMode" : {
+                              "enum" : [ "VIDEO_STREAM", "CAPTION_STREAM", "VIDEO_CAPTION_STREAM" ],
+                              "type" : "string"
+                            }
+                          }
+                        },
+                        "rateControlMode" : {
+                          "description" : "Rate control mode. Determines which --rc flag is passed to the Spin encoder.",
+                          "enum" : [ "VBR", "CBR", "CQP", "PQP" ],
+                          "type" : "string"
+                        },
+                        "rateControlModeConfig" : {
+                          "type" : "object",
+                          "description" : "Rate control mode configuration. Used to Configure the Perceptual Encoding Mode Settings.",
+                          "properties" : {
+                            "type" : {
+                              "enum" : [ "PERCEPTUAL_QUALITY_MODE", "CONSTANT_BITRATE_MODE" ],
+                              "type" : "string"
+                            }
+                          }
+                        },
+                        "intraPeriod" : {
+                          "description" : "--ip <0-512>: Number of pictures until the next IRAP picture.",
+                          "type" : "integer"
+                        },
+                        "intraPeriodSec" : {
+                          "description" : "--ips <0-10 sec>: Intra period in seconds.",
+                          "format" : "double",
+                          "type" : "number"
+                        },
+                        "gopsize" : {
+                          "description" : "-g / --gopsize <1|2|4|8|16|32>: Maximum GOP size.",
+                          "type" : "integer"
+                        },
+                        "idrPictureRate" : {
+                          "description" : "--idr <int>: IDR IRAP picture rate.",
+                          "type" : "integer"
+                        },
+                        "intraRefreshPeriod" : {
+                          "description" : "--ir <0-512>: Intra refresh period length in pictures.",
+                          "type" : "integer"
+                        },
+                        "saptype" : {
+                          "description" : "--saptype <0-2>: SAP type at intra period boundaries.",
+                          "type" : "integer"
+                        },
+                        "temporalScalabilityLayers" : {
+                          "description" : "--tmplayers: Number of temporal scalability levels.",
+                          "type" : "integer"
+                        },
+                        "fpsMeasurementStartFrame" : {
+                          "description" : "--timestart <int>: Frame number to start fps measurement.",
+                          "type" : "integer"
+                        },
+                        "framesInFlightLookahead" : {
+                          "description" : "--la-fif <0-16>: Lookahead frames in flight for parallel processing (0:auto).",
+                          "type" : "integer"
+                        },
+                        "framesInFlightTwoPass" : {
+                          "description" : "--fif2 <0-10>: Frames in flight for second encode pass (0:auto).",
+                          "type" : "integer"
+                        },
+                        "framesInFlight" : {
+                          "description" : "--fif <0-50>: Frames in flight for parallel processing (0:auto).",
+                          "type" : "integer"
+                        },
+                        "cpuRanges" : {
+                          "description" : "--cpulist <cpu ranges>: Core ranges to use for encoder threads (e.g. 3-7,12,16-2-22).",
+                          "type" : "string"
+                        },
+                        "threads" : {
+                          "description" : "-t / --threads <int>: Number of encoder threads (0:auto).",
+                          "type" : "integer"
+                        },
+                        "encoderPreset" : {
+                          "description" : "-p / --preset: Set speed/quality preset.",
+                          "type" : "string"
+                        },
+                        "qp" : {
+                          "description" : "-q / --qp <0-52>: Quantization/quality parameter (cqp, pqp).",
+                          "format" : "double",
+                          "type" : "number"
+                        },
+                        "rcLookahead" : {
+                          "description" : "--lookahead <0+>: Number of pictures considered in lookahead (0:auto).",
+                          "type" : "integer"
+                        },
+                        "permissive" : {
+                          "type" : "boolean",
+                          "description" : "--permissive: Allow more permissive limits when using RC."
+                        },
+                        "initialBufferLevel" : {
+                          "description" : "--initbuflvl <bits>: Explicit initial buffer level in bits.",
+                          "format" : "double",
+                          "type" : "number"
+                        },
+                        "endBufferLevel" : {
+                          "description" : "--endbuflvl <bits>: Explicit end buffer level in bits.",
+                          "format" : "double",
+                          "type" : "number"
+                        },
+                        "numberOfPrerollFrames" : {
+                          "description" : "Number of preroll frames.",
+                          "type" : "integer"
+                        },
+                        "repeatPreroll" : {
+                          "type" : "boolean",
+                          "description" : "Repeat preroll frames, if this is false the real encode starts after the configured numberOfPrerollFrames."
+                        },
+                        "numberOfFramesForBufferEnd" : {
+                          "description" : "Number of frames for buffer end.",
+                          "type" : "integer"
+                        },
+                        "enableVendor" : {
+                          "type" : "boolean",
+                          "description" : "Enable vendor-specific extensions."
+                        },
+                        "windowBasedBitrateCaps" : {
+                          "type" : "boolean",
+                          "description" : "--winrc: Enable window-based bitrate caps for non-CBR RC modes."
+                        },
+                        "rcmodelbias" : {
+                          "description" : "--rcmodelbias <0.5-2.0>: RC model bias towards bit rate.",
+                          "format" : "double",
+                          "type" : "number"
+                        },
+                        "bufsize" : {
+                          "description" : "--hrdbuf <0.3-3>: Coded Picture Buffer size in seconds for the HRD.",
+                          "type" : "integer"
+                        },
+                        "bitrateToleranceFactor" : {
+                          "description" : "--btf <1.2-3>: Bitrate tolerance factor for VBR.",
+                          "format" : "double",
+                          "type" : "number"
+                        },
+                        "motionCompensatedTemporalFiltering" : {
+                          "description" : "Motion compensated temporal filtering mode.",
+                          "enum" : [ "AUTO", "OFF", "ON" ],
+                          "type" : "string"
+                        },
+                        "realTimeBoost" : {
+                          "type" : "boolean",
+                          "description" : "--rtboost: Dynamically reduce encoder complexity for real-time performance."
+                        },
+                        "noIntraInPBFrames" : {
+                          "type" : "boolean",
+                          "description" : "--nointrapb: Disable intra mode in P- and B-frames."
+                        },
+                        "wavefrontParallelProcessing" : {
+                          "type" : "boolean",
+                          "description" : "--wpp <0|1>: Wavefront parallel processing."
+                        },
+                        "slices" : {
+                          "description" : "--slices <int|list>: Slice configuration (e.g. \"3-4-2\" or a plain integer).",
+                          "type" : "string"
+                        },
+                        "cmvmargin" : {
+                          "description" : "--cmvmargin <int>: Additional margin around slices for motion estimation.",
+                          "type" : "integer"
+                        },
+                        "maximumResolution" : {
+                          "description" : "--maxres <wxh>: Maximum resolution allowed in bitstream.",
+                          "type" : "string"
+                        },
+                        "levelHighTier" : {
+                          "type" : "boolean",
+                          "description" : "Set codec tier to high when true, main when false."
+                        },
+                        "level" : {
+                          "description" : "--level <string>: Manually set codec level (e.g. \"5.1\").",
+                          "type" : "string"
+                        },
+                        "headermode" : {
+                          "description" : "--headermode <0-2>: Repetition frequency of headers in the bitstream.",
+                          "type" : "integer"
+                        },
+                        "vuiTimingInformation" : {
+                          "type" : "boolean",
+                          "description" : "--notiminginfo: Disable timing information in the VUI."
+                        },
+                        "accessUnitDelimiter" : {
+                          "description" : "--audelim <int>: Generate access unit delimiter NAL units.",
+                          "type" : "integer"
+                        },
+                        "vuiColorPrimaries" : {
+                          "description" : "--vui-colorprim <int|string>: Override VUI color primaries value.",
+                          "type" : "string"
+                        },
+                        "vuiColorTransfer" : {
+                          "description" : "--vui-transfer <int|string>: Override VUI transfer function value.",
+                          "type" : "string"
+                        },
+                        "vuiColorMatrix" : {
+                          "description" : "--vui-colormat <int|string>: Override VUI color matrix value.",
+                          "type" : "string"
+                        },
+                        "vuiSampleAspectRatio" : {
+                          "description" : "--vui-sar <int|string>: Set VUI sample aspect ratio.",
+                          "type" : "string"
+                        },
+                        "md5SeiGeneration" : {
+                          "type" : "boolean",
+                          "description" : "--md5: Generate MD5 SEI messages for each picture."
+                        },
+                        "seimode" : {
+                          "description" : "--seimode <0-1>: Controls placement of sequence static SEI messages.",
+                          "type" : "integer"
+                        },
+                        "seiUserPayload" : {
+                          "description" : "--sei-user-payload <string>: Payload of custom SEI message.",
+                          "type" : "string"
+                        },
+                        "seiUserUuid" : {
+                          "description" : "--sei-user-uuid <string>: UUID of custom SEI message.",
+                          "type" : "string"
+                        },
+                        "maxContentLightLevel" : {
+                          "description" : "--maxlightlevel cll: Maximum content light level.",
+                          "type" : "integer"
+                        },
+                        "maxPictureAverageLightLevel" : {
+                          "description" : "--maxlightlevel fal: Maximum picture average light level.",
+                          "type" : "integer"
+                        },
+                        "masterdisplay" : {
+                          "description" : "--masterdisplay <string>: Mastering display color volume SEI info (SMPTE ST2086).",
+                          "type" : "string"
+                        },
+                        "timecode" : {
+                          "description" : "--timecode <0-2>: Time code SEI mode (0:off 1:timecode 2:pts).",
+                          "type" : "integer"
+                        },
+                        "statFile" : {
+                          "description" : "--statfile <filename>: Output per-frame statistics to the specified log file, independent of the FFmpeg log level.",
+                          "type" : "string"
+                        },
+                        "zones" : {
+                          "description" : "--zones <spec>: Override rate parameters for certain time segments (comma-separated, e.g. \"100-499:br=500k:tol=2.0,500-999:qp=25\").",
+                          "type" : "string"
+                        },
+                        "layerOptions" : {
+                          "description" : "--layeropts: Layer-specific options (newline-separated, e.g. \"0:qpoffset=2.0,cpulist=0-3\").",
+                          "type" : "string"
                         }
                       }
                     }
@@ -3400,7 +3822,7 @@
                         },
                         "encodingMode" : {
                           "description" : "The mode of the encoding. When this is set, `encodingMode` (`liveEncodingMode`) must not be set in the (live) encoding start request.",
-                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
                           "type" : "string"
                         },
                         "crf" : {
@@ -3644,7 +4066,7 @@
                         },
                         "encodingMode" : {
                           "description" : "The mode of the encoding. When this is set, `encodingMode` (`liveEncodingMode`) must not be set in the (live) encoding start request.",
-                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
                           "type" : "string"
                         },
                         "presetConfiguration" : {
@@ -3967,7 +4389,7 @@
                         },
                         "encodingMode" : {
                           "description" : "The mode of the encoding. When this is set, `encodingMode` (`liveEncodingMode`) must not be set in the (live) encoding start request.",
-                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
                           "type" : "string"
                         },
                         "presetConfiguration" : {
@@ -6259,7 +6681,7 @@
                 },
                 "selectedEncodingMode" : {
                   "description" : "After the encoding has been started, this will contain the encoding mode that was actually used. Especially useful when `encodingMode` was not set explicitly or set to STANDARD (which translates to one of the other possible values on encoding start).",
-                  "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                  "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
                   "type" : "string"
                 },
                 "selectedCloudRegion" : {
@@ -6451,7 +6873,7 @@
                         },
                         "selectedEncodingMode" : {
                           "description" : "The encoding mode that was used for this stream. This is derived from `encodingMode`, which can be specified in the codec configuration or in the encoding start request. Note that all streams of an encoding need to use the same encoding mode. This will therefore always match `selectedEncodingMode` of the related Encoding resource. Especially useful when `encodingMode` was not set explicitly or set to STANDARD (which translates to one of the other possible values on encoding start).",
-                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
                           "type" : "string"
                         },
                         "perTitleSettings" : {
@@ -8277,7 +8699,7 @@
                         },
                         "liveEncodingMode" : {
                           "description" : "The pass mode of the encoding. Must only be set when `encodingMode` is not set on any codec configuration used by this encoding.",
-                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                          "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
                           "type" : "string"
                         },
                         "reuploadSettings" : {
@@ -8659,7 +9081,7 @@
                             },
                             "liveEncodingMode" : {
                               "description" : "The pass mode of the encoding. Must only be set when `encodingMode` is not set on any codec configuration used by this encoding.",
-                              "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                              "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
                               "type" : "string"
                             },
                             "reuploadSettings" : {
@@ -14113,7 +14535,7 @@
                     },
                     "encodingMode" : {
                       "description" : "The pass mode of the encoding. Must only be set when `encodingMode` is not set on any codec configuration used by this encoding.",
-                      "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS" ],
+                      "enum" : [ "STANDARD", "SINGLE_PASS", "TWO_PASS", "THREE_PASS", "SMART_PASS" ],
                       "type" : "string"
                     },
                     "previewDashManifests" : {
@@ -14511,6 +14933,91 @@
                               "description" : "Desired target quality of the highest representation expressed as CRF value",
                               "format" : "double",
                               "type" : "number"
+                            }
+                          }
+                        },
+                        "h265V2Configuration" : {
+                          "type" : "object",
+                          "description" : "Per-Title configuration for H265 V2",
+                          "properties" : {
+                            "minBitrate" : {
+                              "description" : "The minimum bitrate that will be used by the Per-Title algorithm.",
+                              "type" : "integer"
+                            },
+                            "maxBitrate" : {
+                              "description" : "The maximum bitrate that will be used by the Per-Title algorithm. It will not generate any rendition with a higher bitrate.",
+                              "type" : "integer"
+                            },
+                            "minBitrateStepSize" : {
+                              "description" : "The minimum ratio between the bitrates of generated renditions, e.g. if the first bitrate is 240,000, a minimum ratio of 1.5 will require the next higher bitrate to be at least 360,000",
+                              "format" : "double",
+                              "type" : "number"
+                            },
+                            "maxBitrateStepSize" : {
+                              "description" : "The maximum ratio between the bitrates of neighbouring renditions, e.g., if the first bitrate is 240,000, a maximum ratio of 1.9 will require the next higher bitrate to be at most 456,000",
+                              "format" : "double",
+                              "type" : "number"
+                            },
+                            "autoRepresentations" : {
+                              "type" : "object",
+                              "properties" : {
+                                "adoptConfigurationThreshold" : {
+                                  "description" : "This is the threshold that determines whether the settings of the lower or the upper template representation (codec configuration) should be used, when representations are added automatically. The value must be between 0 and 1. Values nearer 0 will favour the higher representation, values nearer 1 will favour the lower representation.",
+                                  "format" : "double",
+                                  "type" : "number"
+                                }
+                              }
+                            },
+                            "complexityFactor" : {
+                              "description" : "Will modify the assumed complexity for the Per-Title algorithm (> 0.0). Values higher than 1 will increase complexity and thus select smaller resolutions for given bitrates. This will also result in a higher bitrate for the top rendition. Values lower than 1 will decrease assumed complexity and thus select higher resolutions for given bitrates and also decrease the bitrate of the top rendition",
+                              "minimum" : 0,
+                              "format" : "double",
+                              "type" : "number"
+                            },
+                            "fixedResolutionAndBitrateConfiguration" : {
+                              "type" : "object",
+                              "description" : "Additional configuration for fixed resolution and bitrate templates",
+                              "properties" : {
+                                "forcedRenditionAboveHighestFixedRepresentation" : {
+                                  "description" : "Number of forced renditions above the highest fixed representation (e.g. FIXED_RESOLUTION_AND_BITRATE). Forced renditions will be added, also if the Per-Title algorithm chooses the user defined force rendition to be the highest one.",
+                                  "minimum" : 1,
+                                  "type" : "integer"
+                                },
+                                "forcedRenditionAboveHighestFixedRepresentationFactor" : {
+                                  "description" : "The factor to calculate the bitrate that will be chosen based on the bitrate of the last FIXED_RESOLUTION.",
+                                  "format" : "double",
+                                  "type" : "number"
+                                },
+                                "forcedRenditionAboveHighestFixedRepresentationCalculationMode" : {
+                                  "description" : "Mode to calculate the bitrate of the next representation",
+                                  "enum" : [ "LAST_CALCULATED_BITRATE", "MINIMUM", "MAXIMUM", "AVERAGE" ],
+                                  "type" : "string"
+                                }
+                              }
+                            },
+                            "resolutionScaleFactor" : {
+                              "description" : "This factor influences the resolution selection of the per-title algorithm. The default value is 0.0. negative values will lead to results where the algorithm will choose lower resolutions for given bitrates. A positive value will result in higher resolutions to be selected. The range of the factor is -5.0 to +5.0. Please note that changing this factor might also lead to slightly different bitrate selection by the algorithm.",
+                              "format" : "double",
+                              "type" : "number"
+                            },
+                            "codecMinBitrateFactor" : {
+                              "description" : "This factor is used to calculate the minBitrate of the codec configuration for the generated representations as a multiple of the targetBitrate",
+                              "format" : "double",
+                              "type" : "number"
+                            },
+                            "codecMaxBitrateFactor" : {
+                              "description" : "This factor is used to calculate the maxBitrate of the codec configuration for the generated representations as a multiple of the targetBitrate",
+                              "format" : "double",
+                              "type" : "number"
+                            },
+                            "codecBufsizeFactor" : {
+                              "description" : "This factor is used to calculate the bufsize of the codec configuration for the generated representations as a multiple of the targetBitrate",
+                              "format" : "double",
+                              "type" : "number"
+                            },
+                            "targetQualityQp" : {
+                              "description" : "Desired target quality of the highest representation expressed as QP value used for the CQP probe encode",
+                              "type" : "integer"
                             }
                           }
                         }
