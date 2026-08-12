@@ -3556,6 +3556,10 @@
                           "format" : "double",
                           "type" : "number"
                         },
+                        "maxBitrate" : {
+                          "description" : "Maximum Bitrate (bps)",
+                          "type" : "integer"
+                        },
                         "bufsize" : {
                           "description" : "--hrdbuf <0.3-3>: Coded Picture Buffer size in seconds for the HRD.",
                           "type" : "integer"
@@ -4416,6 +4420,12 @@
                           "description" : "Set the maximum picture average light level (MaxFALL). Use together with maxContentLightLevel (which will be 0 if not set). Part of HDR-10 metadata.",
                           "minimum" : 0,
                           "maximum" : 65535,
+                          "type" : "integer"
+                        },
+                        "crf" : {
+                          "description" : "Constant rate factor for quality-based variable bitrate. Either bitrate or crf is required.",
+                          "minimum" : 0,
+                          "maximum" : 70,
                           "type" : "integer"
                         },
                         "keyPlacementMode" : {
@@ -6372,6 +6382,64 @@
                       "description" : "Set maximum true peak. Range is from '-9.0' to '0.0'. Default value is '-2.0'. Values are measured in dBTP (db True Peak)",
                       "format" : "double",
                       "type" : "number"
+                    }
+                  }
+                }
+              },
+              "required" : [ "properties" ]
+            }
+          }
+        },
+        "dolbyLoudness" : {
+          "type" : "object",
+          "patternProperties" : {
+            "^[A-Za-z0-9_-]+$" : {
+              "type" : "object",
+              "properties" : {
+                "properties" : {
+                  "type" : "object",
+                  "title" : "DolbyLoudnessFilter",
+                  "properties" : {
+                    "name" : {
+                      "description" : "Name of the resource. Can be freely chosen by the user.",
+                      "type" : "string"
+                    },
+                    "description" : {
+                      "description" : "Description of the resource. Can be freely chosen by the user.",
+                      "type" : "string"
+                    },
+                    "customData" : {
+                      "type" : "object",
+                      "description" : "User-specific meta data. This can hold anything."
+                    },
+                    "targetLoudness" : {
+                      "description" : "The target integrated loudness the audio should be corrected to. Range is from '-31' to '-8'. Default value is '-24'. Value is measured in LKFS (Loudness, K-weighted, relative to Full Scale).",
+                      "minimum" : -31,
+                      "maximum" : -8,
+                      "type" : "integer"
+                    },
+                    "maximumTruePeakLevel" : {
+                      "description" : "The maximum true-peak level the corrected audio may reach. Range is from '-8.0' to '-0.1'. Default value is '-2.0'. Values are measured in dBTP (dB True Peak). Note that the maximum true peak level must be set at least 6 dB above the target loudness.",
+                      "minimum" : -8,
+                      "maximum" : -0.1,
+                      "format" : "double",
+                      "type" : "number"
+                    },
+                    "dialogueIntelligence" : {
+                      "description" : "Whether to use the Dolby Dialogue Intelligence feature, which identifies and analyzes dialogue segments within the audio as a basis for speech gating. Default value is 'ENABLED'.",
+                      "enum" : [ "ENABLED", "DISABLED" ],
+                      "type" : "string"
+                    },
+                    "speechDetectionThreshold" : {
+                      "description" : "The percentage of speech that must be detected within the audio before the dialogue loudness is used as the basis for loudness correction. Range is from '0' to '100'. Default value is '20'. This is only applied when dialogueIntelligence is 'ENABLED', as it selects between speech-gated and un-gated loudness measurement.",
+                      "minimum" : 0,
+                      "maximum" : 100,
+                      "type" : "integer"
+                    },
+                    "contentForm" : {
+                      "description" : "The form of the content, used to optimize the loudness measurement gating. Content longer than 3 minutes (180 seconds) is considered long-form, shorter content is considered short-form. Default value is 'AUTO_DETECT'.",
+                      "enum" : [ "LONG", "SHORT", "AUTO_DETECT" ],
+                      "type" : "string"
                     }
                   }
                 }
