@@ -1742,9 +1742,28 @@
                       "type" : "string"
                     },
                     "mslVersion" : {
-                      "description" : "The Akamai MSL Version. Only MSL4 is supported at the moment.",
-                      "enum" : [ "MSL4" ],
+                      "description" : "The Akamai MSL Version. MSL4 and MSL5 are supported.",
+                      "enum" : [ "MSL4", "MSL5" ],
                       "type" : "string"
+                    },
+                    "publishingAuthentication" : {
+                      "type" : "object",
+                      "description" : "MSL5 only. HTTP Digest publishing credentials. Sending this\nfield with `mslVersion: MSL4` is rejected. Credentials\n(username, password) are write-only and not returned in responses.\n",
+                      "properties" : {
+                        "enabled" : {
+                          "type" : "boolean",
+                          "description" : "Whether HTTP Digest publishing authentication is enabled."
+                        },
+                        "username" : {
+                          "description" : "HTTP Digest username for publishing MSL5 segments. Required when\n`enabled` is `true`.\n",
+                          "type" : "string"
+                        },
+                        "password" : {
+                          "description" : "HTTP Digest password for publishing MSL5 segments. Required when\n`enabled` is `true`.\n",
+                          "type" : "string"
+                        }
+                      },
+                      "required" : [ "enabled" ]
                     }
                   },
                   "required" : [ "eventName", "mslVersion", "streamFormat", "streamId" ]
@@ -3446,7 +3465,7 @@
                           "description" : "Rate control mode configuration. Used to Configure the Perceptual Encoding Mode Settings.",
                           "properties" : {
                             "type" : {
-                              "enum" : [ "PERCEPTUAL_QUALITY_MODE", "CONSTANT_BITRATE_MODE" ],
+                              "enum" : [ "PERCEPTUAL_QUALITY_MODE" ],
                               "type" : "string"
                             }
                           }
@@ -3603,7 +3622,8 @@
                           "description" : "Set codec tier to high when true, main when false."
                         },
                         "level" : {
-                          "description" : "--level <string>: Manually set codec level (e.g. \"5.1\").",
+                          "description" : "--level: Manually set codec level.",
+                          "enum" : [ "1", "2", "2.1", "3", "3.1", "4", "4.1", "5", "5.1", "5.2", "6", "6.1", "6.2" ],
                           "type" : "string"
                         },
                         "headermode" : {
@@ -4404,6 +4424,11 @@
                         "autoLevelSetup" : {
                           "description" : "Enable/disable automatic calculation of level, maxBitrate, and bufsize based on the least level that satisfies maximum property values for picture resolution, frame rate, and bit rate. In the case the target level is set explicitly, the maximum bitrate and buffer size are calculated based on the defined level. Explicitly setting maxBitrate, or bufsize properties will disable the automatic calculation.",
                           "enum" : [ "ENABLED", "DISABLED" ],
+                          "type" : "string"
+                        },
+                        "dynamicRangeFormat" : {
+                          "description" : "Configures what kind of dynamic range the output should conform to.",
+                          "enum" : [ "DOLBY_VISION_PROFILE_10_0", "DOLBY_VISION_PROFILE_10_1", "HDR10", "SDR" ],
                           "type" : "string"
                         },
                         "masterDisplay" : {
@@ -15220,6 +15245,21 @@
                                   "type" : "array"
                                 }
                               }
+                            },
+                            "regulatoryAdvisories" : {
+                              "type" : "object",
+                              "description" : "AI scene analysis will screen the asset for content requiring a statutory on-screen advisory\nand report the findings per shot in the asset description. Requires assetDescription.\nContact support to enable this feature for your organization.\n",
+                              "properties" : {
+                                "topics" : {
+                                  "description" : "The regulatory advisory topics to screen the asset for. At least one topic must be set.\n",
+                                  "items" : {
+                                    "type" : "string",
+                                    "title" : "RegulatoryAdvisoryTopic"
+                                  },
+                                  "type" : "array"
+                                }
+                              },
+                              "required" : [ "topics" ]
                             }
                           }
                         }
