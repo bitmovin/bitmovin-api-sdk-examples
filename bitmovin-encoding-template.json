@@ -1895,6 +1895,81 @@
               "required" : [ "properties" ]
             }
           }
+        },
+        "moq" : {
+          "type" : "object",
+          "patternProperties" : {
+            "^[A-Za-z0-9_-]+$" : {
+              "type" : "object",
+              "properties" : {
+                "properties" : {
+                  "type" : "object",
+                  "title" : "MoqOutput",
+                  "description" : "Media over QUIC (MoQ) output. Publishes the live encoding to a MoQ relay over MoQ Transport (MoQT).",
+                  "properties" : {
+                    "name" : {
+                      "description" : "Name of the resource. Can be freely chosen by the user.",
+                      "type" : "string"
+                    },
+                    "description" : {
+                      "description" : "Description of the resource. Can be freely chosen by the user.",
+                      "type" : "string"
+                    },
+                    "customData" : {
+                      "type" : "object",
+                      "description" : "User-specific meta data. This can hold anything."
+                    },
+                    "acl" : {
+                      "description" : "Deprecation notice: This property does not have any effect and will not be returned by GET endpoints",
+                      "items" : {
+                        "type" : "object",
+                        "title" : "AclEntry",
+                        "properties" : {
+                          "scope" : {
+                            "description" : "Deprecation notice: The value of this property is not being used. It can be chosen arbitrarily or not set at all",
+                            "type" : "string"
+                          },
+                          "permission" : {
+                            "enum" : [ "PUBLIC_READ", "PRIVATE" ],
+                            "type" : "string"
+                          }
+                        },
+                        "required" : [ "permission" ]
+                      },
+                      "type" : "array"
+                    },
+                    "relayUrl" : {
+                      "description" : "URL of the MoQ relay the encoder publishes to.",
+                      "type" : "string"
+                    },
+                    "trackNamespace" : {
+                      "description" : "MoQT Track Namespace under which the tracks are published. A tuple of one to 32 fields, not a URI or path.",
+                      "items" : {
+                        "type" : "string"
+                      },
+                      "type" : "array"
+                    },
+                    "draftVersion" : {
+                      "description" : "MoQ Transport draft version to use for the session with the relay.",
+                      "enum" : [ "DRAFT_16", "DRAFT_18" ],
+                      "type" : "string"
+                    },
+                    "authToken" : {
+                      "description" : "Token sent to the MoQ relay as the MoQT AUTHORIZATION TOKEN parameter. This is the only supported authentication mechanism; credentials in the relay URL are not used.",
+                      "type" : "string"
+                    },
+                    "authTokenType" : {
+                      "description" : "Token type of the MoQT AUTHORIZATION TOKEN parameter (IANA MoQ Auth Token Type registry or private-use range). Only used together with authToken. If not set, the encoder applies its default token type.",
+                      "minimum" : 0,
+                      "type" : "integer"
+                    }
+                  },
+                  "required" : [ "draftVersion", "relayUrl", "trackNamespace" ]
+                }
+              },
+              "required" : [ "properties" ]
+            }
+          }
         }
       }
     },
@@ -7033,6 +7108,14 @@
                           "properties" : {
                             "language" : {
                               "description" : "Language of the media contained in the stream. If the value is not set, then no metadata tag is set for the media stream.",
+                              "type" : "string"
+                            },
+                            "label" : {
+                              "description" : "Display name of the Stream, for example to tell apart multiple audio tracks that share the same language. For CMAF muxings it is written as a 'labl' box (ISO/IEC 14496-12) into the user data of the track. Downstream packagers use it for the Label element in DASH manifests and the NAME attribute of EXT-X-MEDIA tags in HLS playlists. If the value is not set, no label is written.",
+                              "type" : "string"
+                            },
+                            "switchingSetId" : {
+                              "description" : "Identifier of the switching set the Stream belongs to. For CMAF muxings it is written as a 'kind' box with schemeURI urn:dashif:ingest:switchingset_id (DASH-IF Live Media Ingest) into the user data of the track. Downstream packagers group tracks with the same identifier into one switching set and use it in segment URLs. Only letters, digits, hyphens and underscores are allowed. If the value is not set and a label is set, an identifier is derived from the properties of the Stream, including the label. Without a label, no identifier is written. Set it explicitly when segment URLs have to stay stable across configuration updates.",
                               "type" : "string"
                             }
                           }
@@ -14791,7 +14874,7 @@
                               }
                             },
                             "resolutionScaleFactor" : {
-                              "description" : "This factor influences the resolution selection of the per-title algorithm. The default value is 0.0. negative values will lead to results where the algorithm will choose lower resolutions for given bitrates. A positive value will result in higher resolutions to be selected. The range of the factor is -5.0 to +5.0. Please note that changing this factor might also lead to slightly different bitrate selection by the algorithm.",
+                              "description" : "This factor influences the resolution selection of the per-title algorithm. The default value is 0.0. negative values will lead to results where the algorithm will choose lower resolutions for given bitrates. A positive value will result in higher resolutions to be selected. The range of the factor is -15.0 to +15.0. Please note that changing this factor might also lead to slightly different bitrate selection by the algorithm.",
                               "format" : "double",
                               "type" : "number"
                             },
@@ -14877,7 +14960,7 @@
                               }
                             },
                             "resolutionScaleFactor" : {
-                              "description" : "This factor influences the resolution selection of the per-title algorithm. The default value is 0.0. negative values will lead to results where the algorithm will choose lower resolutions for given bitrates. A positive value will result in higher resolutions to be selected. The range of the factor is -5.0 to +5.0. Please note that changing this factor might also lead to slightly different bitrate selection by the algorithm.",
+                              "description" : "This factor influences the resolution selection of the per-title algorithm. The default value is 0.0. negative values will lead to results where the algorithm will choose lower resolutions for given bitrates. A positive value will result in higher resolutions to be selected. The range of the factor is -15.0 to +15.0. Please note that changing this factor might also lead to slightly different bitrate selection by the algorithm.",
                               "format" : "double",
                               "type" : "number"
                             },
@@ -14963,7 +15046,7 @@
                               }
                             },
                             "resolutionScaleFactor" : {
-                              "description" : "This factor influences the resolution selection of the per-title algorithm. The default value is 0.0. negative values will lead to results where the algorithm will choose lower resolutions for given bitrates. A positive value will result in higher resolutions to be selected. The range of the factor is -5.0 to +5.0. Please note that changing this factor might also lead to slightly different bitrate selection by the algorithm.",
+                              "description" : "This factor influences the resolution selection of the per-title algorithm. The default value is 0.0. negative values will lead to results where the algorithm will choose lower resolutions for given bitrates. A positive value will result in higher resolutions to be selected. The range of the factor is -15.0 to +15.0. Please note that changing this factor might also lead to slightly different bitrate selection by the algorithm.",
                               "format" : "double",
                               "type" : "number"
                             },
@@ -15034,12 +15117,12 @@
                               }
                             },
                             "resolutionScaleFactor" : {
-                              "description" : "This factor influences the resolution selection of the per-title algorithm. The default value is 0.0. negative values will lead to results where the algorithm will choose lower resolutions for given bitrates. A positive value will result in higher resolutions to be selected. The range of the factor is -5.0 to +5.0. Please note that changing this factor might also lead to slightly different bitrate selection by the algorithm.",
+                              "description" : "This factor influences the resolution selection of the per-title algorithm. The default value is 0.0. negative values will lead to results where the algorithm will choose lower resolutions for given bitrates. A positive value will result in higher resolutions to be selected. The range of the factor is -15.0 to +15.0. Please note that changing this factor might also lead to slightly different bitrate selection by the algorithm.",
                               "format" : "double",
                               "type" : "number"
                             },
                             "targetQualityCrf" : {
-                              "description" : "Desired target quality of the highest representation expressed as CRF value",
+                              "description" : "Desired target quality of the highest representation expressed as a CRF value. If not set, it is derived from the content, starting from 34 for SDR content of at most FullHD and at most 30 fps; HFR (more than 30 fps) reduces it by 2; a resolution above FullHD reduces it by 2; HDR10 or HLG reduces it by 2; and Dolby Vision reduces it by 4 instead of the HDR10 reduction. These reductions are cumulative, so the lowest derived value is 26, for Dolby Vision 4K at 60 fps.",
                               "format" : "double",
                               "type" : "number"
                             }
@@ -15105,7 +15188,7 @@
                               }
                             },
                             "resolutionScaleFactor" : {
-                              "description" : "This factor influences the resolution selection of the per-title algorithm. The default value is 0.0. negative values will lead to results where the algorithm will choose lower resolutions for given bitrates. A positive value will result in higher resolutions to be selected. The range of the factor is -5.0 to +5.0. Please note that changing this factor might also lead to slightly different bitrate selection by the algorithm.",
+                              "description" : "This factor influences the resolution selection of the per-title algorithm. The default value is 0.0. negative values will lead to results where the algorithm will choose lower resolutions for given bitrates. A positive value will result in higher resolutions to be selected. The range of the factor is -15.0 to +15.0. Please note that changing this factor might also lead to slightly different bitrate selection by the algorithm.",
                               "format" : "double",
                               "type" : "number"
                             },
