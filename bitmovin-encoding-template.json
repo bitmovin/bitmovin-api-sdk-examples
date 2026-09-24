@@ -3499,7 +3499,7 @@
                         },
                         "presetConfiguration" : {
                           "description" : "Use a set of well defined configurations preset to support certain use cases. Can be overwritten with more specific values.",
-                          "enum" : [ "VOD_QUALITY", "VOD_HIGH_QUALITY" ],
+                          "enum" : [ "VOD_SPEED", "VOD_STANDARD", "VOD_QUALITY", "VOD_HIGH_QUALITY" ],
                           "type" : "string"
                         },
                         "dynamicRangeFormat" : {
@@ -9122,6 +9122,55 @@
                               "type" : "string"
                             }
                           }
+                        },
+                        "aiSceneAnalysisLive" : {
+                          "type" : "object",
+                          "description" : "Configuration for AI analysis of this live Encoding",
+                          "properties" : {
+                            "analysisId" : {
+                              "description" : "ID of the Live Analysis resource",
+                              "type" : "string"
+                            },
+                            "outputs" : {
+                              "description" : "Outputs for cumulative AI analysis results",
+                              "items" : {
+                                "type" : "object",
+                                "title" : "EncodingOutput",
+                                "properties" : {
+                                  "outputId" : {
+                                    "description" : "Id of the corresponding output",
+                                    "type" : "string"
+                                  },
+                                  "outputPath" : {
+                                    "description" : "Subdirectory where to save the files to",
+                                    "type" : "string"
+                                  },
+                                  "acl" : {
+                                    "description" : "Determines accessibility of files written to this output. Only applies to output types that support ACLs. Defaults to PUBLIC_READ if the list is empty. The destination (e.g. cloud storage bucket) needs to allow the configured ACL",
+                                    "items" : {
+                                      "type" : "object",
+                                      "title" : "AclEntry",
+                                      "properties" : {
+                                        "scope" : {
+                                          "description" : "Deprecation notice: The value of this property is not being used. It can be chosen arbitrarily or not set at all",
+                                          "type" : "string"
+                                        },
+                                        "permission" : {
+                                          "enum" : [ "PUBLIC_READ", "PRIVATE" ],
+                                          "type" : "string"
+                                        }
+                                      },
+                                      "required" : [ "permission" ]
+                                    },
+                                    "type" : "array"
+                                  }
+                                },
+                                "required" : [ "outputId", "outputPath" ]
+                              },
+                              "type" : "array"
+                            }
+                          },
+                          "required" : [ "analysisId", "outputs" ]
                         }
                       },
                       "required" : [ "streamKey" ]
@@ -9504,6 +9553,55 @@
                                   "type" : "string"
                                 }
                               }
+                            },
+                            "aiSceneAnalysisLive" : {
+                              "type" : "object",
+                              "description" : "Configuration for AI analysis of this live Encoding",
+                              "properties" : {
+                                "analysisId" : {
+                                  "description" : "ID of the Live Analysis resource",
+                                  "type" : "string"
+                                },
+                                "outputs" : {
+                                  "description" : "Outputs for cumulative AI analysis results",
+                                  "items" : {
+                                    "type" : "object",
+                                    "title" : "EncodingOutput",
+                                    "properties" : {
+                                      "outputId" : {
+                                        "description" : "Id of the corresponding output",
+                                        "type" : "string"
+                                      },
+                                      "outputPath" : {
+                                        "description" : "Subdirectory where to save the files to",
+                                        "type" : "string"
+                                      },
+                                      "acl" : {
+                                        "description" : "Determines accessibility of files written to this output. Only applies to output types that support ACLs. Defaults to PUBLIC_READ if the list is empty. The destination (e.g. cloud storage bucket) needs to allow the configured ACL",
+                                        "items" : {
+                                          "type" : "object",
+                                          "title" : "AclEntry",
+                                          "properties" : {
+                                            "scope" : {
+                                              "description" : "Deprecation notice: The value of this property is not being used. It can be chosen arbitrarily or not set at all",
+                                              "type" : "string"
+                                            },
+                                            "permission" : {
+                                              "enum" : [ "PUBLIC_READ", "PRIVATE" ],
+                                              "type" : "string"
+                                            }
+                                          },
+                                          "required" : [ "permission" ]
+                                        },
+                                        "type" : "array"
+                                      }
+                                    },
+                                    "required" : [ "outputId", "outputPath" ]
+                                  },
+                                  "type" : "array"
+                                }
+                              },
+                              "required" : [ "analysisId", "outputs" ]
                             }
                           },
                           "required" : [ "streamKey" ]
