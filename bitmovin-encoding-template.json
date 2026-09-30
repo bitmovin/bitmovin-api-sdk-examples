@@ -4501,6 +4501,11 @@
                           "enum" : [ "ENABLED", "DISABLED" ],
                           "type" : "string"
                         },
+                        "maxLevel" : {
+                          "description" : "Upper bound for the automatically calculated level. The level determined by autoLevelSetup is clamped to this value, so the encoder never signals a level higher than the one given here. If the target bitrate does not fit within this level, the encoder constrains the bitrate distribution to stay conformant rather than raising the level. Has no effect when autoLevelSetup is disabled.",
+                          "enum" : [ "2.0", "2.1", "3.0", "3.1", "4.0", "4.1", "5.0", "5.1", "5.2", "5.3", "6.0", "6.1", "6.2", "6.3" ],
+                          "type" : "string"
+                        },
                         "dynamicRangeFormat" : {
                           "description" : "Configures what kind of dynamic range the output should conform to.",
                           "enum" : [ "DOLBY_VISION_PROFILE_10_0", "DOLBY_VISION_PROFILE_10_1", "HDR10", "SDR" ],
@@ -7107,11 +7112,15 @@
                           "type" : "object",
                           "properties" : {
                             "language" : {
-                              "description" : "Language of the media contained in the stream. If the value is not set, then no metadata tag is set for the media stream.",
+                              "description" : "Language of the media contained in the stream, given as an ISO 639-2 code or a BCP 47 tag, for example 'eng' or 'en-US'. If the value is not set, then no metadata tag is set for the media stream.",
                               "type" : "string"
                             },
                             "label" : {
-                              "description" : "Display name of the Stream, for example to tell apart multiple audio tracks that share the same language. For CMAF muxings it is written as a 'labl' box (ISO/IEC 14496-12) into the user data of the track. Downstream packagers use it for the Label element in DASH manifests and the NAME attribute of EXT-X-MEDIA tags in HLS playlists. If the value is not set, no label is written.",
+                              "description" : "Display name of the Stream, for example to tell apart multiple audio tracks that share the same language. For CMAF muxings it is written as a 'labl' box (ISO/IEC 14496-12) into the user data of the track. Downstream packagers use it for the Label element in DASH manifests and the NAME attribute of EXT-X-MEDIA tags in HLS playlists. If the value is not set, no label is written. Use 'labelLanguage' to declare which language the label itself is written in.",
+                              "type" : "string"
+                            },
+                            "labelLanguage" : {
+                              "description" : "Language the 'label' itself is written in, which is not necessarily the language of the media. A Spanish audio track can carry an English label, for example. For CMAF muxings it is written into the 'labl' box next to the label, and downstream packagers use it for the lang attribute of the Label element in DASH manifests. The value is written as given and downstream packagers expose it unchanged, so set a BCP 47 tag such as 'en' when the manifest should carry that form. The value has to be shaped like a BCP 47 tag: a primary subtag of two or three letters, optionally followed by subtags of up to eight letters or digits, each separated by a hyphen, for example 'en', 'en-US' or 'es-419'. If the value is not set and a label is set, 'language' is used as given, for example 'eng'. Without either, the label language is written as 'und' (undetermined). HLS playlists are not affected, as EXT-X-MEDIA has no equivalent attribute.",
                               "type" : "string"
                             },
                             "switchingSetId" : {
@@ -8742,6 +8751,39 @@
                             "shiftProgressiveMuxingStartPosition" : {
                               "type" : "boolean",
                               "description" : "If set to true, the Progressive muxing start position will be shifted to the start of the first remaining segment after the removal.  NOTE: This only works for Progressive MP4 muxings."
+                            }
+                          }
+                        }
+                      },
+                      "required" : [ "properties" ]
+                    }
+                  }
+                },
+                "updateAutoshutdownConfig" : {
+                  "type" : "object",
+                  "patternProperties" : {
+                    "^[A-Za-z0-9_-]+$" : {
+                      "type" : "object",
+                      "properties" : {
+                        "properties" : {
+                          "type" : "object",
+                          "title" : "LiveAutoShutdownConfigurationUpdateRequest",
+                          "description" : "The auto shutdown configuration to set on a running Live\nEncoding. Any auto shutdown configuration the encoding\ncurrently has is overwritten.\n\nEvery timer that is omitted or `null` is disarmed. An empty\nobject disarms all timers, so always send the complete\nconfiguration the encoding should run with, including the\nvalues that should stay unchanged.\n",
+                          "properties" : {
+                            "bytesReadTimeoutSeconds" : {
+                              "description" : "Automatically shutdown the live stream if there is no input anymore for a predefined number of seconds.",
+                              "minimum" : 30,
+                              "type" : "integer"
+                            },
+                            "streamTimeoutMinutes" : {
+                              "description" : "Automatically stops the Live Encoding after the given number of\nminutes, counted from when the encoder applies this request.\nThe maximum live encoding runtime of the organization, counted\nfrom the start of the encoding, still applies. If it comes first,\nthe encoding stops at that limit instead.\n\nThe instant actually scheduled is returned as `scheduledShutdownAt`.\nOmit this field or set it to `null` to disarm this timer.\n",
+                              "minimum" : 5,
+                              "type" : "integer"
+                            },
+                            "waitingForFirstConnectTimeoutMinutes" : {
+                              "description" : "Automatically shutdown the live stream if input is never connected for a predefined number of minutes.",
+                              "minimum" : 5,
+                              "type" : "integer"
                             }
                           }
                         }
