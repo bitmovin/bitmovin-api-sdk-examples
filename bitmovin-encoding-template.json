@@ -2052,22 +2052,22 @@
                               "type" : "string"
                             },
                             "colorSpace" : {
-                              "description" : "The color space to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color space to be applied.",
                               "enum" : [ "UNSPECIFIED", "RGB", "BT709", "FCC", "BT470BG", "SMPTE170M", "SMPTE240M", "YCGCO", "YCOCG", "BT2020_NCL", "BT2020_CL", "SMPTE2085" ],
                               "type" : "string"
                             },
                             "colorPrimaries" : {
-                              "description" : "The color primaries to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color primaries to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "BT470M", "BT470BG", "SMPTE170M", "SMPTE240M", "FILM", "BT2020", "SMPTE428", "SMPTEST428_1", "SMPTE431", "SMPTE432", "JEDEC_P22" ],
                               "type" : "string"
                             },
                             "colorRange" : {
-                              "description" : "The color range to be applied. If used on a Dolby Vision stream, this value must be set to JPEG.",
+                              "description" : "The color range to be applied.",
                               "enum" : [ "UNSPECIFIED", "MPEG", "JPEG" ],
                               "type" : "string"
                             },
                             "colorTransfer" : {
-                              "description" : "The color transfer to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color transfer to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "GAMMA22", "GAMMA28", "SMPTE170M", "SMPTE240M", "LINEAR", "LOG", "LOG_SQRT", "IEC61966_2_4", "BT1361_ECG", "IEC61966_2_1", "BT2020_10", "BT2020_12", "SMPTE2084", "SMPTE428", "ARIB_STD_B67" ],
                               "type" : "string"
                             },
@@ -2245,22 +2245,22 @@
                               "type" : "string"
                             },
                             "colorSpace" : {
-                              "description" : "The color space to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color space to be applied.",
                               "enum" : [ "UNSPECIFIED", "RGB", "BT709", "FCC", "BT470BG", "SMPTE170M", "SMPTE240M", "YCGCO", "YCOCG", "BT2020_NCL", "BT2020_CL", "SMPTE2085" ],
                               "type" : "string"
                             },
                             "colorPrimaries" : {
-                              "description" : "The color primaries to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color primaries to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "BT470M", "BT470BG", "SMPTE170M", "SMPTE240M", "FILM", "BT2020", "SMPTE428", "SMPTEST428_1", "SMPTE431", "SMPTE432", "JEDEC_P22" ],
                               "type" : "string"
                             },
                             "colorRange" : {
-                              "description" : "The color range to be applied. If used on a Dolby Vision stream, this value must be set to JPEG.",
+                              "description" : "The color range to be applied.",
                               "enum" : [ "UNSPECIFIED", "MPEG", "JPEG" ],
                               "type" : "string"
                             },
                             "colorTransfer" : {
-                              "description" : "The color transfer to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color transfer to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "GAMMA22", "GAMMA28", "SMPTE170M", "SMPTE240M", "LINEAR", "LOG", "LOG_SQRT", "IEC61966_2_4", "BT1361_ECG", "IEC61966_2_1", "BT2020_10", "BT2020_12", "SMPTE2084", "SMPTE428", "ARIB_STD_B67" ],
                               "type" : "string"
                             },
@@ -2635,22 +2635,22 @@
                               "type" : "string"
                             },
                             "colorSpace" : {
-                              "description" : "The color space to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color space to be applied.",
                               "enum" : [ "UNSPECIFIED", "RGB", "BT709", "FCC", "BT470BG", "SMPTE170M", "SMPTE240M", "YCGCO", "YCOCG", "BT2020_NCL", "BT2020_CL", "SMPTE2085" ],
                               "type" : "string"
                             },
                             "colorPrimaries" : {
-                              "description" : "The color primaries to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color primaries to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "BT470M", "BT470BG", "SMPTE170M", "SMPTE240M", "FILM", "BT2020", "SMPTE428", "SMPTEST428_1", "SMPTE431", "SMPTE432", "JEDEC_P22" ],
                               "type" : "string"
                             },
                             "colorRange" : {
-                              "description" : "The color range to be applied. If used on a Dolby Vision stream, this value must be set to JPEG.",
+                              "description" : "The color range to be applied.",
                               "enum" : [ "UNSPECIFIED", "MPEG", "JPEG" ],
                               "type" : "string"
                             },
                             "colorTransfer" : {
-                              "description" : "The color transfer to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color transfer to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "GAMMA22", "GAMMA28", "SMPTE170M", "SMPTE240M", "LINEAR", "LOG", "LOG_SQRT", "IEC61966_2_4", "BT1361_ECG", "IEC61966_2_1", "BT2020_10", "BT2020_12", "SMPTE2084", "SMPTE428", "ARIB_STD_B67" ],
                               "type" : "string"
                             },
@@ -3256,22 +3256,22 @@
                               "type" : "string"
                             },
                             "colorSpace" : {
-                              "description" : "The color space to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color space to be applied.",
                               "enum" : [ "UNSPECIFIED", "RGB", "BT709", "FCC", "BT470BG", "SMPTE170M", "SMPTE240M", "YCGCO", "YCOCG", "BT2020_NCL", "BT2020_CL", "SMPTE2085" ],
                               "type" : "string"
                             },
                             "colorPrimaries" : {
-                              "description" : "The color primaries to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color primaries to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "BT470M", "BT470BG", "SMPTE170M", "SMPTE240M", "FILM", "BT2020", "SMPTE428", "SMPTEST428_1", "SMPTE431", "SMPTE432", "JEDEC_P22" ],
                               "type" : "string"
                             },
                             "colorRange" : {
-                              "description" : "The color range to be applied. If used on a Dolby Vision stream, this value must be set to JPEG.",
+                              "description" : "The color range to be applied.",
                               "enum" : [ "UNSPECIFIED", "MPEG", "JPEG" ],
                               "type" : "string"
                             },
                             "colorTransfer" : {
-                              "description" : "The color transfer to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color transfer to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "GAMMA22", "GAMMA28", "SMPTE170M", "SMPTE240M", "LINEAR", "LOG", "LOG_SQRT", "IEC61966_2_4", "BT1361_ECG", "IEC61966_2_1", "BT2020_10", "BT2020_12", "SMPTE2084", "SMPTE428", "ARIB_STD_B67" ],
                               "type" : "string"
                             },
@@ -3426,22 +3426,22 @@
                               "type" : "string"
                             },
                             "colorSpace" : {
-                              "description" : "The color space to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color space to be applied.",
                               "enum" : [ "UNSPECIFIED", "RGB", "BT709", "FCC", "BT470BG", "SMPTE170M", "SMPTE240M", "YCGCO", "YCOCG", "BT2020_NCL", "BT2020_CL", "SMPTE2085" ],
                               "type" : "string"
                             },
                             "colorPrimaries" : {
-                              "description" : "The color primaries to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color primaries to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "BT470M", "BT470BG", "SMPTE170M", "SMPTE240M", "FILM", "BT2020", "SMPTE428", "SMPTEST428_1", "SMPTE431", "SMPTE432", "JEDEC_P22" ],
                               "type" : "string"
                             },
                             "colorRange" : {
-                              "description" : "The color range to be applied. If used on a Dolby Vision stream, this value must be set to JPEG.",
+                              "description" : "The color range to be applied.",
                               "enum" : [ "UNSPECIFIED", "MPEG", "JPEG" ],
                               "type" : "string"
                             },
                             "colorTransfer" : {
-                              "description" : "The color transfer to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color transfer to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "GAMMA22", "GAMMA28", "SMPTE170M", "SMPTE240M", "LINEAR", "LOG", "LOG_SQRT", "IEC61966_2_4", "BT1361_ECG", "IEC61966_2_1", "BT2020_10", "BT2020_12", "SMPTE2084", "SMPTE428", "ARIB_STD_B67" ],
                               "type" : "string"
                             },
@@ -3853,22 +3853,22 @@
                               "type" : "string"
                             },
                             "colorSpace" : {
-                              "description" : "The color space to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color space to be applied.",
                               "enum" : [ "UNSPECIFIED", "RGB", "BT709", "FCC", "BT470BG", "SMPTE170M", "SMPTE240M", "YCGCO", "YCOCG", "BT2020_NCL", "BT2020_CL", "SMPTE2085" ],
                               "type" : "string"
                             },
                             "colorPrimaries" : {
-                              "description" : "The color primaries to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color primaries to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "BT470M", "BT470BG", "SMPTE170M", "SMPTE240M", "FILM", "BT2020", "SMPTE428", "SMPTEST428_1", "SMPTE431", "SMPTE432", "JEDEC_P22" ],
                               "type" : "string"
                             },
                             "colorRange" : {
-                              "description" : "The color range to be applied. If used on a Dolby Vision stream, this value must be set to JPEG.",
+                              "description" : "The color range to be applied.",
                               "enum" : [ "UNSPECIFIED", "MPEG", "JPEG" ],
                               "type" : "string"
                             },
                             "colorTransfer" : {
-                              "description" : "The color transfer to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color transfer to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "GAMMA22", "GAMMA28", "SMPTE170M", "SMPTE240M", "LINEAR", "LOG", "LOG_SQRT", "IEC61966_2_4", "BT1361_ECG", "IEC61966_2_1", "BT2020_10", "BT2020_12", "SMPTE2084", "SMPTE428", "ARIB_STD_B67" ],
                               "type" : "string"
                             },
@@ -4097,22 +4097,22 @@
                               "type" : "string"
                             },
                             "colorSpace" : {
-                              "description" : "The color space to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color space to be applied.",
                               "enum" : [ "UNSPECIFIED", "RGB", "BT709", "FCC", "BT470BG", "SMPTE170M", "SMPTE240M", "YCGCO", "YCOCG", "BT2020_NCL", "BT2020_CL", "SMPTE2085" ],
                               "type" : "string"
                             },
                             "colorPrimaries" : {
-                              "description" : "The color primaries to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color primaries to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "BT470M", "BT470BG", "SMPTE170M", "SMPTE240M", "FILM", "BT2020", "SMPTE428", "SMPTEST428_1", "SMPTE431", "SMPTE432", "JEDEC_P22" ],
                               "type" : "string"
                             },
                             "colorRange" : {
-                              "description" : "The color range to be applied. If used on a Dolby Vision stream, this value must be set to JPEG.",
+                              "description" : "The color range to be applied.",
                               "enum" : [ "UNSPECIFIED", "MPEG", "JPEG" ],
                               "type" : "string"
                             },
                             "colorTransfer" : {
-                              "description" : "The color transfer to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color transfer to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "GAMMA22", "GAMMA28", "SMPTE170M", "SMPTE240M", "LINEAR", "LOG", "LOG_SQRT", "IEC61966_2_4", "BT1361_ECG", "IEC61966_2_1", "BT2020_10", "BT2020_12", "SMPTE2084", "SMPTE428", "ARIB_STD_B67" ],
                               "type" : "string"
                             },
@@ -4420,22 +4420,22 @@
                               "type" : "string"
                             },
                             "colorSpace" : {
-                              "description" : "The color space to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color space to be applied.",
                               "enum" : [ "UNSPECIFIED", "RGB", "BT709", "FCC", "BT470BG", "SMPTE170M", "SMPTE240M", "YCGCO", "YCOCG", "BT2020_NCL", "BT2020_CL", "SMPTE2085" ],
                               "type" : "string"
                             },
                             "colorPrimaries" : {
-                              "description" : "The color primaries to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color primaries to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "BT470M", "BT470BG", "SMPTE170M", "SMPTE240M", "FILM", "BT2020", "SMPTE428", "SMPTEST428_1", "SMPTE431", "SMPTE432", "JEDEC_P22" ],
                               "type" : "string"
                             },
                             "colorRange" : {
-                              "description" : "The color range to be applied. If used on a Dolby Vision stream, this value must be set to JPEG.",
+                              "description" : "The color range to be applied.",
                               "enum" : [ "UNSPECIFIED", "MPEG", "JPEG" ],
                               "type" : "string"
                             },
                             "colorTransfer" : {
-                              "description" : "The color transfer to be applied. If used on a Dolby Vision stream, this value must be set to UNSPECIFIED.",
+                              "description" : "The color transfer to be applied.",
                               "enum" : [ "UNSPECIFIED", "BT709", "GAMMA22", "GAMMA28", "SMPTE170M", "SMPTE240M", "LINEAR", "LOG", "LOG_SQRT", "IEC61966_2_4", "BT1361_ECG", "IEC61966_2_1", "BT2020_10", "BT2020_12", "SMPTE2084", "SMPTE428", "ARIB_STD_B67" ],
                               "type" : "string"
                             },
@@ -8394,7 +8394,7 @@
                                   "type" : "string"
                                 },
                                 "channel" : {
-                                  "description" : "The channel number of the subtitle on the respective stream position",
+                                  "description" : "The CEA-608 caption channel to extract, as defined in ANSI/CTA-608-E. Only the primary channel of each field is selectable: CC1 on field 1 and CC3 on field 2.",
                                   "enum" : [ "CC1", "CC3" ],
                                   "type" : "string"
                                 }
@@ -8437,11 +8437,13 @@
                                   "type" : "string"
                                 },
                                 "channel" : {
-                                  "description" : "The channel number of the subtitle on the respective stream position. Must not be smaller than 1",
+                                  "description" : "The CEA-708 caption service to extract, as defined in ANSI/CTA-708-E. Service 1 is the primary caption service and is used when this value is not set. Which services a stream carries depends on the source, so check it before selecting anything other than service 1.",
+                                  "minimum" : 1,
+                                  "maximum" : 63,
                                   "type" : "integer"
                                 }
                               },
-                              "required" : [ "channel", "inputId", "inputPath" ]
+                              "required" : [ "inputId", "inputPath" ]
                             }
                           },
                           "required" : [ "properties" ]
@@ -8732,17 +8734,17 @@
                           "title" : "ResetLiveManifestTimeShift",
                           "properties" : {
                             "residualPeriodInSeconds" : {
-                              "description" : "Determines how many seconds will be left in the manifest after segments are removed.\nIf this is not set, all but one segment will be removed.\n",
+                              "description" : "Specifies how many seconds of content remain in the manifest after older segments are removed. At least one segment is always retained.\nIf neither `residualPeriodInSeconds` nor `offsetInSeconds` is set, all segments except the most recent are removed.\nFor DASH manifests that use SegmentTemplate, the retained duration also includes the value configured for `liveEdgeOffset`.\n",
                               "format" : "double",
                               "type" : "number"
                             },
                             "offsetInSeconds" : {
-                              "description" : "Offset in seconds from the start of the live event, defining the point from which all segments within that duration will be removed from the given manifests.\nE.g.: The segment length is 2 seconds and a timeshift of 120 seconds (2 minutes) is configured. \nThe manifest contains 60 segments with the last segment number being 80 (`segment_80.ts`). \nThis means the manifest contains `segment_20.ts` to `segment_80.ts` (timeshift of 2 minutes equals 60 segments in manifest)\nIf you set `offsetInSeconds` to `120`, all segments below segment number 60 (`segment_60.ts`) will be removed. (`targetSegmentNumber = offsetInSeconds / segmentLength`)\nThe manifests will then contain `segment_60.ts` to `segment_80.ts`\n*Note:* Only `offsetInSeconds` or `residualPeriodInSeconds` can be set.\n",
+                              "description" : "Specifies an offset, in seconds, from the start of the live event. All segments before this position are removed from the affected manifests.\nFor example, assume a segment length of 2 seconds and a configured `timeshift` of 120 seconds (2 minutes).\nIf the most recent segment is `segment_80.ts`, the manifest contains 60 segments, from `segment_21.ts` through `segment_80.ts`.\nSetting `offsetInSeconds` to `120` sets the target segment number to 60 (`targetSegmentNumber = offsetInSeconds / segmentLength`). All segments before `segment_60.ts` are removed.\nEach affected manifest then contains `segment_60.ts` through `segment_80.ts`.\n\n*Note:* Do not set both `offsetInSeconds` and `residualPeriodInSeconds`.\n",
                               "format" : "double",
                               "type" : "number"
                             },
                             "manifestIds" : {
-                              "description" : "The ids of the manifests to update. If this property is not set, all manifests tied to the encoding are updated.",
+                              "description" : "The IDs of the manifests to update. If omitted, all supported manifests associated with the encoding are updated. HLS live manifests are supported. DASH live manifests require encoder version 2.235.0 or later.",
                               "items" : {
                                 "type" : "string"
                               },
