@@ -8541,6 +8541,58 @@
                       "required" : [ "properties" ]
                     }
                   }
+                },
+                "hdr10Plus" : {
+                  "type" : "object",
+                  "patternProperties" : {
+                    "^[A-Za-z0-9_-]+$" : {
+                      "type" : "object",
+                      "properties" : {
+                        "properties" : {
+                          "type" : "object",
+                          "title" : "Hdr10PlusInputStream",
+                          "properties" : {
+                            "name" : {
+                              "description" : "Name of the resource. Can be freely chosen by the user.",
+                              "type" : "string"
+                            },
+                            "description" : {
+                              "description" : "Description of the resource. Can be freely chosen by the user.",
+                              "type" : "string"
+                            },
+                            "customData" : {
+                              "type" : "object",
+                              "description" : "User-specific meta data. This can hold anything."
+                            },
+                            "inputId" : {
+                              "description" : "Id of input",
+                              "type" : "string"
+                            },
+                            "videoInputPath" : {
+                              "description" : "Path to the HDR10 input video file.",
+                              "type" : "string"
+                            },
+                            "metadataInputPath" : {
+                              "description" : "Path to the HDR10+ JSON metadata file.",
+                              "type" : "string"
+                            },
+                            "selectionMode" : {
+                              "description" : "Specifies the strategy for selecting a video stream from the input file. Only AUTO, POSITION_ABSOLUTE and VIDEO_RELATIVE are supported.",
+                              "enum" : [ "AUTO", "POSITION_ABSOLUTE", "VIDEO_RELATIVE", "AUDIO_RELATIVE", "SUBTITLE_RELATIVE" ],
+                              "type" : "string"
+                            },
+                            "position" : {
+                              "description" : "Position of the video stream to be selected from the input file (zero-based). Must not be set in combination with selectionMode 'AUTO', defaults to 0 for any other selectionMode. Only used with selectionMode POSITION_ABSOLUTE and VIDEO_RELATIVE.",
+                              "minimum" : 0,
+                              "type" : "integer"
+                            }
+                          },
+                          "required" : [ "inputId", "metadataInputPath", "videoInputPath" ]
+                        }
+                      },
+                      "required" : [ "properties" ]
+                    }
+                  }
                 }
               }
             },
@@ -15379,6 +15431,7 @@
                                   "type" : "string"
                                 },
                                 "outputs" : {
+                                  "description" : "Output destinations in which the generated asset-description JSON files are stored.",
                                   "items" : {
                                     "type" : "object",
                                     "title" : "EncodingOutput",
