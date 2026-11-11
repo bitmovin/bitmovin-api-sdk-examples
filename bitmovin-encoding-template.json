@@ -1905,7 +1905,7 @@
                 "properties" : {
                   "type" : "object",
                   "title" : "MoqOutput",
-                  "description" : "Media over QUIC (MoQ) output. Publishes the live encoding to a MoQ relay over MoQ Transport (MoQT).",
+                  "description" : "Media over QUIC (MoQ) output. Publishes the live encoding to a MoQ relay over MoQ Transport (MoQT).\n\n**BETA:** MoQ output is a beta feature. MoQ Transport is still an evolving IETF draft and relay implementations differ, so it might not work with some MoQ relays. It has been tested with `DRAFT_16` and the Cloudflare MoQ relay.\n",
                   "properties" : {
                     "name" : {
                       "description" : "Name of the resource. Can be freely chosen by the user.",
@@ -15321,7 +15321,7 @@
                               "type" : "number"
                             },
                             "targetQualityCrf" : {
-                              "description" : "Desired target quality of the highest representation expressed as a CRF value. If not set, it is derived from the content, starting from 34 for SDR content of at most FullHD and at most 30 fps; HFR (more than 30 fps) reduces it by 2; a resolution above FullHD reduces it by 2; HDR10 or HLG reduces it by 2; and Dolby Vision reduces it by 4 instead of the HDR10 reduction. These reductions are cumulative, so the lowest derived value is 26, for Dolby Vision 4K at 60 fps.",
+                              "description" : "Desired target quality of the highest representation expressed as a CRF value. If not set, it is derived from the content, starting from 34 for 8 bit SDR content of at most FullHD and at most 30 fps; HFR (more than 30 fps) reduces it by 2; a resolution above FullHD reduces it by 2; a high bit depth output (a 10 or 12 bit pixel format, HDR10, HLG or Dolby Vision) reduces it by 2; and Dolby Vision reduces it by another 2. These reductions are cumulative, so the lowest derived value is 26, for Dolby Vision 4K at 60 fps.",
                               "format" : "double",
                               "type" : "number"
                             }
@@ -15427,7 +15427,7 @@
                               "description" : "AI scene analysis will create an asset description file.\n",
                               "properties" : {
                                 "filename" : {
-                                  "description" : "Name of the output json file",
+                                  "description" : "Name of the output JSON file. The [asset-description JSON Schema](https://storage.googleapis.com/ai-scene-analysis-demo-content/schemas/asset-description.schema.json) describes the structure of newly written original and translated files.",
                                   "type" : "string"
                                 },
                                 "outputs" : {
