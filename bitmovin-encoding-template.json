@@ -8551,6 +8551,7 @@
                         "properties" : {
                           "type" : "object",
                           "title" : "Hdr10PlusInputStream",
+                          "description" : "**BETA:** HDR10+ support is a beta feature. Hdr10PlusInputStream bundles an input video with a JSON file containing HDR10+ metadata.\n",
                           "properties" : {
                             "name" : {
                               "description" : "Name of the resource. Can be freely chosen by the user.",
@@ -9228,6 +9229,20 @@
                           "type" : "object",
                           "description" : "Configuration for AI analysis of this live Encoding",
                           "properties" : {
+                            "clockSource" : {
+                              "description" : "HLS reader clock selection. Omission preserves automatic source program date time selection. EMBEDDED, or any non-null clockSource for an Encoding containing non-HLS inputs, is rejected with HTTP 400 before scheduling.",
+                              "enum" : [ "SYSTEM_CLOCK", "EMBEDDED", "MANIFEST_WALL_CLOCK" ],
+                              "type" : "string"
+                            },
+                            "features" : {
+                              "type" : "object",
+                              "properties" : {
+                                "skipAdvertisements" : {
+                                  "type" : "boolean",
+                                  "description" : "Skip analysis of identified advertisements."
+                                }
+                              }
+                            },
                             "analysisId" : {
                               "description" : "ID of the Live Analysis resource",
                               "type" : "string"
@@ -9659,6 +9674,20 @@
                               "type" : "object",
                               "description" : "Configuration for AI analysis of this live Encoding",
                               "properties" : {
+                                "clockSource" : {
+                                  "description" : "HLS reader clock selection. Omission preserves automatic source program date time selection. EMBEDDED, or any non-null clockSource for an Encoding containing non-HLS inputs, is rejected with HTTP 400 before scheduling.",
+                                  "enum" : [ "SYSTEM_CLOCK", "EMBEDDED", "MANIFEST_WALL_CLOCK" ],
+                                  "type" : "string"
+                                },
+                                "features" : {
+                                  "type" : "object",
+                                  "properties" : {
+                                    "skipAdvertisements" : {
+                                      "type" : "boolean",
+                                      "description" : "Skip analysis of identified advertisements."
+                                    }
+                                  }
+                                },
                                 "analysisId" : {
                                   "description" : "ID of the Live Analysis resource",
                                   "type" : "string"
